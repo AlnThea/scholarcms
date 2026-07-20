@@ -28,3 +28,12 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 - **Penerapan Struktur Enterprise `src/`**: Pengelompokan terstruktur untuk `src/app/`, `src/components/`, `src/services/`, `src/lib/`, dan `src/constants/`.
 - **Pembersihan Root Folder**: Folder duplikat lama telah dibersihkan sehingga direktori utama 100% rapi.
 - **Dokumentasi Lengkap**: Penambahan dan penyempurnaan file `STRUCTURE.md`, `INSTALL.md`, `DATABASE.md`, `DEVOPS.md`, dan `CHANGELOG.md`.
+
+## [v1.2.0] - 2026-07-20
+
+### 🔧 Perubahan & Fixes
+- Migrated all `/admin/*` routes to `/dashboard/*` using redirect components.
+- Updated navigation links, role‑based menu, and layout to reference `/dashboard` paths.
+- Added `src/app/dashboard/` folder with primary UI; `src/app/admin/` now only contains redirect stubs.
+- Updated `documentation/STRUCTURE.md` and this `CHANGELOG.md` to reflect the new route structure.
+- Ensured build passes without errors.

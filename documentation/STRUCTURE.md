@@ -10,7 +10,8 @@ Panduan arsitektur folder dan struktur kode untuk **ScholarCMS** (WordPress-styl
 scholarcms/
 ├── src/                          # Direktori Utama Kode Sumber
 │   ├── app/                      # Next.js 14 App Router (Routing & Pages)
-│   │   ├── admin/                # Core Dashboard Admin WordPress
+│   │   ├── admin/                # Legacy admin folder – contains only redirect components to `/dashboard/*`
+│   │   ├── dashboard/            # Primary dashboard UI (admin, writer, user) – replaces old admin routes
 │   │   │   ├── categories/       # Kelola Kategori & Warna Aksen (page.jsx)
 │   │   │   ├── comments/         # Moderasi Komentar Pengunjung (page.jsx)
 │   │   │   ├── posts/            # Tabel Postingan & Gutenberg Editor
@@ -19,8 +20,8 @@ scholarcms/
 │   │   │   │   └── page.jsx      # Daftar Semua Artikel (Filtered by Role)
 │   │   │   ├── settings/         # Status Koneksi DB & Reset Demo (page.jsx)
 │   │   │   ├── users/            # Kelola Pengguna & Peran RBAC (page.jsx)
-│   │   │   ├── layout.jsx        # Shell Layout Admin (Role Switcher Toolbar & Sidebar)
-│   │   │   └── page.jsx          # Admin Analytics Dashboard Overview
+│   │   │   ├── layout.jsx        # Shell Layout Dashboard (Role Switcher Toolbar & Sidebar)
+│   │   │   └── page.jsx          # Dashboard Overview (was Admin Analytics)
 │   │   ├── login/                # Halaman Login Autentikasi (page.jsx)
 │   │   ├── register/             # Halaman Pendaftaran Akun (page.jsx)
 │   │   ├── post/[slug]/          # Reader Single Article View Dynamic Route (page.jsx)

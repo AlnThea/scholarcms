@@ -7,7 +7,8 @@ import {
 // Clean up any stale demo data in localStorage on app load (if present).
 if (typeof window !== 'undefined') {
   Object.keys(localStorage).forEach(k => {
-    if (k.startsWith('scholarcms_')) {
+    // Preserve theme setting
+    if (k.startsWith('scholarcms_') && k !== 'scholarcms_theme') {
       localStorage.removeItem(k);
     }
   });

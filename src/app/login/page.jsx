@@ -25,7 +25,7 @@ export default function LoginPage() {
 
     if (res.success) {
       if (res.user?.role === 'admin' || res.user?.role === 'writer') {
-        router.push('/admin');
+        router.push('/dashboard');
       } else {
         router.push('/');
       }
