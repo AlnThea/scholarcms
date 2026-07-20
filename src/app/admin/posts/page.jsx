@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 import { dbService } from '@/services/dbService';
 import { PlusCircle, Search, Trash2, Edit3, Eye } from 'lucide-react';
 
 export default function AdminPostsList() {
+  const { user, role } = useAuth();
   const [posts, setPosts] = useState([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -13,11 +15,17 @@ export default function AdminPostsList() {
 
   useEffect(() => {
     loadPosts();
-  }, []);
+  }, [role, user]);
 
   async function loadPosts() {
     setLoading(true);
-    const data = await dbService.getPosts({ status: 'all' });
+    let data = await dbService.getPosts({ status: 'all' });
+    // If writer role, filter or label writer posts
+    if (role === 'writer' && user) {
+      data = data.filter(p => p.author?.name?.toLowerCase().includes('writer') || p.author?.name === user.name || p.author?.email === user.email);
+      // If writer has no post yet, fallback to sample posts
+      if (data.length === 0) data = await dbService.getPosts({ status: 'all' });
+    }
     setPosts(data);
     setLoading(false);
   }
@@ -40,8 +48,12 @@ export default function AdminPostsList() {
       
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-[var(--text-main)]">Semua Postingan</h2>
-          <p className="text-xs text-[var(--text-muted)]">Kelola seluruh artikel, draft, dan status publikasi blog Anda.</p>
+          <h2 className="text-2xl font-extrabold text-[var(--text-main)]">
+            {role === 'writer' ? 'Postingan Penulis (Saya)' : 'Semua Postingan'}
+          </h2>
+          <p className="text-xs text-[var(--text-muted)]">
+            {role === 'writer' ? 'Kelola draft dan postingan yang Anda tulis.' : 'Kelola seluruh artikel, draft, dan status publikasi blog.'}
+          </p>
         </div>
         <Link
           href="/admin/posts/new"

@@ -1,8 +1,24 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --color-brand-50: #f0f4ff;
+  --color-brand-100: #e0e9fe;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-900: #1e3a8a;
+  --color-wp-dark: #1e1e1e;
+  --color-wp-sidebar: #1d2327;
+  --color-wp-accent: #2271b1;
+  --color-wp-hover: #135e96;
+  --color-wp-border: #c3c4c7;
+  --color-wp-bg: #f0f0f1;
+}
 
 :root {
   --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;

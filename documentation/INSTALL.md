@@ -55,5 +55,19 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=1234567890
 NEXT_PUBLIC_FIREBASE_APP_ID=1:1234567890:web:abcdef123456
 ```
 
-### 3. Jalankan Ulang Server
-Jalankan perintah `npm run dev`. Buka menu **Pengaturan CMS** di `/admin/settings` untuk mengonfirmasi status database telah berubah menjadi **"Connected to Firebase Firestore"**.
+### 3. Aktifkan Firebase Authentication & Firestore Rules
+1. Di Firebase Console, masuk ke menu **Build** -> **Authentication** -> **Sign-in method**, lalu aktifkan provider **Email/Password**.
+2. Masuk ke **Firestore Database** -> **Rules**, dan ganti aturan dengan:
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+```
+
+### 4. Jalankan Ulang Server
+Jalankan perintah `npm run dev`. Akun pertama yang Anda daftarkan di `/register` akan secara otomatis mendapatkan peran **Admin 👑**.

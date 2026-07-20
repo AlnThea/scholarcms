@@ -1,28 +1,25 @@
 import { isFirebaseConfigured, db } from '@/lib/firebase';
 import { INITIAL_CATEGORIES, INITIAL_POSTS, INITIAL_COMMENTS } from '@/constants/mockData';
-import { 
-  collection, doc, getDocs, getDoc, addDoc, setDoc, deleteDoc, updateDoc, query, where, orderBy, increment 
+import {
+  collection, doc, getDocs, getDoc, addDoc, setDoc, deleteDoc, updateDoc, query, where, orderBy, increment
 } from 'firebase/firestore';
 
-// LocalStorage Helper for Demo Mode
+// Clean up any stale demo data in localStorage on app load (if present).
+if (typeof window !== 'undefined') {
+  Object.keys(localStorage).forEach(k => {
+    if (k.startsWith('scholarcms_')) {
+      localStorage.removeItem(k);
+    }
+  });
+}
+
+// LocalStorage Helper for Demo Mode (disabled)
 function getLocal(key, defaultData) {
-  if (typeof window === 'undefined') return defaultData;
-  const data = localStorage.getItem(`scholarcms_${key}`);
-  if (!data) {
-    localStorage.setItem(`scholarcms_${key}`, JSON.stringify(defaultData));
-    return defaultData;
-  }
-  try {
-    return JSON.parse(data);
-  } catch (e) {
-    return defaultData;
-  }
+  return defaultData;
 }
 
 function setLocal(key, data) {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(`scholarcms_${key}`, JSON.stringify(data));
-  }
+  // No-op – demo localStorage disabled.
 }
 
 // PUBLIC API DATA SERVICE
@@ -323,10 +320,7 @@ export const dbService = {
   },
 
   async resetDemoData() {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('scholarcms_posts');
-      localStorage.removeItem('scholarcms_categories');
-      localStorage.removeItem('scholarcms_comments');
-    }
+    // Demo data reset is disabled because localStorage demo mode is turned off.
+    // Function retained for API compatibility.
   }
 };

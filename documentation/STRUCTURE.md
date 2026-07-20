@@ -1,6 +1,6 @@
 # Arsitektur & Struktur Proyek ScholarCMS
 
-Panduan arsitektur folder dan struktur kode untuk **ScholarCMS** (WordPress-style Blog Engine berbasis Next.js 14 App Router & Firebase).
+Panduan arsitektur folder dan struktur kode untuk **ScholarCMS** (WordPress-style Blog Engine berbasis Next.js 14 App Router, Firebase, & Role-Based Access Control).
 
 ---
 
@@ -16,30 +16,33 @@ scholarcms/
 │   │   │   ├── posts/            # Tabel Postingan & Gutenberg Editor
 │   │   │   │   ├── edit/[id]/    # Mode Edit Artikel Dynamic Route (page.jsx)
 │   │   │   │   ├── new/          # Mode Tambah Artikel Baru (page.jsx)
-│   │   │   │   └── page.jsx      # Daftar Semua Artikel
+│   │   │   │   └── page.jsx      # Daftar Semua Artikel (Filtered by Role)
 │   │   │   ├── settings/         # Status Koneksi DB & Reset Demo (page.jsx)
-│   │   │   ├── layout.jsx        # Shell Layout Admin (WordPress Dark Sidebar)
+│   │   │   ├── users/            # Kelola Pengguna & Peran RBAC (page.jsx)
+│   │   │   ├── layout.jsx        # Shell Layout Admin (Role Switcher Toolbar & Sidebar)
 │   │   │   └── page.jsx          # Admin Analytics Dashboard Overview
+│   │   ├── login/                # Halaman Login Autentikasi (page.jsx)
+│   │   ├── register/             # Halaman Pendaftaran Akun (page.jsx)
 │   │   ├── post/[slug]/          # Reader Single Article View Dynamic Route (page.jsx)
 │   │   ├── globals.css           # Styling System, CSS Tokens, & Gutenberg Block Typo
-│   │   ├── layout.jsx            # Root HTML & Metadata SEO Layout
+│   │   ├── layout.jsx            # Root HTML, AuthProvider & Metadata SEO Layout
 │   │   └── page.jsx              # Blog Homepage Feed & Hero Featured Post
 │   │
 │   ├── components/               # Komponen UI Reusable
-│   │   ├── admin/                # Komponen Khusus Admin
-│   │   │   └── GutenbergEditor.jsx # Visual Gutenberg Block Editor Engine
-│   │   ├── blog/                 # Komponen Khusus Pembaca Blog
-│   │   │   ├── HeroFeatured.jsx  # Hero Banner Artikel Utama
-│   │   │   └── PostCard.jsx      # Kartu Postingan Blog
-│   │   └── layout/               # Komponen Layout Shell
-│   │       ├── Navbar.jsx        # Header Navigasi & Dark Mode Toggle
-│   │       └── Footer.jsx        # Footer Informasi Proyek
+│   │   ├── admin/                # Komponen Khusus Admin (GutenbergEditor.jsx)
+│   │   ├── blog/                 # Komponen Khusus Pembaca Blog (HeroFeatured.jsx, PostCard.jsx)
+│   │   └── layout/               # Komponen Layout Shell (Navbar.jsx, Footer.jsx)
+│   │
+│   ├── context/                  # Context State Management
+│   │   ├── AuthContext.jsx       # Auth Provider (currentUser, role, login, register, logout, switchRole)
+│   │   └── ThemeContext.jsx      # Theme Provider (isDark, toggleTheme, persistent localStorage)
 │   │
 │   ├── services/                 # Abstraksi Layer Bisnis & Data Service
+│   │   ├── authService.js        # Autentikasi Firebase Auth & Auto Admin First User
 │   │   └── dbService.js          # Unified CRUD API (Firebase + Local Storage Fallback)
 │   │
 │   ├── lib/                      # SDK Configurations
-│   │   └── firebase.js           # Firestore & Auth SDK Auto-Detector
+│   │   └── firebase.js           # Firestore, Auth, & Storage SDK Auto-Detector
 │   │
 │   └── constants/                # Data Seeds & Konstanta
 │       └── mockData.js           # Initial Categories, Posts, & Comments
@@ -47,31 +50,21 @@ scholarcms/
 ├── documentation/                # Dokumentasi Teknis Proyek
 │   ├── STRUCTURE.md              # Penjelasan struktur direktori (File Ini)
 │   ├── INSTALL.md                # Panduan pengoperasian & integrasi Firebase
-│   ├── DATABASE.md               # Spesifikasi skema Firestore DB
+│   ├── DATABASE.md               # Spesifikasi skema Firestore DB & Users collection
 │   ├── DEVOPS.md                 # Panduan deployment Vercel / Netlify
 │   └── CHANGELOG.md              # Riwayat pembaruan & rilis kode
 │
 ├── .env                          # Variabel Lingkungan / Kredensial Firebase
 ├── jsconfig.json                 # Path Aliases (@/* -> ./src/*)
 ├── next.config.js                # Konfigurasi Bundler Next.js
-├── tailwind.config.js            # Konfigurasi Utility Styling & Theme
-└── package.json                  # Manajemen Dependensi Proyek
+├── postcss.config.js             # Konfigurasi Plugin @tailwindcss/postcss (Tailwind v4)
+└── package.json                  # Manajemen Dependensi Proyek (Tailwind CSS v4.3.3)
 ```
 
 ---
 
-## 🛠️ Penjelasan Modul Utama
+## 🔐 Sistem Role-Based Access Control (RBAC)
 
-### 1. `src/app/`
-Menggunakan **Next.js 14 App Router**. Semua rute berbasis struktur folder:
-- `/` (`src/app/page.jsx`): Beranda utama blog dengan feed artikel, search filter, dan sidebar populer.
-- `/post/[slug]` (`src/app/post/[slug]/page.jsx`): Halaman pembaca artikel dengan Gutenberg block rendering dan sistem komentar.
-- `/admin` (`src/app/admin/page.jsx`): Dashboard admin dengan visual statistik analitik.
-
-### 2. `src/services/dbService.js`
-Menyediakan interface terpadu (*Unified API Interface*) untuk melakukan operasi CRUD (Create, Read, Update, Delete). Service ini mampu secara otomatis mendeteksi status `.env`:
-- Jika kredensial Firebase valid -> Terhubung langsung ke **Firebase Firestore Cloud DB**.
-- Jika kredensial placeholder -> Berjalan pada **Demo Local Storage Mode**.
-
-### 3. `src/components/admin/GutenbergEditor.jsx`
-Editor visual berbasis blok ala WordPress Gutenberg. Mendukung penambahan, pengeditan, penyusunan ulang (*drag/reorder*), dan penataan blok paragraf, heading H2/H3, blockquote, code snippet, serta callout box.
+- **Admin 👑**: Akses penuh ke seluruh menu (`/admin`, `/admin/posts`, `/admin/categories`, `/admin/comments`, `/admin/users`, `/admin/settings`).
+- **Writer ✍️**: Akses mengelola artikel milik penulis tersebut (`/admin`, `/admin/posts`, `/admin/posts/new`, `/admin/comments`).
+- **User 👤**: Pengunjung terdaftar dengan hak membaca artikel, mengunggah komentar, dan melihat profil.

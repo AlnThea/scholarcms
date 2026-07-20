@@ -6,7 +6,21 @@ Spesifikasi model data dan skema koleksi untuk **ScholarCMS** pada database Goog
 
 ## 🗄️ Koleksi Utama Firestore
 
-### 1. Koleksi: `posts`
+### 1. Koleksi: `users`
+Menyimpan profil pengguna terdaftar dan peran hak akses (*Role-Based Access Control*).
+
+| Field | Tipe Data | Keterangan |
+| :--- | :--- | :--- |
+| `id` / `uid` | String | Unique User ID (Firebase Auth UID atau local ID) |
+| `name` | String | Nama lengkap pengguna |
+| `email` | String | Alamat email terdaftar |
+| `role` | String | `"admin"`, `"writer"`, atau `"user"` |
+| `avatar` | String (URL) | Foto profil pengguna |
+| `createdAt` | String (ISO 8601) | Timestamp tanggal pendaftaran |
+
+---
+
+### 2. Koleksi: `posts`
 Menyimpan seluruh artikel blog yang dibuat melalui Editor Gutenberg.
 
 | Field | Tipe Data | Keterangan |
@@ -25,16 +39,9 @@ Menyimpan seluruh artikel blog yang dibuat melalui Editor Gutenberg.
 | `author` | Object | `{ name, avatar, role }` |
 | `blocks` | Array of Objects | Array blok visual Gutenberg (`[{ id, type, content }]`) |
 
-#### Struktur Tipe Blok Gutenberg (`blocks`):
-- `type: "paragraph"` -> `content`: Teks paragraf.
-- `type: "heading"` -> `content`: Teks judul sub-topik H2/H3.
-- `type: "quote"` -> `content`: Teks kutipan inspiratif.
-- `type: "code"` -> `content`: Potongan kode pemrograman.
-- `type: "callout"` -> `content`: Teks kotak catatan/peringatan.
-
 ---
 
-### 2. Koleksi: `categories`
+### 3. Koleksi: `categories`
 Menyimpan taksonomi topik kategori blog.
 
 | Field | Tipe Data | Keterangan |
@@ -47,7 +54,7 @@ Menyimpan taksonomi topik kategori blog.
 
 ---
 
-### 3. Koleksi: `comments`
+### 4. Koleksi: `comments`
 Menyimpan komentar pengunjung pada artikel tertentu.
 
 | Field | Tipe Data | Keterangan |

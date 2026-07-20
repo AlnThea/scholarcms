@@ -2,6 +2,15 @@
 
 Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 
+## [v1.1.0] - 2026-07-20
+
+### 🚀 Peningkatan & Fitur Baru
+- **Upgrade Tailwind CSS v4.3.3**: Pembaruan sistem styling ke Tailwind CSS v4 menggunakan `@tailwindcss/postcss` dan arsitektur CSS `@import "tailwindcss";`.
+- **Sistem Tema Terpusat (`ThemeContext`)**: Sakelar Dark/Light mode yang tersimpan secara permanen di `localStorage` (`scholarcms_theme`) dengan pencegahan berkedip (*FOUC*) saat *refresh*.
+- **Pengamanan Rute Admin (Auth Guard)**: Rute `/admin` terlindungi secara ketat. Pengunjung tanpa sesi akan otomatis dialihkan ke halaman `/login`.
+- **Otomatisasi Role Admin Pertama**: Pengguna pertama yang mendaftar pada database Firestore otomatis menjadi `admin` 👑, sedangkan pendaftaran berikutnya menjadi `user` 👤.
+- **Pembersihan Akun Dummy**: Menghapus tombol *Demo Login* dan *fallback Administrator* lokal untuk menjamin keamanan autentikasi murni Firebase Auth.
+
 ---
 
 ## [v1.0.0] - 2026-07-20

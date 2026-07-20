@@ -1,19 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { Search, LayoutDashboard, Sun, Moon, Feather } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
+import { Search, LayoutDashboard, Sun, Moon, Feather, LogIn, UserPlus, LogOut, User, ShieldCheck, PenTool } from 'lucide-react';
 
 export default function Navbar({ onSearch, searchQuery }) {
-  const [isDark, setIsDark] = useState(true);
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDark]);
+  const { isDark, toggleTheme } = useTheme();
+  const { user, role, logout } = useAuth();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 glass-header border-b border-[var(--border-color)] transition-colors">
@@ -52,20 +48,79 @@ export default function Navbar({ onSearch, searchQuery }) {
         {/* Action Controls */}
         <div className="flex items-center gap-2 sm:gap-3">
           <button
-            onClick={() => setIsDark(!isDark)}
+            onClick={toggleTheme}
             className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
-            title="Toggle Dark/Light Mode"
+            title={isDark ? "Beralih ke Light Mode" : "Beralih ke Dark Mode"}
           >
             {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
           </button>
 
-          <Link
-            href="/admin"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium text-sm shadow-md shadow-blue-500/20 hover:shadow-lg transition-all"
-          >
-            <LayoutDashboard className="w-4 h-4" />
-            <span className="hidden sm:inline">WordPress Admin</span>
-          </Link>
+          {/* User Auth Dropdown */}
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-2.5 p-1.5 pr-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] hover:border-blue-500/50 transition-all"
+              >
+                <img
+                  src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'}
+                  alt={user.name}
+                  className="w-8 h-8 rounded-lg object-cover"
+                />
+                <div className="text-left hidden md:block">
+                  <p className="text-xs font-bold text-[var(--text-main)] leading-tight">{user.name}</p>
+                  <p className="text-[10px] font-semibold text-blue-500 uppercase tracking-wider flex items-center gap-1">
+                    {role === 'admin' && <ShieldCheck className="w-3 h-3" />}
+                    {role === 'writer' && <PenTool className="w-3 h-3" />}
+                    {role === 'user' && <User className="w-3 h-3" />}
+                    {role}
+                  </p>
+                </div>
+              </button>
+
+              {userMenuOpen && (
+                <div className="absolute right-0 mt-2 w-56 rounded-2xl glass-panel shadow-2xl p-2 z-50 space-y-1 animate-fade-in border border-[var(--border-color)]">
+                  <div className="px-3 py-2 border-b border-[var(--border-color)]">
+                    <p className="text-xs font-bold text-[var(--text-main)] truncate">{user.name}</p>
+                    <p className="text-[11px] text-[var(--text-muted)] truncate">{user.email}</p>
+                  </div>
+
+                  {(role === 'admin' || role === 'writer') && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-[var(--text-main)] hover:bg-blue-600 hover:text-white transition-colors"
+                    >
+                      <LayoutDashboard className="w-4 h-4" /> WordPress Admin Panel
+                    </Link>
+                  )}
+
+                  <button
+                    onClick={() => { setUserMenuOpen(false); logout(); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-500 hover:bg-rose-500/10 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" /> Keluar (Logout)
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link
+                href="/login"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--bg-primary)] transition-all"
+              >
+                <LogIn className="w-4 h-4 text-blue-500" /> Masuk
+              </Link>
+              <Link
+                href="/register"
+                className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-all"
+              >
+                <UserPlus className="w-4 h-4" /> Daftar
+              </Link>
+            </div>
+          )}
+
         </div>
 
       </div>
