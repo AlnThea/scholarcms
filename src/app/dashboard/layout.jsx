@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import Navbar from '@/components/layout/Navbar';
 import Link from 'next/link';
+import { useMetaSidebar } from '@/context/MetaSidebarContext';
 import { usePathname, useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import { 
-  LayoutDashboard, FileText, PlusCircle, FolderTree, MessageSquare, 
+import {
+  LayoutDashboard, FileText, PlusCircle, FolderTree, MessageSquare,
   Settings, ExternalLink, Feather, Menu, X, Users, LogOut, Sun, Moon,
   ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
@@ -17,6 +19,7 @@ export default function DashboardLayout({ children }) {
   const router = useRouter();
   const { user, role, loading, logout } = useAuth();
   const { isDark, toggleTheme, mounted } = useTheme();
+  const { openSidebar, title, setTitle, slug, setSlug } = useMetaSidebar();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const isRealDB = dbService.isRealFirebase();
@@ -69,12 +72,11 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] flex">
-      
+
       {/* WordPress-style Dark Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 bg-[#1d2327] text-gray-300 flex flex-col justify-between transition-all duration-300 ${
-        isCollapsed ? 'w-16' : 'w-64'
-      } ${mobileOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0'}`}>
-        
+      <aside className={`fixed inset-y-0 left-0 z-50 bg-[#1d2327] text-gray-300 flex flex-col justify-between transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'
+        } ${mobileOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0'}`}>
+
         <div>
           {/* Logo Header & Collapse Toggle */}
           <div className="h-16 px-4 bg-[#101517] flex items-center justify-between border-b border-gray-800">
@@ -89,7 +91,7 @@ export default function DashboardLayout({ children }) {
                 </div>
               )}
             </Link>
-            
+
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
@@ -136,13 +138,11 @@ export default function DashboardLayout({ children }) {
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
                   title={isCollapsed ? item.label : undefined}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                    isCollapsed ? 'justify-center' : ''
-                  } ${
-                    isActive
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isCollapsed ? 'justify-center' : ''
+                    } ${isActive
                       ? 'bg-[#2271b1] text-white shadow-md font-semibold'
                       : 'hover:bg-[#2c3338] text-gray-300 hover:text-white'
-                  }`}
+                    }`}
                 >
                   <Icon className="w-4 h-4 shrink-0" />
                   {!isCollapsed && <span>{item.label}</span>}
@@ -154,10 +154,9 @@ export default function DashboardLayout({ children }) {
 
         {/* User Profile & View Public Blog */}
         <div className="p-3 border-t border-gray-800 bg-[#101517] space-y-2">
-          
-          <div className={`flex items-center justify-between p-1.5 rounded-lg bg-gray-900/80 border border-gray-800 ${
-            isCollapsed ? 'justify-center' : ''
-          }`}>
+
+          <div className={`flex items-center justify-between p-1.5 rounded-lg bg-gray-900/80 border border-gray-800 ${isCollapsed ? 'justify-center' : ''
+            }`}>
             <div className="flex items-center gap-2 min-w-0">
               <img
                 src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'}
@@ -196,10 +195,9 @@ export default function DashboardLayout({ children }) {
       </aside>
 
       {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
-        isCollapsed ? 'lg:pl-16' : 'lg:pl-64'
-      }`}>
-        
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${isCollapsed ? 'lg:pl-16' : 'lg:pl-64'
+        }`}>
+
         {/* Top Header Bar */}
         <header className="h-16 bg-[var(--bg-surface)] border-b border-[var(--border-color)] px-4 sm:px-8 flex items-center justify-between sticky top-0 z-40">
           <div className="flex items-center gap-3">
@@ -215,7 +213,27 @@ export default function DashboardLayout({ children }) {
             </button>
             <h1 className="text-base font-bold text-[var(--text-main)] capitalize">
               {pathname === '/dashboard' ? 'Dashboard Overview' : pathname.split('/').pop()?.replace('-', ' ') ?? 'Dashboard'}
+
             </h1>
+            {pathname.startsWith('/dashboard/posts') && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Judul artikel..."
+                  value={title}
+                  onChange={(e) => {
+                      const val = e.target.value;
+                      setTitle(val);
+                      // Always generate slug from title
+                      const generatedSlug = val.toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/(^-|-$)+/g, '');
+                      setSlug(generatedSlug);
+                    }}
+                  className="flex-1 mt-1 ml-4 pl-0 text-2xl sm:text-1xl font-extrabold bg-transparent text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none border-b border-transparent focus:border-blue-500 pb-1 transition-all"
+                />
+              </>
+            )}
           </div>
 
           {/* Theme Switcher */}
@@ -230,6 +248,14 @@ export default function DashboardLayout({ children }) {
               ) : (
                 <Sun className="w-4 h-4 text-amber-400" />
               )}
+            </button>
+            {/* Meta Sidebar Toggle */}
+            <button
+              onClick={openSidebar}
+              className="p-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
+              title="Buka Meta Sidebar"
+            >
+              <Settings className="w-4 h-4" />
             </button>
           </div>
         </header>

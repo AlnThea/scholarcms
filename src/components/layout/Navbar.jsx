@@ -6,12 +6,14 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Search, LayoutDashboard, Sun, Moon, Feather, LogIn, UserPlus, LogOut, User, ShieldCheck, PenTool, Settings } from 'lucide-react';
 import { useMetaSidebar } from '@/context/MetaSidebarContext';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar({ onSearch, searchQuery }) {
   const { isDark, toggleTheme, mounted } = useTheme();
   const { user, role, logout } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { openSidebar } = useMetaSidebar();
+  // const pathname = usePathname(); // not needed in Navbar
 
   return (
     <header className="sticky top-0 z-50 glass-header border-b border-[var(--border-color)] transition-colors">
@@ -32,12 +34,7 @@ export default function Navbar({ onSearch, searchQuery }) {
             <p className="text-[11px] text-[var(--text-muted)] hidden sm:block">Modern WordPress Engine</p>
           </div>
         </Link>
-        {/* Show article title when editing */}
-        {title && (
-          <div className="hidden md:flex items-center ml-4">
-            <span className="text-sm font-medium text-[var(--text-main)]">📝 {title}</span>
-          </div>
-        )}
+{/* Title input moved to dashboard layout – removed from global Navbar */}
 
         {/* Search Bar */}
         <div className="flex-1 max-w-md mx-4">

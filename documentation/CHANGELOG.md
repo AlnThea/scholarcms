@@ -37,3 +37,10 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 - Added `src/app/dashboard/` folder with primary UI; `src/app/admin/` now only contains redirect stubs.
 - Updated `documentation/STRUCTURE.md` and this `CHANGELOG.md` to reflect the new route structure.
 - Ensured build passes without errors.
+# v1.2.1 - 2026-07-21
+
+### 🛠️ Perbaikan & Penyempurnaan
+- **Sinkronisasi Slug pada Dashboard**: Memperbaharui input judul di `src/app/dashboard/layout.jsx` sehingga slug selalu dihasilkan secara otomatis pada setiap perubahan judul, bukan hanya ketika slug kosong.
+- **Tampilan Slug di TiptapEditor**: Mengubah tampilan slug menjadi ekspresi JSX dinamis `{`/post/${slug || 'judul-artikel'}`}` di `src/components/admin/TiptapEditor.jsx` agar selalu menampilkan nilai slug terkini.
+- **Dokumentasi**: Memperbarui `CHANGELOG.md` dengan entri ini serta menyesuaikan referensi di dokumentasi terkait.
+

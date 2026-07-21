@@ -13,10 +13,11 @@ import {
   Bold, Italic, Strikethrough, Code, Heading, List, ListOrdered, Quote, Undo, Redo
 } from 'lucide-react';
 import { dbService } from '@/services/dbService';
+import { useMetaSidebar } from '@/context/MetaSidebarContext';
 
 export default function TiptapEditor({ initialPost, onSave, saving, backLink = '/dashboard/posts' }) {
-  const [title, setTitle] = useState(initialPost?.title || '');
-  const [slug, setSlug] = useState(initialPost?.slug || '');
+  const { title, setTitle, slug, setSlug } = useMetaSidebar();
+  // slug and title are managed via MetaSidebarContext
   const [excerpt, setExcerpt] = useState(initialPost?.excerpt || '');
   const [category, setCategory] = useState(initialPost?.category || 'Web Development');
   const [tags, setTags] = useState(Array.isArray(initialPost?.tags) ? initialPost.tags.join(', ') : (initialPost?.tags || 'Next.js, React'));
@@ -46,6 +47,14 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
     }
     loadCats();
   }, []);
+
+  // Initialize title and slug from initialPost if editing
+  useEffect(() => {
+    if (initialPost) {
+      setTitle(initialPost.title || '');
+      setSlug(initialPost.slug || '');
+    }
+  }, [initialPost]);
 
   const editor = useEditor({
     extensions: [
@@ -206,19 +215,12 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
 
           {/* Title & Slug */}
           <div className="space-y-3">
-            <input
-              type="text"
-              required
-              placeholder="Judul Artikel Blog..."
-              value={title}
-              onChange={handleTitleChange}
-              className="w-full text-2xl sm:text-3xl font-extrabold bg-transparent text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none border-b border-transparent focus:border-blue-500 pb-2 transition-all"
-            />
+
 
             <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
               <span className="font-semibold">Permalink Slug:</span>
               <span className="font-mono bg-[var(--bg-primary)] px-2 py-0.5 rounded border border-[var(--border-color)] text-blue-500">
-                /post/{slug || 'judul-artikel'}
+                {`/post/${slug || 'judul-artikel'}`}
               </span>
             </div>
           </div>

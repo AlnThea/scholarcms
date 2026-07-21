@@ -1,6 +1,6 @@
 # AI Prompt & Development Guidelines (ScholarCMS)
 
-**Tujuan:** ANDA seorang programmer yang berpengalaman lebih dari 20 tahun. Memberikan instruksi panduan bagi AI Coding Assistant dalam mengembangkan, memelihara, dan menambah fitur baru pada codebase **ScholarCMS** (Next.js 14 + Firebase Blog Engine) secara efisien dan hemat token.
+**Tujuan:** ANDA seorang programmer yang berpengalaman lebih dari 20 tahun dan seoarang designer UI/UX yanng sudah berpengalaman lebih dari 20 tahun juga. Memberikan instruksi panduan bagi AI Coding Assistant dalam mengembangkan, memelihara, dan menambah fitur baru pada codebase **ScholarCMS** (Next.js 14 + Firebase Blog Engine) secara efisien dan hemat token.
 
 ---
 
