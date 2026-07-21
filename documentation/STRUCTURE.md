@@ -1,4 +1,33 @@
 # Arsitektur & Struktur Proyek ScholarCMS
+# Arsitektur & Struktur Proyek ScholarCMS
+
+## 📦 Ringkasan Proyek Saat Ini
+
+Proyek **ScholarCMS** adalah mesin blog berbasis **Next.js 14 App Router**, menggunakan **Firebase Firestore** untuk data dan **Role‑Based Access Control (RBAC)**. Berikut adalah gambaran singkat struktur direktori utama (diperbarui pada 2026‑07‑21):
+
+```text
+scholarcms/
+├─ src/
+│  ├─ app/
+│  │  ├─ dashboard/
+│  │  ├─ login/
+│  │  ├─ register/
+│  │  ├─ post/
+│  │  ├─ globals.css
+│  │  ├─ layout.jsx
+│  │  └─ page.jsx
+│  ├─ components/
+│  ├─ context/
+│  ├─ lib/
+│  ├─ services/
+│  └─ constants/
+├─ documentation/
+├─ .env
+├─ next.config.js
+└─ package.json
+```
+
+*(Catatan: direktori `node_modules`, `.next`, dan `.git` tidak termasuk dalam dokumen karena bersifat otomatis.)*
 
 Panduan arsitektur folder dan struktur kode untuk **ScholarCMS** (WordPress-style Blog Engine berbasis Next.js 14 App Router, Firebase, & Role-Based Access Control).
 

@@ -1,5 +1,24 @@
 # Panduan Instalasi & Pengoperasian (ScholarCMS)
 
+## 📦 Ringkasan Proyek Saat Ini
+
+Proyek **ScholarCMS** adalah mesin blog berbasis **Next.js 14 App Router**, menggunakan **Firebase Firestore** untuk penyimpanan data dan mengimplementasikan **Role‑Based Access Control (RBAC)**. Dokumentasi ini mencakup struktur direktori, cara instalasi lokal, serta panduan deployment ke Vercel.
+
+```text
+scholarcms/
+├─ src/
+│  ├─ app/
+│  ├─ components/
+│  ├─ context/
+│  ├─ lib/
+│  ├─ services/
+│  └─ constants/
+├─ documentation/
+├─ .env
+├─ next.config.js
+└─ package.json
+```
+
 Panduan langkah demi langkah untuk menjalankan **ScholarCMS** di lingkungan lokal pengembangan (*local development*) maupun menghubungkannya ke cloud **Firebase Firestore**.
 
 ---
