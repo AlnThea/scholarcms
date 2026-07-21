@@ -61,7 +61,7 @@ export default function BlogHome() {
               Status Database: {dbStatus ? 'Connected to Firebase Firestore' : 'Demo Local Storage Mode (Ready out-of-the-box)'}
             </span>
           </div>
-          <Link href="/admin/settings" className="text-blue-500 hover:underline font-medium hidden sm:inline">
+          <Link href="/dashboard/settings" className="text-blue-500 hover:underline font-medium hidden sm:inline">
             {dbStatus ? 'Cek Konfigurasi' : 'Hubungkan Ke Firebase Firestore →'}
           </Link>
         </div>
@@ -180,10 +180,10 @@ export default function BlogHome() {
                   Buka Dashboard Admin ala WordPress untuk membuat postingan dengan Gutenberg-like block editor.
                 </p>
                 <Link
-                  href="/admin"
+                  href="/dashboard"
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-blue-900 text-xs font-bold hover:bg-blue-50 transition-colors shadow-lg"
                 >
-                  Buka Dashboard Admin →
+                  Buka Dashboard →
                 </Link>
               </div>
             </div>

@@ -5,7 +5,7 @@ import { authService } from '@/services/authService';
 import { useAuth } from '@/context/AuthContext';
 import { Users, Search, ShieldCheck, PenTool, User, Check, RefreshCw } from 'lucide-react';
 
-export default function AdminUsersPage() {
+export default function DashboardUsersPage() {
   const { role, refreshUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');

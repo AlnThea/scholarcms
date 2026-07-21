@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { dbService } from '@/services/dbService';
 import { Database, RefreshCw, CheckCircle, AlertTriangle } from 'lucide-react';
 
-export default function AdminSettings() {
+export default function DashboardSettingsPage() {
   const isFirebaseActive = dbService.isRealFirebase();
   const [resetMessage, setResetMessage] = useState(false);
 

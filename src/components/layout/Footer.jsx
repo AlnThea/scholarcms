@@ -27,9 +27,9 @@ export default function Footer() {
             <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-4">Navigasi Utama</h4>
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Beranda Blog</Link></li>
-              <li><Link href="/admin" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Dashboard Admin</Link></li>
-              <li><Link href="/admin/posts/new" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Tulis Artikel Baru</Link></li>
-              <li><Link href="/admin/categories" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Kelola Kategori</Link></li>
+              <li><Link href="/dashboard" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Dashboard</Link></li>
+              <li><Link href="/dashboard/posts/new" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Tulis Artikel Baru</Link></li>
+              <li><Link href="/dashboard/categories" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Kelola Kategori</Link></li>
             </ul>
           </div>
 

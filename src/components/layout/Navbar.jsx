@@ -7,7 +7,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { Search, LayoutDashboard, Sun, Moon, Feather, LogIn, UserPlus, LogOut, User, ShieldCheck, PenTool } from 'lucide-react';
 
 export default function Navbar({ onSearch, searchQuery }) {
-  const { isDark, toggleTheme } = useTheme();
+  const { isDark, toggleTheme, mounted } = useTheme();
   const { user, role, logout } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -50,9 +50,13 @@ export default function Navbar({ onSearch, searchQuery }) {
           <button
             onClick={toggleTheme}
             className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
-            title={isDark ? "Beralih ke Light Mode" : "Beralih ke Dark Mode"}
+            title={mounted ? (isDark ? "Beralih ke Light Mode" : "Beralih ke Dark Mode") : "Beralih Tema"}
           >
-            {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
+            {mounted && !isDark ? (
+              <Moon className="w-4 h-4 text-indigo-600" />
+            ) : (
+              <Sun className="w-4 h-4 text-amber-400" />
+            )}
           </button>
 
           {/* User Auth Dropdown */}
@@ -87,11 +91,11 @@ export default function Navbar({ onSearch, searchQuery }) {
 
                   {(role === 'admin' || role === 'writer') && (
                     <Link
-                      href="/admin"
+                      href="/dashboard"
                       onClick={() => setUserMenuOpen(false)}
                       className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-[var(--text-main)] hover:bg-blue-600 hover:text-white transition-colors"
                     >
-                      <LayoutDashboard className="w-4 h-4" /> WordPress Admin Panel
+                      <LayoutDashboard className="w-4 h-4" /> Dashboard Panel
                     </Link>
                   )}
 

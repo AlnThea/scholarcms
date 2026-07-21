@@ -28,7 +28,7 @@ export default function EditPostPage({ params }) {
     setSaving(true);
     await dbService.savePost(postData);
     setSaving(false);
-    router.push('/admin/posts');
+    router.push('/dashboard/posts');
   };
 
   if (loading) {
@@ -39,7 +39,7 @@ export default function EditPostPage({ params }) {
     return (
       <div className="py-20 text-center space-y-4">
         <p className="text-sm text-[var(--text-muted)]">Artikel tidak ditemukan.</p>
-        <Link href="/admin/posts" className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl">
+        <Link href="/dashboard/posts" className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl">
           Kembali ke Daftar Post
         </Link>
       </div>
@@ -49,7 +49,7 @@ export default function EditPostPage({ params }) {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
-        <Link href="/admin/posts" className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--text-muted)] hover:text-blue-500">
+        <Link href="/dashboard/posts" className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--text-muted)] hover:text-blue-500">
           <ArrowLeft className="w-4 h-4" /> Kembali ke Semua Postingan
         </Link>
         <span className="text-xs font-bold text-amber-500 uppercase tracking-widest bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">

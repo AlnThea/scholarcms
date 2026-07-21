@@ -25,9 +25,9 @@ export default function LoginPage() {
 
     if (res.success) {
       if (res.user?.role === 'admin' || res.user?.role === 'writer') {
-        router.push('/dashboard');
+        router.replace('/dashboard');
       } else {
-        router.push('/');
+        router.replace('/');
       }
     } else {
       setError(res.error || 'Gagal masuk. Periksa kembali email dan kata sandi Anda.');

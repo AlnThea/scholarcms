@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { dbService } from '@/services/dbService';
 import { PlusCircle, Search, Trash2, Edit3, Eye } from 'lucide-react';
 
-export default function AdminPostsList() {
+export default function DashboardPostsList() {
   const { user, role } = useAuth();
   const [posts, setPosts] = useState([]);
   const [search, setSearch] = useState('');
@@ -20,10 +20,8 @@ export default function AdminPostsList() {
   async function loadPosts() {
     setLoading(true);
     let data = await dbService.getPosts({ status: 'all' });
-    // If writer role, filter or label writer posts
     if (role === 'writer' && user) {
       data = data.filter(p => p.author?.name?.toLowerCase().includes('writer') || p.author?.name === user.name || p.author?.email === user.email);
-      // If writer has no post yet, fallback to sample posts
       if (data.length === 0) data = await dbService.getPosts({ status: 'all' });
     }
     setPosts(data);
@@ -56,7 +54,7 @@ export default function AdminPostsList() {
           </p>
         </div>
         <Link
-          href="/admin/posts/new"
+          href="/dashboard/posts/new"
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-md shadow-blue-500/20 transition-all"
         >
           <PlusCircle className="w-4 h-4" /> Tulis Post Baru
@@ -126,7 +124,7 @@ export default function AdminPostsList() {
                 {filteredPosts.map((post) => (
                   <tr key={post.id} className="hover:bg-[var(--bg-primary)]/50 transition-colors">
                     <td className="py-3.5 px-4 font-bold max-w-xs truncate">
-                      <Link href={`/admin/posts/edit/${post.id}`} className="hover:text-blue-500">
+                      <Link href={`/dashboard/posts/edit/${post.id}`} className="hover:text-blue-500">
                         {post.title}
                       </Link>
                     </td>
@@ -151,7 +149,7 @@ export default function AdminPostsList() {
                     </td>
                     <td className="py-3.5 px-4 text-right space-x-2">
                       <Link
-                        href={`/admin/posts/edit/${post.id}`}
+                        href={`/dashboard/posts/edit/${post.id}`}
                         className="p-1.5 rounded-lg inline-block text-blue-500 hover:bg-blue-500/10 transition-colors"
                         title="Edit Post"
                       >

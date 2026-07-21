@@ -15,13 +15,13 @@ export default function NewPostPage() {
     setSaving(true);
     await dbService.savePost(postData);
     setSaving(false);
-    router.push('/admin/posts');
+    router.push('/dashboard/posts');
   };
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
-        <Link href="/admin/posts" className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--text-muted)] hover:text-blue-500">
+        <Link href="/dashboard/posts" className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--text-muted)] hover:text-blue-500">
           <ArrowLeft className="w-4 h-4" /> Kembali ke Semua Postingan
         </Link>
         <span className="text-xs font-bold text-blue-500 uppercase tracking-widest bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
