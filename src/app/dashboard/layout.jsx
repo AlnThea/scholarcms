@@ -219,17 +219,17 @@ export default function DashboardLayout({ children }) {
               <>
                 <input
                   type="text"
-                  placeholder="Judul artikel..."
+                  placeholder="Judul Artikel Blog..."
                   value={title}
                   onChange={(e) => {
-                      const val = e.target.value;
-                      setTitle(val);
-                      // Always generate slug from title
-                      const generatedSlug = val.toLowerCase()
-                        .replace(/[^a-z0-9]+/g, '-')
-                        .replace(/(^-|-$)+/g, '');
-                      setSlug(generatedSlug);
-                    }}
+                    const val = e.target.value;
+                    setTitle(val);
+                    // Always generate slug from title
+                    const generatedSlug = val.toLowerCase()
+                      .replace(/[^a-z0-9]+/g, '-')
+                      .replace(/(^-|-$)+/g, '');
+                    setSlug(generatedSlug);
+                  }}
                   className="flex-1 mt-1 ml-4 pl-0 text-2xl sm:text-1xl font-extrabold bg-transparent text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none border-b border-transparent focus:border-blue-500 pb-1 transition-all"
                 />
               </>

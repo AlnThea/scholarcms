@@ -36,9 +36,8 @@ export default function RightMetaSidebar() {
 
   return (
     <div
-      className={`fixed inset-y-0 right-0 w-80 bg-[var(--bg-surface)] border-l border-[var(--border-color)] shadow-lg transform transition-transform duration-300 ${
-        isOpen ? 'translate-x-0' : 'translate-x-full'
-      } z-50`}
+      className={`fixed inset-y-0 right-0 w-80 bg-white/30 border-l border-[var(--border-color)] shadow-xl backdrop-blur-xl transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'
+        } z-50`}
     >
       <div className="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
         <h3 className="font-bold text-[var(--text-main)]">Meta Artikel</h3>
@@ -51,6 +50,7 @@ export default function RightMetaSidebar() {
         <div>
           <label className="block text-[11px] font-bold uppercase text-[var(--text-muted)] mb-1">Judul</label>
           <input
+            readOnly
             type="text"
             value={title}
             onChange={handleTitleChange}
@@ -59,13 +59,12 @@ export default function RightMetaSidebar() {
         </div>
         {/* Slug */}
         <div>
-          <label className="block text-[11px] font-bold uppercase text-[var(--text-muted)] mb-1">Slug</label>
-          <input
-            type="text"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            className="w-full px-3 py-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-xs text-[var(--text-main)]"
-          />
+          <div className="flex flex-col items-start gap-2 text-xs text-[var(--text-muted)]">
+            <span className="font-semibold">Permalink Slug:</span>
+            <span className="font-mono bg-[var(--bg-primary)] px-2 py-0.5 rounded border border-[var(--border-color)] text-blue-500">
+              {`/post/${slug || 'judul-artikel'}`}
+            </span>
+          </div>
         </div>
         {/* Category */}
         <div>
@@ -120,7 +119,7 @@ export default function RightMetaSidebar() {
           </select>
         </div>
         {/* Read Time */}
-        <div>
+<div>
           <label className="block text-[11px] font-bold uppercase text-[var(--text-muted)] mb-1">Estimasi Baca</label>
           <input
             type="text"
