@@ -155,7 +155,12 @@ export default function BlogPostDetail({ params }) {
         </div>
 
         <article className="gutenberg-content mb-16 border-b border-[var(--border-color)] pb-12">
-          {post.blocks && post.blocks.length > 0 ? (
+          {post.content ? (
+            <div 
+              className="prose dark:prose-invert max-w-none text-sm text-[var(--text-main)] leading-relaxed" 
+              dangerouslySetInnerHTML={{ __html: post.content }} 
+            />
+          ) : post.blocks && post.blocks.length > 0 ? (
             post.blocks.map((block, i) => {
               if (block.type === 'heading') {
                 return <h2 key={i}>{block.content}</h2>;

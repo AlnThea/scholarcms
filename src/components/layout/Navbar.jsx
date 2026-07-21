@@ -4,12 +4,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import { Search, LayoutDashboard, Sun, Moon, Feather, LogIn, UserPlus, LogOut, User, ShieldCheck, PenTool } from 'lucide-react';
+import { Search, LayoutDashboard, Sun, Moon, Feather, LogIn, UserPlus, LogOut, User, ShieldCheck, PenTool, Settings } from 'lucide-react';
+import { useMetaSidebar } from '@/context/MetaSidebarContext';
 
 export default function Navbar({ onSearch, searchQuery }) {
   const { isDark, toggleTheme, mounted } = useTheme();
   const { user, role, logout } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const { openSidebar } = useMetaSidebar();
 
   return (
     <header className="sticky top-0 z-50 glass-header border-b border-[var(--border-color)] transition-colors">
@@ -30,6 +32,12 @@ export default function Navbar({ onSearch, searchQuery }) {
             <p className="text-[11px] text-[var(--text-muted)] hidden sm:block">Modern WordPress Engine</p>
           </div>
         </Link>
+        {/* Show article title when editing */}
+        {title && (
+          <div className="hidden md:flex items-center ml-4">
+            <span className="text-sm font-medium text-[var(--text-main)]">📝 {title}</span>
+          </div>
+        )}
 
         {/* Search Bar */}
         <div className="flex-1 max-w-md mx-4">
@@ -47,6 +55,7 @@ export default function Navbar({ onSearch, searchQuery }) {
 
         {/* Action Controls */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Theme Switcher */}
           <button
             onClick={toggleTheme}
             className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
@@ -57,6 +66,14 @@ export default function Navbar({ onSearch, searchQuery }) {
             ) : (
               <Sun className="w-4 h-4 text-amber-400" />
             )}
+          </button>
+          {/* Settings / Meta Sidebar Toggle */}
+          <button
+            onClick={openSidebar}
+            className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
+            title="Buka Meta Sidebar"
+          >
+            <Settings className="w-4 h-4" />
           </button>
 
           {/* User Auth Dropdown */}

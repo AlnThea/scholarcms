@@ -7,17 +7,29 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { 
   LayoutDashboard, FileText, PlusCircle, FolderTree, MessageSquare, 
-  Settings, ExternalLink, Feather, Menu, X, Users, LogOut, ShieldCheck, PenTool, User, Sun, Moon
+  Settings, ExternalLink, Feather, Menu, X, Users, LogOut, Sun, Moon,
+  ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
 import { dbService } from '@/services/dbService';
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, role, loading, switchRole, logout } = useAuth();
+  const { user, role, loading, logout } = useAuth();
   const { isDark, toggleTheme, mounted } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const isRealDB = dbService.isRealFirebase();
+
+  const isEditorPage = pathname.includes('/posts/new') || pathname.includes('/posts/edit');
+
+  useEffect(() => {
+    if (isEditorPage) {
+      setIsCollapsed(true);
+    } else {
+      setIsCollapsed(false);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     if (!loading && !user && pathname !== '/login') {
@@ -59,43 +71,62 @@ export default function DashboardLayout({ children }) {
     <div className="min-h-screen bg-[var(--bg-primary)] flex">
       
       {/* WordPress-style Dark Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1d2327] text-gray-300 flex flex-col justify-between transition-transform duration-300 ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-50 bg-[#1d2327] text-gray-300 flex flex-col justify-between transition-all duration-300 ${
+        isCollapsed ? 'w-16' : 'w-64'
+      } ${mobileOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0'}`}>
         
         <div>
-          {/* Logo Header */}
-          <div className="h-16 px-6 bg-[#101517] flex items-center justify-between border-b border-gray-800">
-            <Link href="/dashboard" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
+          {/* Logo Header & Collapse Toggle */}
+          <div className="h-16 px-4 bg-[#101517] flex items-center justify-between border-b border-gray-800">
+            <Link href="/dashboard" className="flex items-center gap-2.5 overflow-hidden">
+              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold shrink-0">
                 <Feather className="w-4 h-4" />
               </div>
-              <div>
-                <span className="font-extrabold text-white text-base tracking-tight">ScholarCMS</span>
-                <p className="text-[10px] text-gray-400">Engine</p>
-              </div>
+              {!isCollapsed && (
+                <div className="truncate">
+                  <span className="font-extrabold text-white text-base tracking-tight">ScholarCMS</span>
+                  <p className="text-[10px] text-gray-400">Engine</p>
+                </div>
+              )}
             </Link>
-            <button onClick={() => setMobileOpen(false)} className="lg:hidden text-gray-400 hover:text-white">
-              <X className="w-5 h-5" />
-            </button>
+            
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="hidden lg:flex p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+                title={isCollapsed ? "Expand Sidebar Nav" : "Collapse Sidebar Nav"}
+              >
+                {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+              </button>
+              <button onClick={() => setMobileOpen(false)} className="lg:hidden text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Quick Connection Status */}
-          <div className="p-3.5 bg-gray-900/60 border-b border-gray-800/60 flex items-center justify-between">
+          <div className="p-3 bg-gray-900/60 border-b border-gray-800/60 flex items-center justify-center">
             <div className="flex items-center gap-2 text-xs">
-              <span className={`w-2 h-2 rounded-full ${isRealDB ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-              <span className="text-gray-300 font-medium truncate">
-                {isRealDB ? 'Firestore Cloud' : 'Demo DB Mode'}
-              </span>
+              <span className={`w-2 h-2 rounded-full shrink-0 ${isRealDB ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+              {!isCollapsed && (
+                <span className="text-gray-300 font-medium truncate text-[11px]">
+                  {isRealDB ? 'Firestore Cloud' : 'Demo DB Mode'}
+                </span>
+              )}
             </div>
           </div>
 
           {/* Navigation Links */}
-          <nav className="p-3 space-y-1">
-            <div className="px-3 py-2 text-[10px] font-extrabold uppercase tracking-widest text-gray-500 flex items-center justify-between">
-              <span>Menu Hak Akses</span>
-              <span className="text-blue-400 font-bold uppercase text-[9px] px-1.5 py-0.5 rounded bg-blue-500/20">
-                {role}
-              </span>
-            </div>
+          <nav className="p-2 space-y-1">
+            {!isCollapsed && (
+              <div className="px-3 py-2 text-[10px] font-extrabold uppercase tracking-widest text-gray-500 flex items-center justify-between">
+                <span>Menu Hak Akses</span>
+                <span className="text-blue-400 font-bold uppercase text-[9px] px-1.5 py-0.5 rounded bg-blue-500/20">
+                  {role}
+                </span>
+              </div>
+            )}
+
             {allowedItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -104,14 +135,17 @@ export default function DashboardLayout({ children }) {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
+                  title={isCollapsed ? item.label : undefined}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    isCollapsed ? 'justify-center' : ''
+                  } ${
                     isActive
                       ? 'bg-[#2271b1] text-white shadow-md font-semibold'
                       : 'hover:bg-[#2c3338] text-gray-300 hover:text-white'
                   }`}
                 >
                   <Icon className="w-4 h-4 shrink-0" />
-                  <span>{item.label}</span>
+                  {!isCollapsed && <span>{item.label}</span>}
                 </Link>
               );
             })}
@@ -119,49 +153,65 @@ export default function DashboardLayout({ children }) {
         </div>
 
         {/* User Profile & View Public Blog */}
-        <div className="p-4 border-t border-gray-800 bg-[#101517] space-y-3">
+        <div className="p-3 border-t border-gray-800 bg-[#101517] space-y-2">
           
-          {/* Active User Card */}
-          <div className="flex items-center justify-between p-2 rounded-lg bg-gray-900/80 border border-gray-800">
+          <div className={`flex items-center justify-between p-1.5 rounded-lg bg-gray-900/80 border border-gray-800 ${
+            isCollapsed ? 'justify-center' : ''
+          }`}>
             <div className="flex items-center gap-2 min-w-0">
               <img
                 src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'}
                 alt={user?.name || 'User'}
-                className="w-8 h-8 rounded-lg object-cover"
+                className="w-7 h-7 rounded-lg object-cover shrink-0"
               />
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-white truncate">{user?.name || user?.email}</p>
-                <p className="text-[10px] text-gray-400 truncate">{user?.email}</p>
-              </div>
+              {!isCollapsed && (
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-white truncate">{user?.name || user?.email}</p>
+                  <p className="text-[10px] text-gray-400 truncate">{user?.email}</p>
+                </div>
+              )}
             </div>
-            <button
-              onClick={handleLogout}
-              className="p-1.5 text-gray-400 hover:text-rose-400 transition-colors"
-              title="Logout"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+            {!isCollapsed && (
+              <button
+                onClick={handleLogout}
+                className="p-1.5 text-gray-400 hover:text-rose-400 transition-colors"
+                title="Logout"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
-          <Link
-            href="/"
-            target="_blank"
-            className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-semibold text-gray-200 transition-colors"
-          >
-            <ExternalLink className="w-4 h-4 text-blue-400" /> Lihat Website Publik
-          </Link>
+          {!isCollapsed && (
+            <Link
+              href="/"
+              target="_blank"
+              className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-semibold text-gray-200 transition-colors"
+            >
+              <ExternalLink className="w-4 h-4 text-blue-400" /> Lihat Website Publik
+            </Link>
+          )}
         </div>
 
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
+        isCollapsed ? 'lg:pl-16' : 'lg:pl-64'
+      }`}>
         
         {/* Top Header Bar */}
         <header className="h-16 bg-[var(--bg-surface)] border-b border-[var(--border-color)] px-4 sm:px-8 flex items-center justify-between sticky top-0 z-40">
           <div className="flex items-center gap-3">
             <button onClick={() => setMobileOpen(true)} className="lg:hidden p-2 text-[var(--text-muted)]">
               <Menu className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="hidden lg:flex p-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
+              title={isCollapsed ? "Expand Sidebar Nav" : "Collapse Sidebar Nav"}
+            >
+              {isCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
             </button>
             <h1 className="text-base font-bold text-[var(--text-main)] capitalize">
               {pathname === '/dashboard' ? 'Dashboard Overview' : pathname.split('/').pop()?.replace('-', ' ') ?? 'Dashboard'}
@@ -185,21 +235,8 @@ export default function DashboardLayout({ children }) {
         </header>
 
         {/* Main Body */}
-        <main className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">
-          {role === 'user' ? (
-            <div className="p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center space-y-4 max-w-xl mx-auto my-12">
-              <User className="w-12 h-12 text-purple-500 mx-auto" />
-              <h2 className="text-xl font-bold text-[var(--text-main)]">Akun Pengunjung (Pembaca)</h2>
-              <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                Anda saat ini berada dalam peran **User (Pembaca)**. Untuk mengedit atau mempublikasikan artikel, hubungi Administrator untuk memperbarui peran Anda menjadi **Writer ✍️** atau **Admin 👑**.
-              </p>
-              <Link href="/" className="inline-block px-5 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-md">
-                Kembali ke Beranda Blog
-              </Link>
-            </div>
-          ) : (
-            children
-          )}
+        <main className={`flex-1 w-full ${isEditorPage ? 'p-0 max-w-none' : 'p-4 sm:p-8 max-w-7xl mx-auto'}`}>
+          {children}
         </main>
 
       </div>

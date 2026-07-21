@@ -10,6 +10,12 @@
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.3.3",
+    "@tiptap/extension-image": "^3.28.0",
+    "@tiptap/extension-link": "^3.28.0",
+    "@tiptap/extension-placeholder": "^3.28.0",
+    "@tiptap/pm": "^3.28.0",
+    "@tiptap/react": "^3.28.0",
+    "@tiptap/starter-kit": "^3.28.0",
     "clsx": "^2.1.1",
     "firebase": "^10.13.0",
     "lucide-react": "^0.446.0",

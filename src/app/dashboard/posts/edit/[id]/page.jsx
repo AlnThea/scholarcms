@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import GutenbergEditor from '@/components/admin/GutenbergEditor';
+import TiptapEditor from '@/components/admin/TiptapEditor';
 import { dbService } from '@/services/dbService';
-import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export default function EditPostPage({ params }) {
@@ -47,17 +46,8 @@ export default function EditPostPage({ params }) {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <Link href="/dashboard/posts" className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--text-muted)] hover:text-blue-500">
-          <ArrowLeft className="w-4 h-4" /> Kembali ke Semua Postingan
-        </Link>
-        <span className="text-xs font-bold text-amber-500 uppercase tracking-widest bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
-          Mengedit Post #{id}
-        </span>
-      </div>
-
-      <GutenbergEditor initialPost={post} onSave={handleSave} saving={saving} />
+    <div className="animate-fade-in">
+      <TiptapEditor initialPost={post} onSave={handleSave} saving={saving} backLink="/dashboard/posts" />
     </div>
   );
 }

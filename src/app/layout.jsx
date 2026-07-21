@@ -1,6 +1,8 @@
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { MetaSidebarProvider } from '@/context/MetaSidebarContext';
+import RightMetaSidebar from '@/components/admin/RightMetaSidebar';
 
 export const metadata = {
   title: 'ScholarCMS - Modern WordPress-style Blog Engine',
@@ -18,7 +20,10 @@ export default function RootLayout({ children }) {
       <body className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] antialiased selection:bg-blue-500 selection:text-white">
         <ThemeProvider>
           <AuthProvider>
-            {children}
+            <MetaSidebarProvider>
+              {children}
+              <RightMetaSidebar />
+            </MetaSidebarProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
