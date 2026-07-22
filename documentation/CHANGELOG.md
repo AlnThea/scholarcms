@@ -44,3 +44,14 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 - **Tampilan Slug di TiptapEditor**: Mengubah tampilan slug menjadi ekspresi JSX dinamis `{`/post/${slug || 'judul-artikel'}`}` di `src/components/admin/TiptapEditor.jsx` agar selalu menampilkan nilai slug terkini.
 - **Dokumentasi**: Memperbarui `CHANGELOG.md` dengan entri ini serta menyesuaikan referensi di dokumentasi terkait.
 
+---
+
+## [v1.2.2] - 2026-07-22
+
+### 🛠️ Perbaikan & Pengondisian UI Editor
+- **Tampilan Kondisional Meta Sidebar**: Mengkonfigurasi `RightMetaSidebar` dan tombol togglenya agar hanya muncul pada halaman pembuatan artikel baru (`/dashboard/posts/new`) serta penyuntingan artikel (`/dashboard/posts/edit/[id]`).
+- **Input Judul Interaktif di Sidebar**: Menghapus atribut `readOnly` pada field Judul di `RightMetaSidebar.jsx` untuk memungkinkan penyuntingan judul secara langsung melalui sidebar.
+- **Pengondisian Header Topbar**: Membatasi tampilan input judul artikel blog di topbar `src/app/dashboard/layout.jsx` hanya untuk rute editor artikel (`isEditorPage`), sehingga halaman dashboard lainnya tetap bersih.
+- **Kompatibilitas Server Component Next.js**: Mempertahankan `src/app/layout.jsx` sebagai Server Component (menjaga ekspor `metadata` Next.js) dengan memindahkan logika `usePathname()` secara mandiri ke dalam Client Component `RightMetaSidebar.jsx`.
+
+

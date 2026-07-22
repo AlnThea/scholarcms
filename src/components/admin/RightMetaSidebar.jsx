@@ -2,8 +2,12 @@
 
 import { useMetaSidebar } from '@/context/MetaSidebarContext';
 import { X, Settings } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 export default function RightMetaSidebar() {
+  const pathname = usePathname();
+  const showMetaSidebar = pathname?.startsWith('/dashboard/posts/new') || pathname?.startsWith('/dashboard/posts/edit');
+
   const {
     isOpen,
     closeSidebar,
@@ -24,6 +28,10 @@ export default function RightMetaSidebar() {
     readTime,
     setReadTime,
   } = useMetaSidebar();
+
+  if (!showMetaSidebar) {
+    return null;
+  }
 
   // Auto-generate slug when title changes and slug is empty
   const handleTitleChange = (e) => {
@@ -50,7 +58,6 @@ export default function RightMetaSidebar() {
         <div>
           <label className="block text-[11px] font-bold uppercase text-[var(--text-muted)] mb-1">Judul</label>
           <input
-            readOnly
             type="text"
             value={title}
             onChange={handleTitleChange}

@@ -215,7 +215,7 @@ export default function DashboardLayout({ children }) {
               {pathname === '/dashboard' ? 'Dashboard Overview' : pathname.split('/').pop()?.replace('-', ' ') ?? 'Dashboard'}
 
             </h1>
-            {pathname.startsWith('/dashboard/posts') && (
+            {isEditorPage && (
               <>
                 <input
                   type="text"
@@ -250,13 +250,15 @@ export default function DashboardLayout({ children }) {
               )}
             </button>
             {/* Meta Sidebar Toggle */}
-            <button
-              onClick={openSidebar}
-              className="p-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
-              title="Buka Meta Sidebar"
-            >
-              <Settings className="w-4 h-4" />
-            </button>
+            {isEditorPage && (
+              <button
+                onClick={openSidebar}
+                className="p-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
+                title="Buka Meta Sidebar"
+              >
+                <Settings className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </header>
 
