@@ -10,9 +10,10 @@ import { useTheme } from '@/context/ThemeContext';
 import {
   LayoutDashboard, FileText, PlusCircle, FolderTree, MessageSquare,
   Settings, ExternalLink, Feather, Menu, X, Users, LogOut, Sun, Moon,
-  ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen
+  ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Layers, ListTree
 } from 'lucide-react';
 import { dbService } from '@/services/dbService';
+import Button from '@/components/ui/Button';
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
@@ -24,7 +25,8 @@ export default function DashboardLayout({ children }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const isRealDB = dbService.isRealFirebase();
 
-  const isEditorPage = pathname.includes('/posts/new') || pathname.includes('/posts/edit');
+  const isPageEditor = pathname.includes('/pages/new') || pathname.includes('/pages/edit');
+  const isEditorPage = pathname.includes('/posts/new') || pathname.includes('/posts/edit') || isPageEditor;
 
   useEffect(() => {
     if (isEditorPage) {
@@ -62,7 +64,9 @@ export default function DashboardLayout({ children }) {
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'writer'] },
     { label: role === 'writer' ? 'Postingan Saya' : 'Semua Postingan', href: '/dashboard/posts', icon: FileText, roles: ['admin', 'writer'] },
     { label: 'Tambah Post Baru', href: '/dashboard/posts/new', icon: PlusCircle, roles: ['admin', 'writer'] },
+    { label: 'Halaman Statis', href: '/dashboard/pages', icon: Layers, roles: ['admin', 'writer'] },
     { label: 'Kategori & Tag', href: '/dashboard/categories', icon: FolderTree, roles: ['admin'] },
+    { label: 'Navigasi & Menu', href: '/dashboard/menus', icon: ListTree, roles: ['admin'] },
     { label: 'Moderasi Komentar', href: '/dashboard/comments', icon: MessageSquare, roles: ['admin', 'writer'] },
     { label: 'Kelola Pengguna', href: '/dashboard/users', icon: Users, roles: ['admin'] },
     { label: 'Pengaturan CMS', href: '/dashboard/settings', icon: Settings, roles: ['admin'] },
@@ -200,7 +204,7 @@ export default function DashboardLayout({ children }) {
 
         {/* Top Header Bar */}
         <header className="h-16 bg-[var(--bg-surface)] border-b border-[var(--border-color)] px-4 sm:px-8 flex items-center justify-between sticky top-0 z-40">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-1">
             <button onClick={() => setMobileOpen(true)} className="lg:hidden p-2 text-[var(--text-muted)]">
               <Menu className="w-5 h-5" />
             </button>
@@ -211,15 +215,14 @@ export default function DashboardLayout({ children }) {
             >
               {isCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
             </button>
-            <h1 className="text-base font-bold text-[var(--text-main)] capitalize">
+            <h1 className="text-base font-bold text-[var(--text-main)] capitalize shrink-0">
               {pathname === '/dashboard' ? 'Dashboard Overview' : pathname.split('/').pop()?.replace('-', ' ') ?? 'Dashboard'}
-
             </h1>
             {isEditorPage && (
               <>
                 <input
                   type="text"
-                  placeholder="Judul Artikel Blog..."
+                  placeholder={isPageEditor ? "Judul Halaman Statis..." : "Judul Artikel Blog..."}
                   value={title}
                   onChange={(e) => {
                     const val = e.target.value;
@@ -230,7 +233,7 @@ export default function DashboardLayout({ children }) {
                       .replace(/(^-|-$)+/g, '');
                     setSlug(generatedSlug);
                   }}
-                  className="flex-1 mt-1 ml-4 pl-0 text-2xl sm:text-1xl font-extrabold bg-transparent text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none border-b border-transparent focus:border-blue-500 pb-1 transition-all"
+                  className="flex-1 mt-1 ml-4 pl-0 text-xl sm:text-2xl font-extrabold bg-transparent text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none border-b border-transparent focus:border-blue-500 pb-1 transition-all"
                 />
               </>
             )}
@@ -251,13 +254,17 @@ export default function DashboardLayout({ children }) {
             </button>
             {/* Meta Sidebar Toggle */}
             {isEditorPage && (
-              <button
+
+              <Button
+                type="button"
+                variant="purple"
+                size="sm"
+                icon={Settings}
                 onClick={openSidebar}
-                className="p-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
-                title="Buka Meta Sidebar"
+                title="Buka Pengaturan Meta Artikel"
               >
-                <Settings className="w-4 h-4" />
-              </button>
+                Meta Artikel
+              </Button>
             )}
           </div>
         </header>

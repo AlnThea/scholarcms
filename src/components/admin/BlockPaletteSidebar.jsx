@@ -23,6 +23,12 @@ const TEXT_BLOCKS = [
     label: 'Sub-Judul (H3)',
     icon: Heading,
     color: 'text-purple-500 bg-purple-500/10'
+  },
+  {
+    type: 'heading4',
+    label: 'Poin (H4)',
+    icon: Heading,
+    color: 'text-violet-500 bg-violet-500/10'
   }
 ];
 
@@ -59,13 +65,13 @@ const MEDIA_BLOCKS = [
   },
   {
     type: 'image',
-    label: 'Gambar',
+    label: 'Gambar Web',
     icon: Image,
     color: 'text-rose-500 bg-rose-500/10'
   },
   {
     type: 'horizontalRule',
-    label: 'Pembatas',
+    label: 'Pembatas (HR)',
     icon: Minus,
     color: 'text-gray-500 bg-gray-500/10'
   }

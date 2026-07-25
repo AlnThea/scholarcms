@@ -3,6 +3,11 @@
 import { useState, useEffect } from 'react';
 import { authService } from '@/services/authService';
 import { useAuth } from '@/context/AuthContext';
+import PageHeader from '@/components/dashboard/PageHeader';
+import Badge from '@/components/ui/Badge';
+import Button from '@/components/ui/Button';
+import Select from '@/components/ui/Select';
+import Input from '@/components/ui/Input';
 import { Users, Search, ShieldCheck, PenTool, User, Check, RefreshCw } from 'lucide-react';
 
 export default function DashboardUsersPage() {
@@ -38,22 +43,14 @@ export default function DashboardUsersPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-extrabold text-[var(--text-main)] flex items-center gap-2">
-            <Users className="w-6 h-6 text-blue-500" /> Kelola Pengguna & Role Hak Akses
-          </h2>
-          <p className="text-xs text-[var(--text-muted)]">Atur hak akses pengguna menjadi Admin 👑, Writer ✍️, atau User 👤.</p>
-        </div>
-
-        <button
-          onClick={loadUsers}
-          className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--bg-primary)] transition-all flex items-center gap-2"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> Muat Ulang Data
-        </button>
-      </div>
+      <PageHeader
+        title="Kelola Pengguna & Role Hak Akses"
+        subtitle="Atur hak akses pengguna menjadi Admin 👑, Writer ✍️, atau User 👤."
+      >
+        <Button variant="secondary" icon={RefreshCw} onClick={loadUsers}>
+          Muat Ulang Data
+        </Button>
+      </PageHeader>
 
       {/* Filter & Search */}
       <div className="p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] flex flex-col sm:flex-row items-center justify-between gap-4">

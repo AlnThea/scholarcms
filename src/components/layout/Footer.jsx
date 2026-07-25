@@ -1,7 +1,23 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Feather, Heart, Database, ShieldCheck } from 'lucide-react';
+import { dbService } from '@/services/dbService';
 
 export default function Footer() {
+  const [footerLinks, setFooterLinks] = useState([]);
+
+  useEffect(() => {
+    async function loadFooterMenu() {
+      const items = await dbService.getMenu('footer');
+      if (Array.isArray(items) && items.length > 0) {
+        setFooterLinks(items);
+      }
+    }
+    loadFooterMenu();
+  }, []);
+
   return (
     <footer className="border-t border-[var(--border-color)] bg-[var(--bg-surface)] mt-24 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -26,10 +42,30 @@ export default function Footer() {
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-4">Navigasi Utama</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Beranda Blog</Link></li>
-              <li><Link href="/dashboard" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Dashboard</Link></li>
-              <li><Link href="/dashboard/posts/new" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Tulis Artikel Baru</Link></li>
-              <li><Link href="/dashboard/categories" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Kelola Kategori</Link></li>
+              {footerLinks.length > 0 ? (
+                footerLinks.map((link) => {
+                  const href = link.type === 'category'
+                    ? `/?category=${encodeURIComponent(link.target)}`
+                    : link.type === 'page'
+                    ? `/page/${link.target}`
+                    : link.url || '/';
+
+                  return (
+                    <li key={link.id}>
+                      <Link href={href} className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">
+                        {link.label}
+                      </Link>
+                    </li>
+                  );
+                })
+              ) : (
+                <>
+                  <li><Link href="/" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Beranda Blog</Link></li>
+                  <li><Link href="/dashboard" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Dashboard</Link></li>
+                  <li><Link href="/dashboard/posts/new" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Tulis Artikel Baru</Link></li>
+                  <li><Link href="/dashboard/categories" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Kelola Kategori</Link></li>
+                </>
+              )}
             </ul>
           </div>
 

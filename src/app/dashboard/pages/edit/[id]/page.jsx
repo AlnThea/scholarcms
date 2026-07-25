@@ -7,47 +7,47 @@ import { dbService } from '@/services/dbService';
 import { useMetaSidebar } from '@/context/MetaSidebarContext';
 import Link from 'next/link';
 
-export default function EditPostPage({ params }) {
+export default function EditPagePage({ params }) {
   const { id } = params;
   const router = useRouter();
-  const [post, setPost] = useState(null);
+  const [page, setPage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { loadPostMeta } = useMetaSidebar();
 
   useEffect(() => {
-    async function fetchPost() {
+    async function fetchPage() {
       setLoading(true);
-      const data = await dbService.getPostById(id);
+      const data = await dbService.getPageById(id);
       if (data) {
-        setPost(data);
+        setPage(data);
         loadPostMeta(data);
       }
       setLoading(false);
     }
-    fetchPost();
+    fetchPage();
   }, [id]);
 
-  const handleSave = async (postData, shouldExit = true) => {
+  const handleSave = async (pageData, shouldExit = true) => {
     setSaving(true);
-    await dbService.savePost(postData);
+    await dbService.savePage(pageData);
     setSaving(false);
 
     if (shouldExit) {
-      router.push('/dashboard/posts');
+      router.push('/dashboard/pages');
     }
   };
 
   if (loading) {
-    return <div className="py-20 text-center text-xs text-[var(--text-subtle)]">Memuat data artikel...</div>;
+    return <div className="py-20 text-center text-xs text-[var(--text-subtle)]">Memuat data halaman statis...</div>;
   }
 
-  if (!post) {
+  if (!page) {
     return (
       <div className="py-20 text-center space-y-4">
-        <p className="text-sm text-[var(--text-muted)]">Artikel tidak ditemukan.</p>
-        <Link href="/dashboard/posts" className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl">
-          Kembali ke Daftar Post
+        <p className="text-sm text-[var(--text-muted)]">Halaman statis tidak ditemukan.</p>
+        <Link href="/dashboard/pages" className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl">
+          Kembali ke Daftar Halaman
         </Link>
       </div>
     );
@@ -55,7 +55,7 @@ export default function EditPostPage({ params }) {
 
   return (
     <div className="animate-fade-in">
-      <TiptapEditor initialPost={post} onSave={handleSave} saving={saving} backLink="/dashboard/posts" />
+      <TiptapEditor isPage={true} initialPost={page} onSave={handleSave} saving={saving} backLink="/dashboard/pages" />
     </div>
   );
 }

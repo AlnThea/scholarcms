@@ -94,6 +94,40 @@ export default function BlogPostDetail({ params }) {
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] flex flex-col">
+      {/* Schema.org Article JSON-LD Structured Data for Googlebot Rich Snippets */}
+      {post && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'BlogPosting',
+              headline: post.seoTitle || post.title,
+              description: post.seoDescription || post.excerpt,
+              image: [post.featuredImage],
+              datePublished: post.publishedAt,
+              dateModified: post.updatedAt || post.publishedAt,
+              author: {
+                '@type': 'Person',
+                name: post.author?.name || 'Ernst Senior Dev',
+              },
+              publisher: {
+                '@type': 'Organization',
+                name: 'ScholarCMS',
+                logo: {
+                  '@type': 'ImageObject',
+                  url: post.featuredImage,
+                },
+              },
+              mainEntityOfPage: {
+                '@type': 'WebPage',
+                '@id': `https://scholarcms.com/post/${post.slug}`,
+              },
+            }),
+          }}
+        />
+      )}
+
       <Navbar />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-10">

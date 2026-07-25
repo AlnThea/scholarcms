@@ -66,3 +66,32 @@ Menyimpan komentar pengunjung pada artikel tertentu.
 | `content` | String | Isi teks komentar |
 | `createdAt` | String (ISO 8601) | Timestamp tanggal kirim |
 | `status` | String | `"approved"` (disetujui) atau `"rejected"` (ditolak) |
+
+---
+
+### 5. Koleksi: `pages`
+Menyimpan seluruh halaman statis blog (seperti *Tentang Kami*, *Kebijakan Privasi*, *Kontak*).
+
+| Field | Tipe Data | Keterangan |
+| :--- | :--- | :--- |
+| `id` | String | Unique document ID |
+| `title` | String | Judul utama halaman statis |
+| `slug` | String (Unique) | URL permalink (misal: `tentang-kami`) |
+| `excerpt` | String | Ringkasan/deskripsi halaman |
+| `status` | String | `"published"` atau `"draft"` |
+| `publishedAt` | String (ISO 8601) | Timestamp tanggal publikasi |
+| `views` | Number | Akumulasi total pembaca |
+| `author` | Object | `{ name, avatar, role }` |
+| `blocks` | Array of Objects | Array blok visual Gutenberg (`[{ id, type, content }]`) |
+
+---
+
+### 6. Koleksi: `menus`
+Menyimpan struktur navigasi menu 3-level untuk Header Navbar dan Footer.
+
+| Field | Tipe Data | Keterangan |
+| :--- | :--- | :--- |
+| `location` | String (Document ID) | `"header"` atau `"footer"` |
+| `items` | Array of Objects | Array item menu (`[{ id, label, type, target, url, level, order }]`) |
+| `updatedAt` | String (ISO 8601) | Timestamp tanggal perubahan terakhir |
+

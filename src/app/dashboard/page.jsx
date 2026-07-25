@@ -8,6 +8,9 @@ import {
   Settings, ArrowRight, ShieldCheck, Clock
 } from 'lucide-react';
 
+import StatsCard from '@/components/dashboard/StatsCard';
+import Button from '@/components/ui/Button';
+
 export default function DashboardOverview() {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -46,76 +49,47 @@ export default function DashboardOverview() {
         </div>
 
         <div className="relative z-10 flex items-center gap-3 shrink-0">
-          <Link
-            href="/dashboard/posts/new"
-            className="px-4 py-2.5 rounded-xl bg-white text-blue-900 font-bold text-xs hover:bg-blue-50 transition-all shadow-md flex items-center gap-2"
-          >
-            <PlusCircle className="w-4 h-4" /> Tulis Artikel Baru
+          <Link href="/dashboard/posts/new">
+            <Button icon={PlusCircle} className="bg-white text-blue-900 hover:bg-blue-50 shadow-md">
+              Tulis Artikel Baru
+            </Button>
           </Link>
         </div>
       </div>
 
-      {/* Metric Cards Grid */}
+      {/* Metric Cards Grid — Reusable Modular StatsCard */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        {/* Total Posts */}
-        <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Total Artikel</span>
-            <div className="p-2.5 rounded-2xl bg-blue-500/10 text-blue-500">
-              <FileText className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="text-3xl font-extrabold text-[var(--text-main)]">
-            {analytics?.totalPosts || 0}
-          </div>
-          <p className="text-[11px] text-[var(--text-subtle)]">
-            {analytics?.publishedPosts || 0} Terbit • {analytics?.draftPosts || 0} Draft
-          </p>
-        </div>
+        <StatsCard
+          title="Total Artikel"
+          value={analytics?.totalPosts || 0}
+          subtitle={`${analytics?.publishedPosts || 0} Terbit • ${analytics?.draftPosts || 0} Draft`}
+          icon={FileText}
+          color="blue"
+        />
 
-        {/* Total Views */}
-        <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Total Pembaca</span>
-            <div className="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-500">
-              <Eye className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="text-3xl font-extrabold text-[var(--text-main)]">
-            {analytics?.totalViews || 0}
-          </div>
-          <p className="text-[11px] text-[var(--text-subtle)]">Akumulasi seluruh pembaca artikel</p>
-        </div>
+        <StatsCard
+          title="Total Pembaca"
+          value={analytics?.totalViews || 0}
+          subtitle="Akumulasi pembaca artikel"
+          icon={Eye}
+          color="emerald"
+        />
 
-        {/* Total Comments */}
-        <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Komentar</span>
-            <div className="p-2.5 rounded-2xl bg-purple-500/10 text-purple-500">
-              <MessageSquare className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="text-3xl font-extrabold text-[var(--text-main)]">
-            {analytics?.totalComments || 0}
-          </div>
-          <p className="text-[11px] text-[var(--text-subtle)]">Komentar pengunjung terdaftar</p>
-        </div>
+        <StatsCard
+          title="Komentar"
+          value={analytics?.totalComments || 0}
+          subtitle="Komentar pengunjung terdaftar"
+          icon={MessageSquare}
+          color="purple"
+        />
 
-        {/* Total Categories */}
-        <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Kategori</span>
-            <div className="p-2.5 rounded-2xl bg-amber-500/10 text-amber-500">
-              <FolderTree className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="text-3xl font-extrabold text-[var(--text-main)]">
-            {analytics?.totalCategories || 0}
-          </div>
-          <p className="text-[11px] text-[var(--text-subtle)]">Taksonomi topik artikel</p>
-        </div>
-
+        <StatsCard
+          title="Kategori"
+          value={analytics?.totalCategories || 0}
+          subtitle="Taksonomi topik artikel"
+          icon={FolderTree}
+          color="amber"
+        />
       </div>
 
       {/* Quick Action Navigation Grid */}

@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { dbService } from '@/services/dbService';
+import PageHeader from '@/components/dashboard/PageHeader';
+import Badge from '@/components/ui/Badge';
+import Button from '@/components/ui/Button';
 import { MessageSquare, Check, X, Trash2, RefreshCw, Clock } from 'lucide-react';
 
 export default function DashboardCommentsPage() {
@@ -40,22 +43,14 @@ export default function DashboardCommentsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-extrabold text-[var(--text-main)] flex items-center gap-2">
-            <MessageSquare className="w-6 h-6 text-blue-500" /> Moderasi Komentar Pengunjung
-          </h2>
-          <p className="text-xs text-[var(--text-muted)]">Setujui, tolak, atau hapus komentar yang dikirim oleh pembaca blog.</p>
-        </div>
-
-        <button
-          onClick={loadComments}
-          className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--bg-primary)] transition-all flex items-center gap-2"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> Muat Ulang
-        </button>
-      </div>
+      <PageHeader
+        title="Moderasi Komentar Pengunjung"
+        subtitle="Setujui, tolak, atau hapus komentar yang dikirim oleh pembaca blog."
+      >
+        <Button variant="secondary" icon={RefreshCw} onClick={loadComments}>
+          Muat Ulang
+        </Button>
+      </PageHeader>
 
       {/* Filter Tabs */}
       <div className="p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] flex items-center gap-2">

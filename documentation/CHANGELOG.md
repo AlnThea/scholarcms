@@ -54,4 +54,55 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 - **Pengondisian Header Topbar**: Membatasi tampilan input judul artikel blog di topbar `src/app/dashboard/layout.jsx` hanya untuk rute editor artikel (`isEditorPage`), sehingga halaman dashboard lainnya tetap bersih.
 - **Kompatibilitas Server Component Next.js**: Mempertahankan `src/app/layout.jsx` sebagai Server Component (menjaga ekspor `metadata` Next.js) dengan memindahkan logika `usePathname()` secara mandiri ke dalam Client Component `RightMetaSidebar.jsx`.
 
+---
+
+## [v1.3.0] - 2026-07-23
+
+### 🚀 Fitur Baru & Peningkatan Arsitektur UI
+- **Sistem Post Scheduling WordPress (Just-In-Time)**: Implementasi penjadwalan postingan otomatis berbasis *on-demand evaluation* saat artikel diakses tanpa memerlukan *server cron job*.
+- **Desain Modularitas Aplikasi & UI Components (`src/components/ui/` & `src/components/dashboard/`)**: Refactoring dan pembuatan komponen UI reusabel (`Input.jsx`, `Select.jsx`, `Textarea.jsx`, `Button.jsx`, `Badge.jsx`, `PageHeader.jsx`, `StatsCard.jsx`, `DataTable.jsx`) yang diterapkan di seluruh halaman aplikasi (`RightMetaSidebar`, `TiptapEditor`, `/dashboard`, `/dashboard/posts`, `/dashboard/categories`, `/dashboard/comments`, `/dashboard/users`, `/dashboard/settings`, `/login`, `/register`).
+- **Segmented Navigation Tabs pada Meta Sidebar**: Refactoring `RightMetaSidebar.jsx` menggunakan 5 tab bernavigasi responsif (`⚙️ Umum`, `🌐 SEO & URL`, `🏷️ Taksonomi`, `🎨 Media`, `📢 Publikasi`) dengan *Author Badge* terintegrasi.
+- **Redesain Layout Editor & Formatting Toolbar (`TiptapEditor.jsx`)**: Toolbar tombol formatting (B, I, S, <>, H2, H3, List, Quote, Undo, Redo) disatukan di bagian atas kanvas editor dengan bentuk kotak presisi rata (*square rectangle*) tanpa *gap* (`gap-0`) terhadap Palet Komponen.
+- **Otomatisasi 100% Media Gambar, Kategori (Auto-Create), & Tag SEO**: Pembaruan generator AI pada [aiService.js](file:///c:/web/scholarcms/src/services/aiService.js) dan [TiptapEditor.jsx](file:///c:/web/scholarcms/src/components/admin/TiptapEditor.jsx). Sekali klik **`✨ Hasilkan Artikel Berkualitas`**, AI secara otomatis menghasilkan:
+  1. 🖼️ **Gambar Sampul / Featured Cover Image**: URL gambar resolusi tinggi yang relevan diisi langsung ke Meta Sidebar (`featuredImage`).
+  2. 📸 **Gambar In-Article**: Tag `<img src="..." class="w-full max-h-[450px] object-cover rounded-2xl my-6 shadow-md" />` disisipkan di dalam isi teks kanvas editor.
+  3. 📂 **Kategori Otomatis & Auto-Create Database**: AI menentukan Kategori artikel. Jika nama Kategori belum ada di database Firestore, sistem otomatis membuatkan Kategori baru dan memilihnya di Meta Sidebar.
+  4. 🏷️ **Tag SEO Otomatis**: AI membuat 3-4 kata kunci tag SEO yang langsung terisi pada Meta Sidebar.
+- **Deteksi Otomatis Gaya Penulisan (`Tone of Voice`)**: Penambahan opsi `🤖 Otomatis (Disesuaikan AI dari Judul Topik)` pada [AiGenerateModal.jsx](file:///c:/web/scholarcms/src/components/admin/AiGenerateModal.jsx) yang menganalisis kata kunci judul (seperti *"Panduan"*, *"Analisis"*, *"Tips"*) dan menentukan gaya bahasa paling cocok secara otomatis.
+- **Perbaikan CSS Sticky Positioning**: Menghapus properti `overflow-hidden` pada kontainer form utama agar Palet Komponen Sidebar dan Formatting Toolbar dapat melayang (*sticky*) dengan sempurna di posisi `top-16` layar saat dokumen kanvas di-scroll ke bawah.
+
+---
+
+## [v1.4.0] - 2026-07-24
+
+### 🚀 Fitur Baru Utama & Pengelola Navigasi WordPress
+- **Sistem Halaman Statis WordPress (Static Pages CMS)**:
+  - Penambahan rute dashboard `/dashboard/pages`, `/dashboard/pages/new`, dan `/dashboard/pages/edit/[id]` untuk membuat & mengedit halaman statis independen (Tentang Kami, Kebijakan Privasi, Kontak, dll.) menggunakan editor visual Tiptap/Gutenberg.
+  - Penambahan rute publik `/page/[slug]` dan rute generik `/[slug]` yang merender halaman statis secara elegan dengan schema structured data JSON-LD.
+- **Pengelola Menu Navigasi Drag & Drop 3 Level (Navbar & Footer)**:
+  - Pembuat & pengatur menu navigasi interaktif di `/dashboard/menus` dengan dukungan *drag & drop* serta tombol *indent/outdent* perlevelan (Level 1 → Level 2 → Level 3).
+  - Mendukung 3 tipe item navigasi: **Kategori Blog** 📂, **Halaman Statis** 📄, dan **Custom URL** 🔗.
+  - Integrasi rendering menu hirarki 3-level secara dinamis pada [Navbar.jsx](file:///c:/web/scholarcms/src/components/layout/Navbar.jsx) (dengan multi-level dropdown hover/click) dan [Footer.jsx](file:///c:/web/scholarcms/src/components/layout/Footer.jsx).
+- **Ekstensi Service Layer (`dbService.js`)**:
+  - Penambahan metode `getPages`, `getPageBySlug`, `getPageById`, `savePage`, `deletePage`, `getMenu`, dan `saveMenu` dengan dukungan Firestore Cloud DB & Fallback Storage Mode.
+
+---
+
+## [v1.4.1] - 2026-07-25
+
+### 🛠️ Perbaikan UI Editor, Native Placeholder, & Firestore Rules
+- **Placeholder Judul Dinamis**:
+  - Input judul pada topbar [layout.jsx](file:///c:/web/scholarcms/src/app/dashboard/layout.jsx) dan Meta Sidebar [RightMetaSidebar.jsx](file:///c:/web/scholarcms/src/components/admin/RightMetaSidebar.jsx) menyesuaikan placeholder & label secara otomatis berdasarkan konteks editor (`Judul Artikel Blog...` untuk post vs `Judul Halaman Statis...` untuk page).
+- **Placeholder Asli Tiptap (Native Tiptap Placeholder)**:
+  - Mengubah fallback HTML teks biasa `<p>Mulai tulis...</p>` di [TiptapEditor.jsx](file:///c:/web/scholarcms/src/components/admin/TiptapEditor.jsx) menjadi string kosong (`""`) agar ekstensi `Placeholder` Tiptap berjalan secara murni dan otomatis hilang saat diketik.
+  - Penambahan styling CSS `.ProseMirror p.is-editor-empty:first-child::before` pada [globals.css](file:///c:/web/scholarcms/src/app/globals.css).
+- **Perbaikan Mode Pratinjau & Tombol Editor**:
+  - Mengonfigurasi toolbar atas agar tetap terlihat melayang saat beralih ke mode `Pratinjau`, memungkinkan penguncian kembali ke `Mode Editor` secara instan.
+  - Merapikan render ikon tombol Pratinjau/Editor menjadi 1 ikon Lucide presisi (`Eye` vs `Edit3`).
+- **Pembaruan Spesifikasi Firestore Security Rules**:
+  - Memperbarui dokumentasi [DATABASE.md](file:///c:/web/scholarcms/documentation/DATABASE.md) dengan spesifikasi izin koleksi `match /pages/{pageId}` dan `match /menus/{menuId}`.
+
+
+
+
 

@@ -100,3 +100,67 @@ export const INITIAL_COMMENTS = [
     status: 'approved'
   }
 ];
+
+export const INITIAL_PAGES = [
+  {
+    id: 'page-1',
+    title: 'Tentang Kami',
+    slug: 'tentang-kami',
+    excerpt: 'Halaman profil dan informasi tentang pengembang serta filosofi platform ScholarCMS.',
+    status: 'published',
+    author: {
+      name: 'Ernst Senior Dev',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      role: 'Chief Software Architect'
+    },
+    publishedAt: '2026-07-20T08:00:00.000Z',
+    views: 128,
+    seoTitle: 'Tentang Kami | ScholarCMS Engine',
+    seoDescription: 'Informasi lengkap tentang platform ScholarCMS dan pengembang.',
+    blocks: [
+      { id: 'pb1', type: 'heading', level: 1, content: 'Tentang Platform ScholarCMS' },
+      { id: 'pb2', type: 'paragraph', content: 'ScholarCMS adalah platform CMS blog berbasis Next.js 14 App Router, React 18, dan Firebase Firestore Cloud DB yang dirancang untuk kecepatan super cepat dan keterbacaan artikel yang nyaman.' },
+      { id: 'pb3', type: 'callout', content: '✨ **Misi Kami**: Menyediakan mesin publikasi artikel bergaya WordPress modern dengan teknologi terkini.' }
+    ]
+  },
+  {
+    id: 'page-2',
+    title: 'Kebijakan Privasi',
+    slug: 'kebijakan-privasi',
+    excerpt: 'Informasi mengenai hak privasi dan penggunaan data pengunjung pada ScholarCMS.',
+    status: 'published',
+    author: {
+      name: 'Ernst Senior Dev',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      role: 'Chief Software Architect'
+    },
+    publishedAt: '2026-07-20T08:00:00.000Z',
+    views: 95,
+    seoTitle: 'Kebijakan Privasi | ScholarCMS',
+    seoDescription: 'Kebijakan privasi dan perlindungan data pengguna.',
+    blocks: [
+      { id: 'pb1', type: 'heading', level: 1, content: 'Kebijakan Privasi' },
+      { id: 'pb2', type: 'paragraph', content: 'Privasi Anda sangat penting bagi kami. Kebijakan ini menjelaskan bagaimana ScholarCMS mengumpulkan, menggunakan, dan melindungi data pribadi pengunjung.' }
+    ]
+  }
+];
+
+export const INITIAL_MENUS = {
+  header: [
+    { id: 'm-1', label: 'Beranda', type: 'url', url: '/', level: 1, order: 1 },
+    { id: 'm-2', label: 'Topik Blog', type: 'category', target: 'web-development', level: 1, order: 2 },
+    { id: 'm-3', label: 'Web Development', type: 'category', target: 'web-development', level: 2, order: 3, parentId: 'm-2' },
+    { id: 'm-4', label: 'UI & UX Design', type: 'category', target: 'ui-ux-design', level: 2, order: 4, parentId: 'm-2' },
+    { id: 'm-5', label: 'Glassmorphism Design', type: 'url', url: '/post/desain-antarmuka-glassmorphism-micro-animations', level: 3, order: 5, parentId: 'm-4' },
+    { id: 'm-6', label: 'Halaman Statis', type: 'page', target: 'tentang-kami', level: 1, order: 6 },
+    { id: 'm-7', label: 'Tentang Kami', type: 'page', target: 'tentang-kami', level: 2, order: 7, parentId: 'm-6' },
+    { id: 'm-8', label: 'Kebijakan Privasi', type: 'page', target: 'kebijakan-privasi', level: 2, order: 8, parentId: 'm-6' }
+  ],
+  footer: [
+    { id: 'f-1', label: 'Beranda', type: 'url', url: '/', level: 1, order: 1 },
+    { id: 'f-2', label: 'Tentang Kami', type: 'page', target: 'tentang-kami', level: 1, order: 2 },
+    { id: 'f-3', label: 'Kebijakan Privasi', type: 'page', target: 'kebijakan-privasi', level: 1, order: 3 },
+    { id: 'f-4', label: 'Topik Web Dev', type: 'category', target: 'web-development', level: 1, order: 4 }
+  ]
+};
+

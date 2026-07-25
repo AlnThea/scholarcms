@@ -1,6 +1,11 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import { dbService } from '@/services/dbService';
+import PageHeader from '@/components/dashboard/PageHeader';
+import Input from '@/components/ui/Input';
+import Textarea from '@/components/ui/Textarea';
+import Button from '@/components/ui/Button';
 import { Plus, Trash2 } from 'lucide-react';
 
 export default function DashboardCategories() {
@@ -47,39 +52,34 @@ export default function DashboardCategories() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h2 className="text-2xl font-extrabold text-[var(--text-main)]">Kelola Kategori & Topik</h2>
-        <p className="text-xs text-[var(--text-muted)]">Organisasikan postingan blog Anda berdasarkan taksonomi kategori.</p>
-      </div>
+      <PageHeader
+        title="Kelola Kategori & Topik"
+        subtitle="Organisasikan postingan blog Anda berdasarkan taksonomi kategori."
+      />
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-5 p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4">
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-[var(--text-main)] border-b border-[var(--border-color)] pb-3 flex items-center gap-2">
             <Plus className="w-4 h-4 text-blue-500" /> Tambah Kategori Baru
           </h3>
           <form onSubmit={handleCreate} className="space-y-4">
+            <Input
+              label="Nama Kategori *"
+              required
+              placeholder="misal: Cloud Computing"
+              value={name}
+              onChange={handleNameChange}
+            />
+
+            <Input
+              label="Slug URL"
+              required
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+            />
+
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1">Nama Kategori *</label>
-              <input
-                type="text"
-                required
-                placeholder="misal: Cloud Computing"
-                value={name}
-                onChange={handleNameChange}
-                className="w-full px-3 py-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-xs text-[var(--text-main)]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1">Slug URL</label>
-              <input
-                type="text"
-                required
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-xs text-[var(--text-main)]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1">Warna Aksen</label>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">Warna Aksen</label>
               <div className="flex items-center gap-3">
                 <input
                   type="color"
@@ -87,26 +87,25 @@ export default function DashboardCategories() {
                   onChange={(e) => setColor(e.target.value)}
                   className="w-10 h-10 rounded-xl cursor-pointer border-0 bg-transparent"
                 />
-                <span className="text-xs font-mono text-[var(--text-muted)]">{color}</span>
+                <span className="text-xs font-mono font-bold text-[var(--text-muted)]">{color}</span>
               </div>
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1">Deskripsi Ringkas</label>
-              <textarea
-                rows={2}
-                placeholder="Penjelasan singkat mengenai kategori ini..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-xs text-[var(--text-main)]"
-              />
-            </div>
-            <button
+
+            <Textarea
+              label="Deskripsi Ringkas"
+              rows={2}
+              placeholder="Penjelasan singkat mengenai kategori ini..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+
+            <Button
               type="submit"
-              disabled={saving}
-              className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/20 transition-all disabled:opacity-50"
+              loading={saving}
+              className="w-full"
             >
-              {saving ? 'Menyimpan...' : 'Tambah Kategori'}
-            </button>
+              Tambah Kategori
+            </Button>
           </form>
         </div>
         <div className="lg:col-span-7 p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4">

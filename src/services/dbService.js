@@ -1,5 +1,5 @@
 import { isFirebaseConfigured, db } from '@/lib/firebase';
-import { INITIAL_CATEGORIES, INITIAL_POSTS, INITIAL_COMMENTS } from '@/constants/mockData';
+import { INITIAL_CATEGORIES, INITIAL_POSTS, INITIAL_COMMENTS, INITIAL_PAGES, INITIAL_MENUS } from '@/constants/mockData';
 import {
   collection, doc, getDocs, getDoc, addDoc, setDoc, deleteDoc, updateDoc, query, where, orderBy, increment
 } from 'firebase/firestore';
@@ -32,6 +32,20 @@ export const dbService = {
   // POSTS
   async getPosts(options = {}) {
     const { category, search, status, limit } = options;
+    const now = new Date().toISOString();
+
+    const processScheduledPost = (p) => {
+      // Just-In-Time Auto-Publish: Jika waktu jadwal rilis sudah terlewati, ubah status ke published
+      if (p.status === 'scheduled' && p.publishedAt && p.publishedAt <= now) {
+        p.status = 'published';
+        if (isFirebaseConfigured() && p.id) {
+          try {
+            updateDoc(doc(db, 'posts', p.id), { status: 'published' }).catch(() => {});
+          } catch(e) {}
+        }
+      }
+      return p;
+    };
 
     if (isFirebaseConfigured()) {
       try {
@@ -40,7 +54,21 @@ export const dbService = {
         const querySnapshot = await getDocs(q);
         let posts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        if (status && status !== 'all') posts = posts.filter(p => p.status === status);
+        posts = posts.map(processScheduledPost);
+
+        if (status && status !== 'all') {
+          if (status === 'published') {
+            posts = posts.filter(p => p.status === 'published' && (!p.publishedAt || p.publishedAt <= now));
+          } else if (status === 'scheduled') {
+            posts = posts.filter(p => p.status === 'scheduled' || (p.publishedAt && p.publishedAt > now && p.status !== 'draft'));
+          } else {
+            posts = posts.filter(p => p.status === status);
+          }
+        } else if (!status) {
+          // Default public view: Hapus artikel terjadwal di masa depan
+          posts = posts.filter(p => p.status === 'published' && (!p.publishedAt || p.publishedAt <= now));
+        }
+
         if (category && category !== 'All') posts = posts.filter(p => p.category === category);
         if (search) {
           const s = search.toLowerCase();
@@ -53,11 +81,22 @@ export const dbService = {
       }
     }
 
-    // Demo Mode Local Storage
+    // Demo Mode / Local Storage Fallback
     let posts = getLocal('posts', INITIAL_POSTS);
+    posts = posts.map(processScheduledPost);
+
     if (status && status !== 'all') {
-      posts = posts.filter(p => p.status === status);
+      if (status === 'published') {
+        posts = posts.filter(p => p.status === 'published' && (!p.publishedAt || p.publishedAt <= now));
+      } else if (status === 'scheduled') {
+        posts = posts.filter(p => p.status === 'scheduled' || (p.publishedAt && p.publishedAt > now && p.status !== 'draft'));
+      } else {
+        posts = posts.filter(p => p.status === status);
+      }
+    } else if (!status) {
+      posts = posts.filter(p => p.status === 'published' && (!p.publishedAt || p.publishedAt <= now));
     }
+
     if (category && category !== 'All') {
       posts = posts.filter(p => p.category === category);
     }
@@ -72,6 +111,7 @@ export const dbService = {
   },
 
   async getPostBySlug(slug) {
+    const now = new Date().toISOString();
     if (isFirebaseConfigured()) {
       try {
         const postsRef = collection(db, 'posts');
@@ -79,7 +119,13 @@ export const dbService = {
         const snap = await getDocs(q);
         if (!snap.empty) {
           const docSnap = snap.docs[0];
-          const post = { id: docSnap.id, ...docSnap.data() };
+          let post = { id: docSnap.id, ...docSnap.data() };
+          
+          if (post.status === 'scheduled' && post.publishedAt && post.publishedAt <= now) {
+            post.status = 'published';
+            try { await updateDoc(doc(db, 'posts', docSnap.id), { status: 'published' }); } catch(e){}
+          }
+          
           try {
             await updateDoc(doc(db, 'posts', docSnap.id), { views: increment(1) });
           } catch(e){}
@@ -93,9 +139,13 @@ export const dbService = {
     const posts = getLocal('posts', INITIAL_POSTS);
     const postIndex = posts.findIndex(p => p.slug === slug);
     if (postIndex !== -1) {
-      posts[postIndex].views = (posts[postIndex].views || 0) + 1;
+      let post = posts[postIndex];
+      if (post.status === 'scheduled' && post.publishedAt && post.publishedAt <= now) {
+        post.status = 'published';
+      }
+      post.views = (post.views || 0) + 1;
       setLocal('posts', posts);
-      return posts[postIndex];
+      return post;
     }
     return null;
   },
@@ -113,6 +163,17 @@ export const dbService = {
   },
 
   async savePost(postData) {
+    const now = new Date().toISOString();
+    const pubAt = postData.publishedAt
+      ? new Date(postData.publishedAt).toISOString()
+      : now;
+
+    // Tentukan status otomatis: jika publishedAt di masa depan dan bukan draft -> 'scheduled'
+    let finalStatus = postData.status || 'published';
+    if (finalStatus !== 'draft' && pubAt > now) {
+      finalStatus = 'scheduled';
+    }
+
     const postPayload = {
       title: postData.title || 'Untitled Post',
       slug: postData.slug || postData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
@@ -120,11 +181,23 @@ export const dbService = {
       category: postData.category || 'Web Development',
       tags: Array.isArray(postData.tags) ? postData.tags : (postData.tags || '').split(',').map(t => t.trim()).filter(Boolean),
       featuredImage: postData.featuredImage || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
-      status: postData.status || 'published',
+      status: finalStatus,
+      publishedAt: pubAt,
       readTime: postData.readTime || '5 min read',
       author: postData.author || { name: 'Ernst Senior Dev', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80', role: 'CMS Administrator' },
+      seoTitle: postData.seoTitle || postData.title || '',
+      seoDescription: postData.seoDescription || postData.excerpt || '',
+      focusKeyword: postData.focusKeyword || '',
+      canonicalUrl: postData.canonicalUrl || '',
+      noIndex: postData.noIndex || false,
+      enableAds: postData.enableAds !== undefined ? postData.enableAds : true,
+      adPlacement: postData.adPlacement || 'all',
+      adClient: postData.adClient || 'ca-pub-9999999999999999',
+      adSlot: postData.adSlot || '1234567890',
+      isSponsored: postData.isSponsored || false,
+      content: postData.content || '',
       blocks: postData.blocks || [],
-      updatedAt: new Date().toISOString()
+      updatedAt: now
     };
 
     if (isFirebaseConfigured()) {
@@ -133,7 +206,6 @@ export const dbService = {
           await updateDoc(doc(db, 'posts', postData.id), postPayload);
           return { id: postData.id, ...postPayload };
         } else {
-          postPayload.publishedAt = new Date().toISOString();
           postPayload.views = 0;
           const newDoc = await addDoc(collection(db, 'posts'), postPayload);
           return { id: newDoc.id, ...postPayload };
@@ -155,7 +227,6 @@ export const dbService = {
     }
     const newPost = {
       id: `post-${Date.now()}`,
-      publishedAt: new Date().toISOString(),
       views: 0,
       ...postPayload
     };
@@ -190,6 +261,10 @@ export const dbService = {
       } catch (err) {}
     }
     return getLocal('categories', INITIAL_CATEGORIES);
+  },
+
+  async createCategory(catData) {
+    return this.saveCategory(catData);
   },
 
   async saveCategory(catData) {
@@ -323,5 +398,207 @@ export const dbService = {
   async resetDemoData() {
     // Demo data reset is disabled because localStorage demo mode is turned off.
     // Function retained for API compatibility.
+  },
+
+  // ADSENSE GLOBAL SETTINGS (ADMIN ONLY)
+  async getAdSenseSettings() {
+    const DEFAULT_SETTINGS = {
+      globalEnableAds: true,
+      adClient: 'ca-pub-9999999999999999',
+      headerAdSlot: '1234567890',
+      inArticleAdSlot: '0987654321',
+      footerAdSlot: '1122334455',
+      autoAdsEnabled: true,
+    };
+
+    if (isFirebaseConfigured()) {
+      try {
+        const docRef = doc(db, 'settings', 'adsense');
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          return { ...DEFAULT_SETTINGS, ...snap.data() };
+        }
+      } catch (e) {
+        console.warn('Firestore getAdSenseSettings error:', e);
+      }
+    }
+
+    return getLocal('adsense_settings', DEFAULT_SETTINGS);
+  },
+
+  async saveAdSenseSettings(settingsData) {
+    const payload = {
+      globalEnableAds: settingsData.globalEnableAds !== undefined ? settingsData.globalEnableAds : true,
+      adClient: settingsData.adClient || 'ca-pub-9999999999999999',
+      headerAdSlot: settingsData.headerAdSlot || '1234567890',
+      inArticleAdSlot: settingsData.inArticleAdSlot || '0987654321',
+      footerAdSlot: settingsData.footerAdSlot || '1122334455',
+      autoAdsEnabled: settingsData.autoAdsEnabled !== undefined ? settingsData.autoAdsEnabled : true,
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (isFirebaseConfigured()) {
+      try {
+        await setDoc(doc(db, 'settings', 'adsense'), payload, { merge: true });
+        return payload;
+      } catch (e) {
+        console.warn('Firestore saveAdSenseSettings error:', e);
+      }
+    }
+
+    setLocal('adsense_settings', payload);
+    return payload;
+  },
+
+  // STATIC PAGES
+  async getPages() {
+    if (isFirebaseConfigured()) {
+      try {
+        const snap = await getDocs(collection(db, 'pages'));
+        if (!snap.empty) {
+          return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        }
+      } catch (e) {
+        console.warn('Firestore getPages error:', e);
+      }
+    }
+    return getLocal('pages', INITIAL_PAGES);
+  },
+
+  async getPageBySlug(slug) {
+    if (isFirebaseConfigured()) {
+      try {
+        const q = query(collection(db, 'pages'), where('slug', '==', slug));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const docSnap = snap.docs[0];
+          let page = { id: docSnap.id, ...docSnap.data() };
+          try {
+            await updateDoc(doc(db, 'pages', docSnap.id), { views: increment(1) });
+          } catch(e){}
+          return page;
+        }
+      } catch (e) {
+        console.warn('Firestore getPageBySlug error:', e);
+      }
+    }
+    const pages = getLocal('pages', INITIAL_PAGES);
+    const p = pages.find(page => page.slug === slug);
+    if (p) {
+      p.views = (p.views || 0) + 1;
+      setLocal('pages', pages);
+      return p;
+    }
+    return null;
+  },
+
+  async getPageById(id) {
+    if (isFirebaseConfigured()) {
+      try {
+        const snap = await getDoc(doc(db, 'pages', id));
+        if (snap.exists()) return { id: snap.id, ...snap.data() };
+      } catch (e) {}
+    }
+    const pages = getLocal('pages', INITIAL_PAGES);
+    return pages.find(p => p.id === id) || null;
+  },
+
+  async savePage(pageData) {
+    const now = new Date().toISOString();
+    const payload = {
+      title: pageData.title || 'Untitled Page',
+      slug: pageData.slug || pageData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
+      excerpt: pageData.excerpt || '',
+      status: pageData.status || 'published',
+      publishedAt: pageData.publishedAt || now,
+      author: pageData.author || { name: 'Ernst Senior Dev', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80', role: 'CMS Administrator' },
+      seoTitle: pageData.seoTitle || pageData.title || '',
+      seoDescription: pageData.seoDescription || pageData.excerpt || '',
+      blocks: pageData.blocks || [],
+      updatedAt: now
+    };
+
+    if (isFirebaseConfigured()) {
+      try {
+        if (pageData.id) {
+          await updateDoc(doc(db, 'pages', pageData.id), payload);
+          return { id: pageData.id, ...payload };
+        } else {
+          payload.views = 0;
+          const newDoc = await addDoc(collection(db, 'pages'), payload);
+          return { id: newDoc.id, ...payload };
+        }
+      } catch (e) {
+        console.warn('Firestore savePage error:', e);
+      }
+    }
+
+    let pages = getLocal('pages', INITIAL_PAGES);
+    if (pageData.id) {
+      const idx = pages.findIndex(p => p.id === pageData.id);
+      if (idx !== -1) {
+        pages[idx] = { ...pages[idx], ...payload };
+        setLocal('pages', pages);
+        return pages[idx];
+      }
+    }
+    const newPage = { id: `page-${Date.now()}`, views: 0, ...payload };
+    pages.unshift(newPage);
+    setLocal('pages', pages);
+    return newPage;
+  },
+
+  async deletePage(id) {
+    if (isFirebaseConfigured()) {
+      try {
+        await deleteDoc(doc(db, 'pages', id));
+        return true;
+      } catch (e) {
+        console.warn('Firestore deletePage error:', e);
+      }
+    }
+    let pages = getLocal('pages', INITIAL_PAGES);
+    pages = pages.filter(p => p.id !== id);
+    setLocal('pages', pages);
+    return true;
+  },
+
+  // MENUS (HEADER & FOOTER 3-LEVEL NAVIGATION)
+  async getMenu(location = 'header') {
+    if (isFirebaseConfigured()) {
+      try {
+        const docRef = doc(db, 'menus', location);
+        const snap = await getDoc(docRef);
+        if (snap.exists() && snap.data().items) {
+          return snap.data().items;
+        }
+      } catch (e) {
+        console.warn('Firestore getMenu error:', e);
+      }
+    }
+    const menus = getLocal('menus', INITIAL_MENUS);
+    return menus[location] || INITIAL_MENUS[location] || [];
+  },
+
+  async saveMenu(location = 'header', items = []) {
+    const payload = {
+      location,
+      items,
+      updatedAt: new Date().toISOString()
+    };
+
+    if (isFirebaseConfigured()) {
+      try {
+        await setDoc(doc(db, 'menus', location), payload, { merge: true });
+        return items;
+      } catch (e) {
+        console.warn('Firestore saveMenu error:', e);
+      }
+    }
+
+    let menus = getLocal('menus', INITIAL_MENUS);
+    menus[location] = items;
+    setLocal('menus', menus);
+    return items;
   }
 };

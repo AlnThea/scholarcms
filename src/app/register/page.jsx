@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { Feather, Lock, Mail, User, ArrowRight } from 'lucide-react';
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -64,64 +66,44 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
-                Nama Lengkap
-              </label>
-              <div className="relative">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-subtle)]" />
-                <input
-                  type="text"
-                  required
-                  placeholder="Nama Lengkap Anda"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-sm text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                />
-              </div>
-            </div>
+            <Input
+              label="Nama Lengkap"
+              type="text"
+              required
+              icon={User}
+              placeholder="Nama Lengkap Anda"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
 
-            <div>
-              <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
-                Alamat Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-subtle)]" />
-                <input
-                  type="email"
-                  required
-                  placeholder="email@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-sm text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                />
-              </div>
-            </div>
+            <Input
+              label="Alamat Email"
+              type="email"
+              required
+              icon={Mail}
+              placeholder="email@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
 
-            <div>
-              <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
-                Kata Sandi
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-subtle)]" />
-                <input
-                  type="password"
-                  required
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-sm text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                />
-              </div>
-            </div>
+            <Input
+              label="Kata Sandi"
+              type="password"
+              required
+              icon={Lock}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
 
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              loading={loading}
+              size="lg"
+              className="w-full"
             >
-              {loading ? 'Mendaftarkan...' : 'Daftar Sekarang'} <ArrowRight className="w-4 h-4" />
-            </button>
+              Daftar Sekarang
+            </Button>
           </form>
 
         </div>

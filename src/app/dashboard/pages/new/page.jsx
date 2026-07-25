@@ -6,7 +6,7 @@ import TiptapEditor from '@/components/admin/TiptapEditor';
 import { dbService } from '@/services/dbService';
 import { useMetaSidebar } from '@/context/MetaSidebarContext';
 
-export default function NewPostPage() {
+export default function NewPagePage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const { resetMeta } = useMetaSidebar();
@@ -15,22 +15,21 @@ export default function NewPostPage() {
     resetMeta();
   }, []);
 
-  const handleSave = async (postData, shouldExit = true) => {
+  const handleSave = async (pageData, shouldExit = true) => {
     setSaving(true);
-    const savedPost = await dbService.savePost(postData);
+    const savedPage = await dbService.savePage(pageData);
     setSaving(false);
 
     if (shouldExit) {
-      router.push('/dashboard/posts');
-    } else if (savedPost?.id && !postData.id) {
-      router.replace(`/dashboard/posts/edit/${savedPost.id}`);
+      router.push('/dashboard/pages');
+    } else if (savedPage?.id && !pageData.id) {
+      router.replace(`/dashboard/pages/edit/${savedPage.id}`);
     }
   };
 
   return (
     <div className="animate-fade-in">
-      <TiptapEditor onSave={handleSave} saving={saving} backLink="/dashboard/posts" />
+      <TiptapEditor isPage={true} onSave={handleSave} saving={saving} backLink="/dashboard/pages" />
     </div>
   );
 }
-

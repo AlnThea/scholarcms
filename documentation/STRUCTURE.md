@@ -43,6 +43,8 @@ scholarcms/
 │   │   ├── dashboard/            # Primary dashboard UI (admin, writer, user) – replaces old admin routes
 │   │   │   ├── categories/       # Kelola Kategori & Warna Aksen (page.jsx)
 │   │   │   ├── comments/         # Moderasi Komentar Pengunjung (page.jsx)
+│   │   │   ├── menus/            # Pengelola Menu Navigasi Drag & Drop 3 Level (page.jsx)
+│   │   │   ├── pages/            # Tabel & Pengelola Halaman Statis WordPress (page.jsx, new/page.jsx, edit/[id]/page.jsx)
 │   │   │   ├── posts/            # Tabel Postingan & Gutenberg Editor
 │   │   │   │   ├── edit/[id]/    # Mode Edit Artikel Dynamic Route (page.jsx)
 │   │   │   │   ├── new/          # Mode Tambah Artikel Baru (page.jsx)
@@ -53,15 +55,18 @@ scholarcms/
 │   │   │   └── page.jsx          # Dashboard Overview (was Admin Analytics)
 │   │   ├── login/                # Halaman Login Autentikasi (page.jsx)
 │   │   ├── register/             # Halaman Pendaftaran Akun (page.jsx)
+│   │   ├── page/[slug]/          # Reader Single Static Page Dynamic Route (page.jsx)
 │   │   ├── post/[slug]/          # Reader Single Article View Dynamic Route (page.jsx)
 │   │   ├── globals.css           # Styling System, CSS Tokens, & Gutenberg Block Typo
 │   │   ├── layout.jsx            # Root HTML, AuthProvider & Metadata SEO Layout
 │   │   └── page.jsx              # Blog Homepage Feed & Hero Featured Post
 │   │
 │   ├── components/               # Komponen UI Reusable
-│   │   ├── admin/                # Komponen Khusus Admin (GutenbergEditor.jsx)
+│   │   ├── admin/                # Komponen Khusus Admin/Editor (TiptapEditor.jsx, BlockPaletteSidebar.jsx, RightMetaSidebar.jsx)
 │   │   ├── blog/                 # Komponen Khusus Pembaca Blog (HeroFeatured.jsx, PostCard.jsx)
-│   │   └── layout/               # Komponen Layout Shell (Navbar.jsx, Footer.jsx)
+│   │   ├── dashboard/            # Komponen Dashboard Modular (PageHeader.jsx, StatsCard.jsx, DataTable.jsx)
+│   │   ├── layout/               # Komponen Layout Shell (Navbar.jsx, Footer.jsx)
+│   │   └── ui/                   # Komponen Design System Modular (Input.jsx, Select.jsx, Textarea.jsx, Button.jsx, Badge.jsx)
 │   │
 │   ├── context/                  # Context State Management
 │   │   ├── AuthContext.jsx       # Auth Provider (currentUser, role, login, register, logout, switchRole)
