@@ -185,27 +185,62 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
 
     if (type === 'paragraph') {
       editor.chain().focus().insertContent('<p>Tulis paragraf teks baru di sini...</p>').run();
+    } else if (type === 'leadParagraph') {
+      editor.chain().focus().insertContent('<p class="text-lg font-medium text-[var(--text-main)] leading-relaxed my-3">Tulis paragraf pengantar / lead text dengan penekanan font lebih besar di sini...</p>').run();
+    } else if (type === 'heading1') {
+      editor.chain().focus().insertContent('<h1>Judul Dokumen Utama (Heading 1)</h1>').run();
     } else if (type === 'heading2') {
       editor.chain().focus().insertContent('<h2>Judul Sub-Topik (Heading 2)</h2>').run();
     } else if (type === 'heading3') {
       editor.chain().focus().insertContent('<h3>Judul Sub-Topik Detail (Heading 3)</h3>').run();
     } else if (type === 'heading4') {
       editor.chain().focus().insertContent('<h4>Judul Poin Tambahan (Heading 4)</h4>').run();
+    } else if (type === 'heading5') {
+      editor.chain().focus().insertContent('<h5>Judul Sub-Poin Ringkas (Heading 5)</h5>').run();
+    } else if (type === 'heading6') {
+      editor.chain().focus().insertContent('<h6>Judul Mikro / Sub-Keterangan (Heading 6)</h6>').run();
     } else if (type === 'quote') {
-      editor.chain().focus().insertContent('<blockquote>"Tulis kalimat kutipan inspiratif atau kutipan narasumber di sini."</blockquote>').run();
+      editor.chain().focus().insertContent('<blockquote class="p-4 my-4 border-l-4 border-emerald-500 bg-emerald-500/10 italic rounded-r-xl">"Tulis kalimat kutipan inspiratif atau narasumber di sini."</blockquote>').run();
     } else if (type === 'codeBlock') {
       editor.chain().focus().insertContent('<pre><code>// Contoh Kode Pemrograman\nfunction helloWorld() {\n  console.log("Hello ScholarCMS!");\n}</code></pre>').run();
     } else if (type === 'callout') {
       editor.chain().focus().insertContent('<blockquote class="p-4 my-4 rounded-xl bg-blue-500/10 border-l-4 border-blue-500 text-blue-400 font-medium">💡 <strong>Catatan Penting:</strong> Tulis poin penegasan informasi penting di sini.</blockquote>').run();
+    } else if (type === 'alertSuccess') {
+      editor.chain().focus().insertContent('<blockquote class="p-4 my-4 rounded-xl bg-emerald-500/10 border-l-4 border-emerald-500 text-emerald-400 font-medium">✅ <strong>Tips Sukses:</strong> Tulis informasi tips atau langkah keberhasilan di sini.</blockquote>').run();
+    } else if (type === 'alertWarning') {
+      editor.chain().focus().insertContent('<blockquote class="p-4 my-4 rounded-xl bg-amber-500/10 border-l-4 border-amber-500 text-amber-400 font-medium">⚠️ <strong>Peringatan:</strong> Tulis instruksi perhatian khusus di sini.</blockquote>').run();
+    } else if (type === 'alertDanger') {
+      editor.chain().focus().insertContent('<blockquote class="p-4 my-4 rounded-xl bg-rose-500/10 border-l-4 border-rose-500 text-rose-400 font-medium">🛑 <strong>Perhatian Bahaya:</strong> Tulis instruksi penting yang harus dihindari di sini.</blockquote>').run();
     } else if (type === 'bulletList') {
       editor.chain().focus().insertContent('<ul><li>Poin daftar berbutir pertama</li><li>Poin daftar berbutir kedua</li></ul>').run();
     } else if (type === 'orderedList') {
       editor.chain().focus().insertContent('<ol><li>Langkah berurutan pertama</li><li>Langkah berurutan kedua</li></ol>').run();
+    } else if (type === 'taskList') {
+      editor.chain().focus().insertContent('<ul class="space-y-2 my-4"><li><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded border-gray-400" /> <span>Poin tugas / checklist pertama</span></label></li><li><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded border-gray-400" checked /> <span>Poin tugas / checklist kedua</span></label></li></ul>').run();
+    } else if (type === 'table') {
+      editor.chain().focus().insertContent('<table class="w-full text-sm border-collapse my-4"><thead class="bg-blue-500/10"><tr><th class="border border-gray-300 dark:border-gray-700 p-2 text-left">Header 1</th><th class="border border-gray-300 dark:border-gray-700 p-2 text-left">Header 2</th><th class="border border-gray-300 dark:border-gray-700 p-2 text-left">Header 3</th></tr></thead><tbody><tr><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 1 Kolom 1</td><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 1 Kolom 2</td><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 1 Kolom 3</td></tr><tr><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 2 Kolom 1</td><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 2 Kolom 2</td><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 2 Kolom 3</td></tr></tbody></table>').run();
     } else if (type === 'image') {
       const url = prompt('Masukkan URL Gambar Web (HTTPS):', 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1200&q=80');
       if (url) {
         editor.chain().focus().setImage({ src: url }).run();
       }
+    } else if (type === 'video') {
+      const url = prompt('Masukkan URL Embed Video YouTube (atau HTTPS Video):', 'https://www.youtube.com/embed/dQw4w9WgXcQ');
+      if (url) {
+        let embedUrl = url;
+        if (url.includes('watch?v=')) {
+          embedUrl = url.replace('watch?v=', 'embed/');
+        }
+        editor.chain().focus().insertContent(`<div class="relative w-full aspect-video rounded-xl overflow-hidden my-4 border border-[var(--border-color)] shadow-md"><iframe src="${embedUrl}" class="w-full h-full border-0" allowfullscreen></iframe></div>`).run();
+      }
+    } else if (type === 'button') {
+      const text = prompt('Teks Tombol CTA:', 'Klik Di Sini Untuk Informasi Lebih Lanjut');
+      const url = prompt('Tautan URL Tujuan (HTTPS):', 'https://example.com');
+      if (text && url) {
+        editor.chain().focus().insertContent(`<p class="my-4"><a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 font-bold text-white bg-blue-600 rounded-xl shadow-md hover:bg-blue-700 transition-colors no-underline">${text} ↗</a></p>`).run();
+      }
+    } else if (type === 'details') {
+      editor.chain().focus().insertContent('<details class="p-4 my-4 rounded-xl bg-blue-500/5 border border-blue-500/20 cursor-pointer"><summary class="font-bold text-base select-none text-[var(--text-main)]">❓ Tulis Pertanyaan / Judul Accordion Di Sini</summary><p class="mt-2 text-sm text-[var(--text-muted)] leading-relaxed">Tulis penjelasan detail atau jawaban yang dapat dibuka dan ditutup oleh pembaca di sini.</p></details>').run();
     } else if (type === 'horizontalRule') {
       editor.chain().focus().setHorizontalRule().run();
     }

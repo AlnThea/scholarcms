@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import {
-  Type, Heading, Quote, Code, Sparkles,
-  List, ListOrdered, Image, Minus, Layers,
-  ChevronLeft, ChevronRight
+  Type, Heading1, Heading2, Heading3, Heading4, Heading5, Heading6, TextQuote,
+  List, ListOrdered, ListTodo, Table, Quote, Code, Sparkles, CheckCircle2, AlertTriangle, AlertOctagon,
+  Image, Video, Link2, HelpCircle, Minus, Layers, ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 const TEXT_BLOCKS = [
@@ -15,44 +15,50 @@ const TEXT_BLOCKS = [
     color: 'text-blue-500 bg-blue-500/10'
   },
   {
+    type: 'leadParagraph',
+    label: 'Paragraf Lead',
+    icon: TextQuote,
+    color: 'text-teal-500 bg-teal-500/10'
+  },
+  {
+    type: 'heading1',
+    label: 'Judul Utama (H1)',
+    icon: Heading1,
+    color: 'text-blue-600 bg-blue-600/10'
+  },
+  {
     type: 'heading2',
-    label: 'Judul (H2)',
-    icon: Heading,
+    label: 'Judul Sub (H2)',
+    icon: Heading2,
     color: 'text-indigo-500 bg-indigo-500/10'
   },
   {
     type: 'heading3',
     label: 'Sub-Judul (H3)',
-    icon: Heading,
+    icon: Heading3,
     color: 'text-purple-500 bg-purple-500/10'
   },
   {
     type: 'heading4',
-    label: 'Poin (H4)',
-    icon: Heading,
+    label: 'Poin Judul (H4)',
+    icon: Heading4,
     color: 'text-violet-500 bg-violet-500/10'
+  },
+  {
+    type: 'heading5',
+    label: 'Judul Kecil (H5)',
+    icon: Heading5,
+    color: 'text-sky-500 bg-sky-500/10'
+  },
+  {
+    type: 'heading6',
+    label: 'Mikro Judul (H6)',
+    icon: Heading6,
+    color: 'text-slate-500 bg-slate-500/10'
   }
 ];
 
-const MEDIA_BLOCKS = [
-  {
-    type: 'quote',
-    label: 'Kutipan',
-    icon: Quote,
-    color: 'text-emerald-500 bg-emerald-500/10'
-  },
-  {
-    type: 'codeBlock',
-    label: 'Kode',
-    icon: Code,
-    color: 'text-amber-500 bg-amber-500/10'
-  },
-  {
-    type: 'callout',
-    label: 'Callout Box',
-    icon: Sparkles,
-    color: 'text-pink-500 bg-pink-500/10'
-  },
+const LIST_TABLE_BLOCKS = [
   {
     type: 'bulletList',
     label: 'Daftar Bullet',
@@ -66,10 +72,85 @@ const MEDIA_BLOCKS = [
     color: 'text-teal-500 bg-teal-500/10'
   },
   {
+    type: 'taskList',
+    label: 'Checklist Tugas',
+    icon: ListTodo,
+    color: 'text-emerald-500 bg-emerald-500/10'
+  },
+  {
+    type: 'table',
+    label: 'Tabel Data',
+    icon: Table,
+    color: 'text-indigo-500 bg-indigo-500/10'
+  }
+];
+
+const QUOTE_CODE_BLOCKS = [
+  {
+    type: 'quote',
+    label: 'Kutipan Box',
+    icon: Quote,
+    color: 'text-emerald-500 bg-emerald-500/10'
+  },
+  {
+    type: 'codeBlock',
+    label: 'Kode Snippet',
+    icon: Code,
+    color: 'text-amber-500 bg-amber-500/10'
+  }
+];
+
+const CALLOUT_BLOCKS = [
+  {
+    type: 'callout',
+    label: 'Info Callout',
+    icon: Sparkles,
+    color: 'text-blue-500 bg-blue-500/10'
+  },
+  {
+    type: 'alertSuccess',
+    label: 'Tips Sukses',
+    icon: CheckCircle2,
+    color: 'text-emerald-500 bg-emerald-500/10'
+  },
+  {
+    type: 'alertWarning',
+    label: 'Peringatan',
+    icon: AlertTriangle,
+    color: 'text-amber-500 bg-amber-500/10'
+  },
+  {
+    type: 'alertDanger',
+    label: 'Perhatian Bahaya',
+    icon: AlertOctagon,
+    color: 'text-rose-500 bg-rose-500/10'
+  }
+];
+
+const MEDIA_INTERACTIVE_BLOCKS = [
+  {
     type: 'image',
     label: 'Gambar Web',
     icon: Image,
     color: 'text-rose-500 bg-rose-500/10'
+  },
+  {
+    type: 'video',
+    label: 'Video YouTube',
+    icon: Video,
+    color: 'text-red-500 bg-red-500/10'
+  },
+  {
+    type: 'button',
+    label: 'Tombol CTA Link',
+    icon: Link2,
+    color: 'text-blue-600 bg-blue-600/10'
+  },
+  {
+    type: 'details',
+    label: 'Accordion FAQ',
+    icon: HelpCircle,
+    color: 'text-purple-600 bg-purple-600/10'
   },
   {
     type: 'horizontalRule',
@@ -179,13 +260,17 @@ export default function BlockPaletteSidebar({ onInsertBlock }) {
         )}
       </div>
 
-      {/* Grid Sections */}
+      {/* Grid Sections Grouped */}
       <div className="space-y-5 overflow-y-auto flex-1 pr-1 custom-scrollbar">
-        {renderGridSection('Teks & Judul', TEXT_BLOCKS)}
-        {renderGridSection('Media & Format', MEDIA_BLOCKS)}
+        {renderGridSection('🔤 Teks & Headings', TEXT_BLOCKS)}
+        {renderGridSection('📑 Daftar & Penataan', LIST_TABLE_BLOCKS)}
+        {renderGridSection('💬 Kutipan & Kode', QUOTE_CODE_BLOCKS)}
+        {renderGridSection('💡 Callout & Notifikasi', CALLOUT_BLOCKS)}
+        {renderGridSection('🎨 Media & Interaktif', MEDIA_INTERACTIVE_BLOCKS)}
       </div>
 
     </aside>
   );
 }
+
 
