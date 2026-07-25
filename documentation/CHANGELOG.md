@@ -121,6 +121,19 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 - **Custom React Prompt Modals (`InsertMediaModal.jsx`)**:
   - Menggantikan seluruh popup dialog abu-abu kaku bawaan browser (`window.prompt`) dengan **Modal Popup Kustom React** bergaya modern Glassmorphism (dengan Live Image Preview & checkbox tab baru) untuk penyisipan Link, Gambar, Video YouTube, dan Tombol CTA.
 
+---
+
+## [v1.4.3] - 2026-07-25
+
+### 🎨 Pengondisian & Styling Visual Drag & Drop Gutenberg Editor
+- **Custom Drop Cursor Accent Line (`.ProseMirror-dropcursor`)**:
+  - Mengubah garis petunjuk posisi drop (*drop cursor line*) bawaan yang berwarna hitam kaku menjadi **garis biru brand modern (`#3b82f6`)** setebal 3px dengan efek *glowing shadow* (`box-shadow: 0 0 10px rgba(59,130,246,0.75)`) dan `pointer-events: none` agar tidak menghalangi event kursor.
+- **Integrasi Tiptap Interactive Table Extension & Floating Bubble Menu**:
+  - Menginstal & mengintegrasikan `@tiptap/extension-table`, `@tiptap/extension-table-row`, `@tiptap/extension-table-cell`, dan `@tiptap/extension-table-header`.
+  - Blok **Tabel Data** saat diseret (*drag & drop*) kini langsung merender struktur node tabel visual asli 3x3 yang interaktif dan dapat diedit.
+  - **Floating Table Action Menu (`BubbleMenu`)**: Menampilkan toolbar melayang otomatis tepat di atas sel tabel saat kursor/pointer aktif di dalam tabel. Menyediakan suite kontrol lengkap: **`+ Baris ↑`**, **`+ Baris ↓`**, **`- Baris`**, **`+ Kolom ←`**, **`+ Kolom →`**, **`- Kolom`**, **`Gabung Sel`**, **`Pisah Sel`**, **`Toggle Header`**, dan **`🗑️ Hapus Tabel`**.
+
+
 
 
 

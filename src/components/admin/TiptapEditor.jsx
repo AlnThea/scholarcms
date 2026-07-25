@@ -1,6 +1,7 @@
 'use client';
 
 import { useEditor, EditorContent } from '@tiptap/react';
+import { BubbleMenu } from '@tiptap/react/menus';
 import { Extension } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -9,7 +10,18 @@ import LinkExtension from '@tiptap/extension-link';
 import UnderlineExtension from '@tiptap/extension-underline';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { FontFamily } from '@tiptap/extension-font-family';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table-header';
+
+const BUBBLE_MENU_TIPPY_OPTIONS = {
+  duration: 150,
+  placement: 'bottom-start',
+  fallbackPlacements: ['right-start', 'left-start', 'bottom'],
+  offset: [0, 8],
+};
 import BlockPaletteSidebar from './BlockPaletteSidebar';
 import Link from 'next/link';
 import {
@@ -101,7 +113,12 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
 
   const [categories, setCategories] = useState([]);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [isDraggingOverCanvas, setIsDraggingOverCanvas] = useState(false);
   const activeTab = editorViewMode || 'editor';
+
+  const shouldShowTableMenu = useCallback(({ editor }) => {
+    return editor ? editor.isActive('table') : false;
+  }, []);
 
   const handleAiGenerateSuccess = async (data) => {
     if (!data) return;
@@ -180,6 +197,11 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
     extensions: [
       StarterKit.configure({
         link: false,
+        underline: false,
+        dropcursor: {
+          color: '#3b82f6',
+          width: 3,
+        },
       }),
       TextStyle,
       FontFamily,
@@ -201,6 +223,12 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
         inline: true,
         allowBase64: true,
       }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: initialContent,
     editorProps: {
@@ -325,7 +353,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
     } else if (type === 'taskList') {
       editor.chain().focus().insertContent('<ul class="space-y-2 my-4"><li><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded border-gray-400" /> <span>Poin tugas / checklist pertama</span></label></li><li><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded border-gray-400" checked /> <span>Poin tugas / checklist kedua</span></label></li></ul>').run();
     } else if (type === 'table') {
-      editor.chain().focus().insertContent('<table class="w-full text-sm border-collapse my-4"><thead class="bg-blue-500/10"><tr><th class="border border-gray-300 dark:border-gray-700 p-2 text-left">Header 1</th><th class="border border-gray-300 dark:border-gray-700 p-2 text-left">Header 2</th><th class="border border-gray-300 dark:border-gray-700 p-2 text-left">Header 3</th></tr></thead><tbody><tr><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 1 Kolom 1</td><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 1 Kolom 2</td><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 1 Kolom 3</td></tr><tr><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 2 Kolom 1</td><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 2 Kolom 2</td><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 2 Kolom 3</td></tr></tbody></table>').run();
+      editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
     } else if (type === 'image') {
       setMediaModalState({ isOpen: true, type: 'image', initialData: {} });
     } else if (type === 'video') {
@@ -341,6 +369,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
 
   const handleDropOnCanvas = (e) => {
     e.preventDefault();
+    setIsDraggingOverCanvas(false);
     const blockType = e.dataTransfer.getData('blockType') || e.dataTransfer.getData('text/plain');
     if (blockType) {
       handleInsertBlock(blockType);
@@ -350,6 +379,16 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
   const handleDragOver = (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
+    if (!isDraggingOverCanvas) {
+      setIsDraggingOverCanvas(true);
+    }
+  };
+
+  const handleDragLeave = (e) => {
+    if (e.currentTarget && e.relatedTarget && e.currentTarget.contains(e.relatedTarget)) {
+      return;
+    }
+    setIsDraggingOverCanvas(false);
   };
 
   const handleSubmit = (e, shouldExit = true) => {
@@ -526,11 +565,14 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                                 editor.isActive('heading', { level: 6 }) ? 'Blok H6' :
                                   editor.isActive('blockquote') ? 'Blok Kutipan' :
                                     editor.isActive('codeBlock') ? 'Blok Kode' :
-                                      editor.isActive('bulletList') ? 'Blok Bullet' :
-                                        editor.isActive('orderedList') ? 'Blok Angka' :
-                                          'Blok Paragraf'}
+                                      editor.isActive('table') ? 'Blok Tabel Data' :
+                                        editor.isActive('bulletList') ? 'Blok Bullet' :
+                                          editor.isActive('orderedList') ? 'Blok Angka' :
+                                            'Blok Paragraf'}
                     </span>
                   </div>
+
+                  {/* Detektor Blok Tabel */}
 
                   <div className="h-3.5 w-px bg-[var(--border-color)] mx-0.5" />
 
@@ -717,8 +759,137 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
           <div
             onDrop={handleDropOnCanvas}
             onDragOver={handleDragOver}
-            className="flex-1 min-h-[500px]"
+            onDragLeave={handleDragLeave}
+            className="flex-1 min-h-[500px] relative"
           >
+            {editor && (
+              <BubbleMenu
+                editor={editor}
+                tippyOptions={BUBBLE_MENU_TIPPY_OPTIONS}
+                shouldShow={shouldShowTableMenu}
+                className="bg-[var(--bg-surface)]/95 backdrop-blur-md border border-[var(--border-color)] p-2 rounded-2xl shadow-2xl flex flex-col w-56 space-y-1.5 z-[100] animate-fade-in text-xs max-h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar"
+              >
+                {/* Header Context Menu */}
+                <div className="flex items-center justify-between px-2 py-1 border-b border-[var(--border-color)] pb-1.5">
+                  <div className="flex items-center gap-1.5 font-extrabold text-[11px] text-blue-500 uppercase tracking-wider">
+                    <Box className="w-3.5 h-3.5" />
+                    <span>Kontrol Tabel Data</span>
+                  </div>
+                  <span className="text-[10px] text-[var(--text-muted)] font-bold px-1.5 py-0.5 rounded-md bg-blue-500/10 border border-blue-500/20">
+                    Opsi
+                  </span>
+                </div>
+
+                {/* Sub-grup Baris */}
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-extrabold text-[var(--text-muted)] uppercase tracking-wider px-2">Baris</span>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().addRowBefore().run()}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-[var(--text-main)] hover:bg-blue-500/10 hover:text-blue-500 transition-colors text-left"
+                    title="Tambah Baris di Atas"
+                  >
+                    <span>+ Baris di Atas</span>
+                    <span className="text-[10px] opacity-60 font-mono">↑</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().addRowAfter().run()}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-[var(--text-main)] hover:bg-blue-500/10 hover:text-blue-500 transition-colors text-left"
+                    title="Tambah Baris di Bawah"
+                  >
+                    <span>+ Baris di Bawah</span>
+                    <span className="text-[10px] opacity-60 font-mono">↓</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().deleteRow().run()}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-rose-500 hover:bg-rose-500/10 transition-colors text-left"
+                    title="Hapus Baris Aktif"
+                  >
+                    <span>- Hapus Baris Aktif</span>
+                    <span className="text-[10px] opacity-60 font-mono">✕</span>
+                  </button>
+                </div>
+
+                <div className="h-px bg-[var(--border-color)] w-full my-0.5" />
+
+                {/* Sub-grup Kolom */}
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-extrabold text-[var(--text-muted)] uppercase tracking-wider px-2">Kolom</span>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().addColumnBefore().run()}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-[var(--text-main)] hover:bg-blue-500/10 hover:text-blue-500 transition-colors text-left"
+                    title="Tambah Kolom di Kiri"
+                  >
+                    <span>+ Kolom di Kiri</span>
+                    <span className="text-[10px] opacity-60 font-mono">←</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().addColumnAfter().run()}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-[var(--text-main)] hover:bg-blue-500/10 hover:text-blue-500 transition-colors text-left"
+                    title="Tambah Kolom di Kanan"
+                  >
+                    <span>+ Kolom di Kanan</span>
+                    <span className="text-[10px] opacity-60 font-mono">→</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().deleteColumn().run()}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-rose-500 hover:bg-rose-500/10 transition-colors text-left"
+                    title="Hapus Kolom Aktif"
+                  >
+                    <span>- Hapus Kolom Aktif</span>
+                    <span className="text-[10px] opacity-60 font-mono">✕</span>
+                  </button>
+                </div>
+
+                <div className="h-px bg-[var(--border-color)] w-full my-0.5" />
+
+                {/* Sub-grup Sel & Structure */}
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-extrabold text-[var(--text-muted)] uppercase tracking-wider px-2">Sel &amp; Struktur</span>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().mergeCells().run()}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-[var(--text-main)] hover:bg-blue-500/10 hover:text-blue-500 transition-colors text-left"
+                    title="Gabungkan Sel Terpilih (Merge)"
+                  >
+                    <span>🔀 Gabungkan Sel</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().splitCell().run()}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-[var(--text-main)] hover:bg-blue-500/10 hover:text-blue-500 transition-colors text-left"
+                    title="Pisahkan Sel (Split)"
+                  >
+                    <span>✂️ Pisahkan Sel</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleHeaderRow().run()}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-[var(--text-main)] hover:bg-blue-500/10 hover:text-blue-500 transition-colors text-left"
+                    title="Toggle Baris Header"
+                  >
+                    <span>👑 Toggle Header Row</span>
+                  </button>
+                </div>
+
+                <div className="h-px bg-[var(--border-color)] w-full my-0.5" />
+
+                {/* Hapus Tabel */}
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().deleteTable().run()}
+                  className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 transition-colors shadow-sm text-left mt-1"
+                  title="Hapus Seluruh Tabel"
+                >
+                  <span>🗑️ Hapus Seluruh Tabel</span>
+                </button>
+              </BubbleMenu>
+            )}
             <EditorContent editor={editor} />
           </div>
         ) : (

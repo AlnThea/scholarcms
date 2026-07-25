@@ -352,4 +352,67 @@ body {
   box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.15) !important;
 }
 
+/* Custom Gutenberg Drop Cursor Line (Indikator Drag & Drop Blok Editor) */
+.ProseMirror-dropcursor {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  height: 3px !important;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.75), 0 0 2px rgba(59, 130, 246, 1) !important;
+  border-radius: 9999px !important;
+  transition: all 0.15s ease-in-out !important;
+  pointer-events: none !important;
+}
+
+/* Gutenberg Interactive Table Styling */
+.ProseMirror table,
+.prose table,
+.gutenberg-content table {
+  border-collapse: collapse !important;
+  margin: 1.5rem 0 !important;
+  width: 100% !important;
+  table-layout: auto !important;
+  border-radius: 0.75rem !important;
+  overflow: hidden !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--card-shadow) !important;
+}
+
+.ProseMirror th,
+.prose th,
+.gutenberg-content th {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  color: var(--text-main) !important;
+  font-weight: 700 !important;
+  text-align: left !important;
+  padding: 0.75rem 1rem !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.ProseMirror td,
+.prose td,
+.gutenberg-content td {
+  padding: 0.75rem 1rem !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  vertical-align: top !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+}
+
+.ProseMirror td.selectedCell,
+.ProseMirror th.selectedCell {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+.ProseMirror .column-resize-handle {
+  background-color: #3b82f6 !important;
+  width: 4px !important;
+  position: absolute !important;
+  right: -2px !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  pointer-events: none !important;
+}
+
+
 

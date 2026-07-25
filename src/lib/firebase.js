@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { initializeFirestore, getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -21,7 +21,16 @@ if (isFirebaseConfigured()) {
   try {
     // Initialize Firebase app (server or client) if not already initialized
     app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-    db = getFirestore(app);
+    
+    // Configured with experimentalAutoDetectLongPolling to handle WebChannel stream failures seamlessly
+    try {
+      db = initializeFirestore(app, {
+        experimentalAutoDetectLongPolling: true,
+      });
+    } catch (e) {
+      db = getFirestore(app);
+    }
+
     // Auth should only be instantiated in the browser environment
     if (typeof window !== 'undefined') {
       auth = getAuth(app);
