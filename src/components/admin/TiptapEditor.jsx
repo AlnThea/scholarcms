@@ -18,6 +18,8 @@ import { TableCell } from '@tiptap/extension-table-cell';
 import { TableHeader } from '@tiptap/extension-table-header';
 import { TextAlign } from '@tiptap/extension-text-align';
 import Youtube from '@tiptap/extension-youtube';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
 import { Columns, Column } from './ColumnExtensions';
 import { AccordionGroup, AccordionItem, AccordionHeader, AccordionContent } from './AccordionExtensions';
 
@@ -241,6 +243,17 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
         controls: true,
         nocookie: true,
         inline: false,
+      }),
+      TaskList.configure({
+        HTMLAttributes: {
+          class: 'task-list',
+        },
+      }),
+      TaskItem.configure({
+        nested: true,
+        HTMLAttributes: {
+          class: 'task-item',
+        },
       }),
       Columns,
       Column,
@@ -487,7 +500,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
     } else if (type === 'orderedList') {
       editor.chain().focus().insertContent('<ol><li>Langkah berurutan pertama</li><li>Langkah berurutan kedua</li></ol>').run();
     } else if (type === 'taskList') {
-      editor.chain().focus().insertContent('<ul class="space-y-2 my-4"><li><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded border-gray-400" /> <span>Poin tugas / checklist pertama</span></label></li><li><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded border-gray-400" checked /> <span>Poin tugas / checklist kedua</span></label></li></ul>').run();
+      editor.chain().focus().insertContent('<ul data-type="taskList"><li data-type="taskItem" data-checked="false"><p>Item poin checklist tugas 1</p></li><li data-type="taskItem" data-checked="true"><p>Item poin checklist tugas 2 (selesai)</p></li></ul>').run();
     } else if (type === 'table') {
       editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
     } else if (type === 'image') {
@@ -1122,7 +1135,19 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
 
                   <button
                     type="button"
-                    onClick={() => editor.chain().focus().deleteSelection().run()}
+                    onClick={() => {
+                      if (editor) {
+                        const { $from } = editor.state.selection;
+                        const depth = Math.max(1, $from.depth);
+                        const pos = $from.before(depth);
+                        const node = editor.state.doc.nodeAt(pos);
+                        if (node) {
+                          editor.chain().focus().deleteRange({ from: pos, to: pos + node.nodeSize }).run();
+                        } else {
+                          editor.chain().focus().deleteSelection().run();
+                        }
+                      }
+                    }}
                     className="p-1.5 rounded-md text-rose-500 hover:bg-rose-500/10 font-bold transition-colors flex items-center gap-1"
                     title="Hapus Blok Terpilih"
                   >
@@ -1158,14 +1183,6 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                 >
                   <ChevronUp className="w-3.5 h-3.5" />
                 </button>
-                <div
-                  draggable
-                  onDragStart={handleBlockDragStart}
-                  className="p-1 hover:bg-blue-600 hover:text-white rounded cursor-grab active:cursor-grabbing transition-colors flex items-center justify-center"
-                  title="Tahan & seret tombol ini untuk memindahkan lokasi blok ke mana saja"
-                >
-                  <GripVertical className="w-3.5 h-3.5" />
-                </div>
                 <button
                   type="button"
                   onClick={handleMoveBlockDown}
@@ -1173,6 +1190,23 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                   title="Klik untuk memindahkan blok 1 posisi ke bawah"
                 >
                   <ChevronDown className="w-3.5 h-3.5" />
+                </button>
+                <div className="w-px h-3.5 bg-[var(--border-color)] mx-0.5" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (editor && dragHandleInfo.pos !== undefined) {
+                      const node = editor.state.doc.nodeAt(dragHandleInfo.pos);
+                      if (node) {
+                        editor.chain().focus().deleteRange({ from: dragHandleInfo.pos, to: dragHandleInfo.pos + node.nodeSize }).run();
+                        setDragHandleInfo((prev) => ({ ...prev, visible: false }));
+                      }
+                    }
+                  }}
+                  className="p-1 text-rose-500 hover:bg-rose-600 hover:text-white rounded transition-colors"
+                  title="Hapus Blok Ini"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
             )}
