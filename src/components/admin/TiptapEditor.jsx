@@ -3,6 +3,7 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import { Extension } from '@tiptap/core';
+import { NodeSelection } from '@tiptap/pm/state';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import ImageExtension from '@tiptap/extension-image';
@@ -31,7 +32,7 @@ import Link from 'next/link';
 import {
   Save, Eye, Edit3, ArrowLeft, Image as ImageIcon, Sparkles, Settings,
   Bold, Italic, Underline, Strikethrough, Code, Heading, List, ListOrdered, Quote, Undo, Redo,
-  Trash2, Box, Type, Link2, Eraser, Code2, AlignLeft, AlignCenter, AlignRight, AlignJustify
+  Trash2, Box, Type, Link2, Eraser, Code2, AlignLeft, AlignCenter, AlignRight, AlignJustify, GripVertical, ChevronUp, ChevronDown
 } from 'lucide-react';
 import AiGenerateModal from './AiGenerateModal';
 import InsertMediaModal from './InsertMediaModal';
@@ -253,6 +254,60 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
       attributes: {
         class: 'prose dark:prose-invert max-w-none focus:outline-none min-h-[360px] p-6 text-sm text-[var(--text-main)] leading-relaxed',
       },
+      handleDrop(view, event) {
+        const fromPosData = event.dataTransfer?.getData('prosemirror-node-pos');
+        const windowPos = typeof window !== 'undefined' ? window.__scholarcms_dragged_pos : undefined;
+        const fromPosStr = windowPos !== undefined ? windowPos.toString() : fromPosData;
+
+        // console.log('🎯 [DROP TRIGGERED]', { fromPosStr, windowPos, fromPosData, coords: { x: event.clientX, y: event.clientY } });
+
+        if (!fromPosStr) return false;
+
+        const fromPos = parseInt(fromPosStr, 10);
+        if (isNaN(fromPos)) return false;
+
+        const dropCoords = view.posAtCoords({ left: event.clientX, top: event.clientY });
+        if (!dropCoords) {
+          console.warn('⚠️ [DROP ERROR] Could not resolve drop coords');
+          return false;
+        }
+
+        try {
+          const doc = view.state.doc;
+          const node = doc.nodeAt(fromPos);
+          if (!node) {
+            console.warn('⚠️ [DROP ERROR] No node found at fromPos', fromPos);
+            return false;
+          }
+
+          const nodeSize = node.nodeSize;
+          const $drop = doc.resolve(dropCoords.pos);
+          let targetPos = $drop.depth > 0 ? $drop.after(Math.min(1, $drop.depth)) : dropCoords.pos;
+
+          // console.log('🔄 [EXECUTING MOVE TRANSACTION]', { nodeName: node.type.name, fromPos, targetPos });
+
+          let tr = view.state.tr;
+          tr = tr.delete(fromPos, fromPos + nodeSize);
+
+          if (targetPos > fromPos) {
+            targetPos = Math.max(0, targetPos - nodeSize);
+          }
+
+          targetPos = Math.min(targetPos, tr.doc.content.size);
+          tr = tr.insert(targetPos, node);
+          view.dispatch(tr);
+
+          if (typeof window !== 'undefined') {
+            window.__scholarcms_dragged_pos = undefined;
+          }
+
+          // console.log('✅ [MOVE SUCCESS] Block moved cleanly to targetPos:', targetPos);
+          return true;
+        } catch (err) {
+          console.error('❌ [MOVE FAILED] Custom node move drop error:', err);
+          return false;
+        }
+      },
     },
   });
 
@@ -301,7 +356,74 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
   const [, setSelectionTick] = useState(0);
 
   useEffect(() => {
-    if (!editor) return;
+    if (!editor || !editor.view) return;
+
+    const handleProseMirrorDragOver = (e) => {
+      e.preventDefault();
+      if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = 'move';
+      }
+    };
+
+    const handleProseMirrorDrop = (e) => {
+      const windowPos = typeof window !== 'undefined' ? window.__scholarcms_dragged_pos : undefined;
+      const textData = e.dataTransfer?.getData('text/plain') || '';
+      let fromPosStr = windowPos !== undefined ? windowPos.toString() : '';
+
+      if (!fromPosStr && textData.startsWith('scholarcms-move:')) {
+        fromPosStr = textData.replace('scholarcms-move:', '');
+      }
+
+      // HANYA cegah event jika menyeret blok yang sudah ada
+      if (fromPosStr !== undefined && fromPosStr !== null && fromPosStr !== '') {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // console.log('🎯 [PROSEMIRROR CAPTURE MOVE DROP]', { fromPosStr, windowPos, textData, x: e.clientX, y: e.clientY });
+
+        const fromPos = parseInt(fromPosStr, 10);
+        if (isNaN(fromPos)) return;
+
+        const dropCoords = editor.view.posAtCoords({ left: e.clientX, top: e.clientY });
+        if (!dropCoords) return;
+
+        try {
+          const doc = editor.state.doc;
+          const node = doc.nodeAt(fromPos);
+          if (!node) return;
+
+          const nodeSize = node.nodeSize;
+          const $drop = doc.resolve(dropCoords.pos);
+          let targetPos = $drop.depth > 0 ? $drop.after(Math.min(1, $drop.depth)) : dropCoords.pos;
+
+          // console.log('🔄 [DIRECT MOVE TRANSACTION]', { nodeName: node.type.name, fromPos, targetPos });
+
+          let tr = editor.state.tr;
+          tr = tr.delete(fromPos, fromPos + nodeSize);
+
+          if (targetPos > fromPos) {
+            targetPos = Math.max(0, targetPos - nodeSize);
+          }
+
+          targetPos = Math.min(targetPos, tr.doc.content.size);
+          tr = tr.insert(targetPos, node);
+          editor.view.dispatch(tr);
+
+          if (typeof window !== 'undefined') {
+            window.__scholarcms_dragged_pos = undefined;
+          }
+
+          // console.log('✅ [MOVE SUCCESS] Block moved cleanly to targetPos:', targetPos);
+        } catch (err) {
+          console.error('❌ [MOVE FAILED]', err);
+        }
+      }
+      // Jika menyeret blok baru dari Palet Komponen Sidebar, biarkan event lolos ke handleDropOnCanvas!
+    };
+
+    const domEl = editor.view.dom;
+    domEl.addEventListener('dragover', handleProseMirrorDragOver, true);
+    domEl.addEventListener('drop', handleProseMirrorDrop, true);
 
     // Synchronize editor content when initialPost is loaded or updated
     if (initialPost?.content && editor.getHTML() !== initialPost.content) {
@@ -412,8 +534,58 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
   const handleDropOnCanvas = (e) => {
     e.preventDefault();
     setIsDraggingOverCanvas(false);
-    const blockType = e.dataTransfer.getData('blockType') || e.dataTransfer.getData('text/plain');
+
+    // Prioritas 1: Periksa apakah sedang menyeret blok yang sudah ada via Grip Handle
+    const windowPos = typeof window !== 'undefined' ? window.__scholarcms_dragged_pos : undefined;
+    const fromPosData = e.dataTransfer?.getData('prosemirror-node-pos');
+    const fromPosStr = windowPos !== undefined ? windowPos.toString() : fromPosData;
+
+    // console.log('🎯 [CANVAS DROP HANDLER]', { fromPosStr, windowPos, fromPosData, x: e.clientX, y: e.clientY });
+
+    if (fromPosStr !== undefined && fromPosStr !== null && fromPosStr !== '') {
+      const fromPos = parseInt(fromPosStr, 10);
+      if (!isNaN(fromPos) && editor && editor.view) {
+        const dropCoords = editor.view.posAtCoords({ left: e.clientX, top: e.clientY });
+        if (dropCoords) {
+          try {
+            const doc = editor.state.doc;
+            const node = doc.nodeAt(fromPos);
+            if (node) {
+              const nodeSize = node.nodeSize;
+              const $drop = doc.resolve(dropCoords.pos);
+              let targetPos = $drop.depth > 0 ? $drop.after(Math.min(1, $drop.depth)) : dropCoords.pos;
+
+              // console.log('🔄 [CANVAS MOVE TRANSACTION]', { nodeName: node.type.name, fromPos, targetPos });
+
+              let tr = editor.state.tr;
+              tr = tr.delete(fromPos, fromPos + nodeSize);
+
+              if (targetPos > fromPos) {
+                targetPos = Math.max(0, targetPos - nodeSize);
+              }
+
+              targetPos = Math.min(targetPos, tr.doc.content.size);
+              tr = tr.insert(targetPos, node);
+              editor.view.dispatch(tr);
+
+              if (typeof window !== 'undefined') {
+                window.__scholarcms_dragged_pos = undefined;
+              }
+
+              // console.log('✅ [CANVAS MOVE SUCCESS] Block moved cleanly to targetPos:', targetPos);
+              return;
+            }
+          } catch (err) {
+            console.error('❌ [CANVAS MOVE FAILED]', err);
+          }
+        }
+      }
+    }
+
+    // Prioritas 2: Periksa apakah menyisipkan blok baru dari Palet Komponen
+    const blockType = e.dataTransfer?.getData('blockType') || e.dataTransfer?.getData('text/plain');
     if (blockType) {
+      // console.log('✨ [INSERT PALETTE BLOCK]', blockType);
       handleInsertBlock(blockType);
     }
   };
@@ -431,6 +603,136 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
       return;
     }
     setIsDraggingOverCanvas(false);
+  };
+
+  const [dragHandleInfo, setDragHandleInfo] = useState({
+    visible: false,
+    top: 0,
+    left: 0,
+    pos: 0,
+    targetEl: null,
+  });
+
+  const handleEditorMouseMove = (e) => {
+    if (!editor || !editor.view) return;
+
+    const targetEl = document.elementFromPoint(e.clientX, e.clientY);
+    if (!targetEl) return;
+
+    const blockEl = targetEl.closest('.ProseMirror > *, [data-type="column"] > *, [data-type="accordion-content"] > *');
+    if (!blockEl || !blockEl.parentNode) return;
+
+    try {
+      const insidePos = editor.view.posAtDOM(blockEl, 0);
+      if (insidePos === null || insidePos === undefined) return;
+
+      const $pos = editor.state.doc.resolve(insidePos);
+      const blockDepth = Math.max(1, $pos.depth);
+      const blockStartPos = $pos.before(blockDepth);
+
+      const containerEl = e.currentTarget;
+      const containerRect = containerEl.getBoundingClientRect();
+      const domRect = blockEl.getBoundingClientRect();
+
+      setDragHandleInfo({
+        visible: true,
+        top: Math.max(0, domRect.top - containerRect.top + 4),
+        left: Math.max(0, domRect.left - containerRect.left + 4),
+        pos: blockStartPos,
+        targetEl: blockEl,
+      });
+    } catch (err) {
+      // Ignore resolution edge cases
+    }
+  };
+
+  const handleEditorMouseLeave = () => {
+    setDragHandleInfo((prev) => ({ ...prev, visible: false }));
+  };
+
+  const handleBlockDragStart = (e) => {
+    if (!editor || !editor.view) return;
+    try {
+      const { pos, targetEl } = dragHandleInfo;
+
+      if (typeof window !== 'undefined') {
+        window.__scholarcms_dragged_pos = pos;
+      }
+
+      // console.log('🚀 [DRAG START]', { pos, targetTag: targetEl?.tagName });
+
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', `scholarcms-move:${pos}`);
+        e.dataTransfer.setData('prosemirror-node-pos', pos.toString());
+        e.dataTransfer.setData('text/html', targetEl ? targetEl.outerHTML : '');
+        if (targetEl && e.dataTransfer.setDragImage) {
+          e.dataTransfer.setDragImage(targetEl, 15, 15);
+        }
+      }
+    } catch (err) {
+      console.warn('Drag handle selection error:', err);
+    }
+  };
+
+  const handleMoveBlockUp = () => {
+    if (!editor || !editor.view) return;
+    try {
+      const { pos } = dragHandleInfo;
+      const doc = editor.state.doc;
+      const $pos = doc.resolve(pos);
+
+      const depth = Math.max(1, $pos.depth);
+      const currentBlockPos = $pos.before(depth);
+      const currentNode = doc.nodeAt(currentBlockPos);
+      if (!currentNode) return;
+
+      const index = $pos.index(depth - 1);
+      if (index <= 0) return;
+
+      const prevBlockPos = $pos.posAtIndex(index - 1, depth - 1);
+
+      let tr = editor.state.tr;
+      tr = tr.delete(currentBlockPos, currentBlockPos + currentNode.nodeSize);
+      tr = tr.insert(prevBlockPos, currentNode);
+      editor.view.dispatch(tr);
+
+      setDragHandleInfo((prev) => ({ ...prev, pos: prevBlockPos }));
+      // console.log('⬆️ [MOVE UP SUCCESS] Swapped block cleanly with previous sibling!');
+    } catch (err) {
+      console.warn('Move block up error:', err);
+    }
+  };
+
+  const handleMoveBlockDown = () => {
+    if (!editor || !editor.view) return;
+    try {
+      const { pos } = dragHandleInfo;
+      const doc = editor.state.doc;
+      const $pos = doc.resolve(pos);
+
+      const depth = Math.max(1, $pos.depth);
+      const currentBlockPos = $pos.before(depth);
+      const currentNode = doc.nodeAt(currentBlockPos);
+      if (!currentNode) return;
+
+      const parent = $pos.node(depth - 1);
+      const index = $pos.index(depth - 1);
+      if (index >= parent.childCount - 1) return;
+
+      const nextNode = parent.child(index + 1);
+
+      let tr = editor.state.tr;
+      tr = tr.delete(currentBlockPos, currentBlockPos + currentNode.nodeSize);
+      const newPos = currentBlockPos + nextNode.nodeSize;
+      tr = tr.insert(newPos, currentNode);
+      editor.view.dispatch(tr);
+
+      setDragHandleInfo((prev) => ({ ...prev, pos: newPos }));
+      // console.log('⬇️ [MOVE DOWN SUCCESS] Swapped block cleanly with next sibling!');
+    } catch (err) {
+      console.warn('Move block down error:', err);
+    }
   };
 
   const handleSubmit = (e, shouldExit = true) => {
@@ -838,8 +1140,42 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
             onDrop={handleDropOnCanvas}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
-            className="flex-1 min-h-[500px] relative"
+            onMouseMove={handleEditorMouseMove}
+            onMouseLeave={handleEditorMouseLeave}
+            className="flex-1 min-h-[500px] relative group/canvas"
           >
+            {/* Notion / Gutenberg Block Move Toolbar (Top-Left on hover) */}
+            {dragHandleInfo.visible && (
+              <div
+                style={{ top: `${dragHandleInfo.top}px`, left: `${dragHandleInfo.left}px` }}
+                className="absolute z-30 flex items-center gap-0.5 p-0.5 bg-[var(--bg-surface)] border border-blue-500/50 text-blue-500 rounded-lg shadow-md transition-all animate-fade-in"
+              >
+                <button
+                  type="button"
+                  onClick={handleMoveBlockUp}
+                  className="p-1 hover:bg-blue-600 hover:text-white rounded transition-colors"
+                  title="Klik untuk memindahkan blok 1 posisi ke atas"
+                >
+                  <ChevronUp className="w-3.5 h-3.5" />
+                </button>
+                <div
+                  draggable
+                  onDragStart={handleBlockDragStart}
+                  className="p-1 hover:bg-blue-600 hover:text-white rounded cursor-grab active:cursor-grabbing transition-colors flex items-center justify-center"
+                  title="Tahan & seret tombol ini untuk memindahkan lokasi blok ke mana saja"
+                >
+                  <GripVertical className="w-3.5 h-3.5" />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleMoveBlockDown}
+                  className="p-1 hover:bg-blue-600 hover:text-white rounded transition-colors"
+                  title="Klik untuk memindahkan blok 1 posisi ke bawah"
+                >
+                  <ChevronDown className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
             {editor && (
               <BubbleMenu
                 editor={editor}

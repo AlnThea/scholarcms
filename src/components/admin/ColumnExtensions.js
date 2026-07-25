@@ -3,7 +3,8 @@ import { Node, mergeAttributes } from '@tiptap/core';
 export const Column = Node.create({
   name: 'column',
   content: 'block+',
-  isolate: true,
+  defining: true,
+  isolating: false,
 
   addAttributes() {
     return {
@@ -11,9 +12,10 @@ export const Column = Node.create({
         default: '50%',
         parseHTML: element => element.getAttribute('data-width') || element.style.width || '50%',
         renderHTML: attributes => {
+          const flexVal = parseFloat(attributes.width) || 50;
           return {
             'data-width': attributes.width,
-            style: `width: ${attributes.width}; flex-basis: ${attributes.width}; flex-grow: 0; flex-shrink: 0;`,
+            style: `flex: ${flexVal} ${flexVal} 0%; min-width: 0; box-sizing: border-box;`,
           };
         },
       },
@@ -59,7 +61,7 @@ export const Columns = Node.create({
       'div',
       mergeAttributes(HTMLAttributes, {
         'data-type': 'columns',
-        class: 'columns-container flex flex-row gap-4 my-6 p-4 rounded-2xl bg-blue-500/5 border border-blue-500/20 w-full overflow-hidden',
+        class: 'columns-container flex flex-row gap-4 my-6 p-4 rounded-2xl bg-blue-500/5 border border-blue-500/20 w-full overflow-hidden items-stretch',
       }),
       0,
     ];

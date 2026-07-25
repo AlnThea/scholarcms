@@ -176,7 +176,6 @@ div[data-type="columns"] {
 
 .ProseMirror div[data-type="column"],
 div[data-type="column"] {
-  flex-shrink: 0 !important;
   box-sizing: border-box !important;
   min-width: 0 !important;
   position: relative !important;
@@ -187,6 +186,11 @@ div[data-type="column"] {
 }
 .ProseMirror div[data-type="column"] > *:last-child {
   margin-bottom: 0 !important;
+}
+
+.ProseMirror div[data-type="column"]:hover {
+  border-color: #3b82f6 !important;
+  background-color: rgba(59, 130, 246, 0.05) !important;
 }
 
 /* Accordion FAQ Styling */

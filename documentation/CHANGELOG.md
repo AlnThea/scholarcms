@@ -2,6 +2,21 @@
 
 Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 
+## [v1.5.0] - 2026-07-25
+
+### 🚀 Fitur Baru Utama & Penyempurnaan Tiptap Editor
+- **Modal Input URL Custom Video YouTube**: Menekan atau menyeret blok Video YouTube kini membuka modal interaktif `InsertMediaModal` untuk memasukkan URL video YouTube milik sendiri.
+- **Accordion FAQ Extensions Interaktif**: Membuat Node Extension Tiptap `AccordionGroup`, `AccordionItem`, `AccordionHeader`, dan `AccordionContent` yang memungkinkan judul Accordion 100% diketik/diedit kembali serta mendukung banyak baris poin pertanyaan.
+- **Tata Letak Multi-Kolom Rasio Persentase (14 Opsi)**: Menambahkan skema `Columns` & `Column` untuk 14 pilihan rasio persentase kolom (`50:50`, `30:70`, `70:30`, `20:80`, `80:20`, `40:60`, `60:40`, `10:90`, `90:10`, `33:33:33`, `25:50:25`, `25:25:50`, `50:25:25`, `25:25:25:25`).
+- **Grip Drag Handle & Tombol Panah Pemindahan Posisi 1-Klik**:
+  - Menambahkan **Grip Handle (`GripVertical`)** melayang yang muncul di pojok kiri atas setiap jenis blok saat di-hover.
+  - Menambahkan **Tombol Panah Ke Atas (`▲`)** & **Panah Ke Bawah (`▼`)** untuk memindahkan posisi blok 1 langkah secara instan tanpa perlu menyeret mouse.
+  - Memperbarui kalkulasi pertukaran node terluar `$pos.posAtIndex(...)` sehingga pemindahan blok 100% presisi dan tidak memotong kata atau teks paragraf di sekitarnya.
+- **Grup Palet Komponen Collapsible**: Menambahkan toggle accordion pada grup Palet Komponen Sidebar (`Teks`, `Layout Kolom`, `Daftar`, `Kutipan`, `Media`) dengan kondisi default awal SEMUA TERBUKA.
+- **Styling Scrollbar Ultra-Thin 5px**: Menambahkan CSS scrollbar tipis 5px dengan efek hover aksen biru dan utility Tailwind CSS v4 `@utility scrollbar-thin`.
+
+---
+
 ## [v1.1.0] - 2026-07-20
 
 ### 🚀 Peningkatan & Fitur Baru
