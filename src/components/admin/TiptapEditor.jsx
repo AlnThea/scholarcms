@@ -1,11 +1,14 @@
 'use client';
 
 import { useEditor, EditorContent } from '@tiptap/react';
+import { Extension } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import ImageExtension from '@tiptap/extension-image';
 import LinkExtension from '@tiptap/extension-link';
 import UnderlineExtension from '@tiptap/extension-underline';
+import { TextStyle } from '@tiptap/extension-text-style';
+import { FontFamily } from '@tiptap/extension-font-family';
 import { useState, useEffect } from 'react';
 import BlockPaletteSidebar from './BlockPaletteSidebar';
 import Link from 'next/link';
@@ -20,6 +23,51 @@ import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
 import { dbService } from '@/services/dbService';
 import { useMetaSidebar } from '@/context/MetaSidebarContext';
+
+const FontSizeExtension = Extension.create({
+  name: 'fontSize',
+  addOptions() {
+    return {
+      types: ['textStyle'],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: element => element.style.fontSize?.replace(/['"]+/g, ''),
+            renderHTML: attributes => {
+              if (!attributes.fontSize) {
+                return {};
+              }
+              return {
+                style: `font-size: ${attributes.fontSize}`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setFontSize: fontSize => ({ chain }) => {
+        return chain()
+          .setMark('textStyle', { fontSize })
+          .run();
+      },
+      unsetFontSize: () => ({ chain }) => {
+        return chain()
+          .setMark('textStyle', { fontSize: null })
+          .removeEmptyTextStyle()
+          .run();
+      },
+    };
+  },
+});
 
 export default function TiptapEditor({ initialPost, onSave, saving, backLink = '/dashboard/posts', isPage = false }) {
   const {
@@ -64,17 +112,17 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
     if (data.seoDescription && setSeoDescription) setSeoDescription(data.seoDescription);
     if (data.focusKeyword && setFocusKeyword) setFocusKeyword(data.focusKeyword);
     if (data.featuredImage) setFeaturedImage(data.featuredImage);
-    
+
     if (data.tags && setTags) {
       const tagArr = Array.isArray(data.tags) ? data.tags : String(data.tags).split(',').map(t => t.trim());
       setTags(tagArr);
     }
-    
+
     // Category Auto-detection and Auto-creation
     if (data.category && setCategory) {
       const catName = data.category;
       setCategory(catName);
-      
+
       const exists = categories.some(c => c.name.toLowerCase() === catName.toLowerCase());
       if (!exists) {
         try {
@@ -133,6 +181,9 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
       StarterKit.configure({
         link: false,
       }),
+      TextStyle,
+      FontFamily,
+      FontSizeExtension,
       UnderlineExtension,
       LinkExtension.configure({
         openOnClick: false,
@@ -386,7 +437,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
         {/* Attached Top Unified Gutenberg Header & Toolbar (Sticky melayang di top-16 saat scroll) */}
         {editor && (
           <div className="sticky top-16 z-20 bg-[var(--bg-surface)]/95 backdrop-blur-md border-b border-[var(--border-color)] flex flex-col shadow-sm divide-y divide-[var(--border-color)]">
-            
+
             {/* Baris 1: Aksi Navigasi & Publikasi Dokumen */}
             <div className="p-2.5 flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -468,16 +519,16 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     <Box className="w-3.5 h-3.5" />
                     <span>
                       {editor.isActive('heading', { level: 1 }) ? 'Blok H1' :
-                       editor.isActive('heading', { level: 2 }) ? 'Blok H2' :
-                       editor.isActive('heading', { level: 3 }) ? 'Blok H3' :
-                       editor.isActive('heading', { level: 4 }) ? 'Blok H4' :
-                       editor.isActive('heading', { level: 5 }) ? 'Blok H5' :
-                       editor.isActive('heading', { level: 6 }) ? 'Blok H6' :
-                       editor.isActive('blockquote') ? 'Blok Kutipan' :
-                       editor.isActive('codeBlock') ? 'Blok Kode' :
-                       editor.isActive('bulletList') ? 'Blok Bullet' :
-                       editor.isActive('orderedList') ? 'Blok Angka' :
-                       'Blok Paragraf'}
+                        editor.isActive('heading', { level: 2 }) ? 'Blok H2' :
+                          editor.isActive('heading', { level: 3 }) ? 'Blok H3' :
+                            editor.isActive('heading', { level: 4 }) ? 'Blok H4' :
+                              editor.isActive('heading', { level: 5 }) ? 'Blok H5' :
+                                editor.isActive('heading', { level: 6 }) ? 'Blok H6' :
+                                  editor.isActive('blockquote') ? 'Blok Kutipan' :
+                                    editor.isActive('codeBlock') ? 'Blok Kode' :
+                                      editor.isActive('bulletList') ? 'Blok Bullet' :
+                                        editor.isActive('orderedList') ? 'Blok Angka' :
+                                          'Blok Paragraf'}
                     </span>
                   </div>
 
@@ -521,8 +572,51 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                   </button>
                 </div>
 
-                {/* Kanan: Formatting Teks (Undo, Redo, B, I, S) & Hapus Blok */}
-                <div className="flex items-center gap-1">
+                {/* Kanan: Formatting Teks (Font Family, Font Size, Undo, Redo, B, I, U, S, Code, Link, Clear Format, Hapus) */}
+                <div className="flex flex-wrap items-center gap-1">
+                  {/* Font Family Dropdown Picker */}
+                  <select
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === 'default') {
+                        editor.chain().focus().unsetFontFamily().run();
+                      } else {
+                        editor.chain().focus().setFontFamily(val).run();
+                      }
+                    }}
+                    className="bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-color)] rounded-md text-[11px] font-medium py-1 px-1.5 focus:outline-none focus:border-blue-500 cursor-pointer shadow-2xs"
+                    title="Pilih Gaya Font (Font Family)"
+                  >
+                    <option value="default">Default</option>
+                    <option value="'Plus Jakarta Sans', sans-serif">Sans-Serif</option>
+                    <option value="Georgia, serif">Serif</option>
+                    <option value="'JetBrains Mono', monospace">Monospace</option>
+                  </select>
+
+                  {/* Font Size Dropdown Picker */}
+                  <select
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === 'default') {
+                        editor.chain().focus().unsetFontSize().run();
+                      } else {
+                        editor.chain().focus().setFontSize(val).run();
+                      }
+                    }}
+                    className="bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-color)] rounded-md text-[11px] font-medium py-1 px-1.5 focus:outline-none focus:border-blue-500 cursor-pointer shadow-2xs"
+                    title="Pilih Ukuran Font (Font Size)"
+                  >
+                    <option value="default">Default</option>
+                    <option value="12px">12px</option>
+                    <option value="14px">14px</option>
+                    <option value="16px">16px</option>
+                    <option value="18px">18px</option>
+                    <option value="24px">24px</option>
+                    <option value="32px">32px</option>
+                  </select>
+
+                  <div className="h-3.5 w-px bg-[var(--border-color)] mx-0.5" />
+
                   <button
                     type="button"
                     onClick={() => editor.chain().focus().undo().run()}

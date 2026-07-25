@@ -116,7 +116,8 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
   - Menyediakan koleksi blok lengkap (Paragraf, Lead, H1-H6, List Bullet, List Angka, Checklist, Tabel Data, Quote, Code, 4 Tipe Callout Alert, Gambar, Video YouTube, Tombol CTA Link, Accordion FAQ, HR) yang dikelompokkan ke dalam 5 grup terstruktur.
 - **WordPress Gutenberg Visual Block Containers & Unified Sticky Toolbar Header**:
   - Setiap paragraf, judul, quote, dan elemen pada kanvas Tiptap terbingkai sebagai **Visual Block Container** (`.ProseMirror > *`) dengan efek hover outline dan border fokus aktif.
-  - Penambahan **Unified Sticky Gutenberg Toolbar Header** (melayang di `top-16`) yang menyatukan Aksi Navigasi/Publikasi, Detektor Blok Aktif, Converter Tipe Blok Cepat, serta Toolbar Format Teks Lengkap (Undo, Redo, Bold, Italic, Underline <u>U</u>, Strikethrough, Inline Code `</>`, Tautan Link 🔗, Hapus Format 🧹, dan Hapus Blok 🗑️).
+  - Penambahan **Unified Sticky Gutenberg Toolbar Header** (melayang di `top-16`) yang menyatukan Aksi Navigasi/Publikasi, Detektor Blok Aktif, Converter Tipe Blok Cepat, serta Toolbar Format Teks Lengkap (Dropdown **Font Family**, Dropdown **Font Size**, Undo, Redo, Bold, Italic, Underline <u>U</u>, Strikethrough, Inline Code `</>`, Tautan Link 🔗, Hapus Format 🧹, dan Hapus Blok 🗑️).
+
 - **Custom React Prompt Modals (`InsertMediaModal.jsx`)**:
   - Menggantikan seluruh popup dialog abu-abu kaku bawaan browser (`window.prompt`) dengan **Modal Popup Kustom React** bergaya modern Glassmorphism (dengan Live Image Preview & checkbox tab baru) untuk penyisipan Link, Gambar, Video YouTube, dan Tombol CTA.
 
