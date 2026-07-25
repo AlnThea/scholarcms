@@ -1,8 +1,10 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   Type, Heading, Quote, Code, Sparkles,
-  List, ListOrdered, Image, Minus, Layers
+  List, ListOrdered, Image, Minus, Layers,
+  ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 const TEXT_BLOCKS = [
@@ -78,6 +80,30 @@ const MEDIA_BLOCKS = [
 ];
 
 export default function BlockPaletteSidebar({ onInsertBlock }) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('scholarcms_palette_collapsed');
+      if (saved !== null) {
+        setIsCollapsed(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.warn('Failed to load palette collapse state:', e);
+    }
+  }, []);
+
+  const toggleCollapse = () => {
+    setIsCollapsed(prev => {
+      const next = !prev;
+      try {
+        localStorage.setItem('scholarcms_palette_collapsed', JSON.stringify(next));
+      } catch (e) {
+        console.warn('Failed to save palette collapse state:', e);
+      }
+      return next;
+    });
+  };
 
   const handleDragStart = (e, blockType) => {
     e.dataTransfer.setData('text/plain', blockType);
@@ -86,12 +112,16 @@ export default function BlockPaletteSidebar({ onInsertBlock }) {
   };
 
   const renderGridSection = (title, blocks) => (
-    <div className="space-y-2">
-      <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--text-muted)] border-b border-[var(--border-color)] pb-1.5 px-0.5">
-        {title}
-      </h4>
+    <div className={isCollapsed ? 'space-y-1.5' : 'space-y-2'}>
+      {!isCollapsed ? (
+        <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--text-muted)] border-b border-[var(--border-color)] pb-1.5 px-0.5">
+          {title}
+        </h4>
+      ) : (
+        <div className="border-b border-[var(--border-color)] my-1 w-full" title={title} />
+      )}
 
-      <div className="grid grid-cols-2 gap-2.5">
+      <div className={isCollapsed ? 'grid grid-cols-1 gap-2' : 'grid grid-cols-2 gap-2.5'}>
         {blocks.map((block) => {
           const Icon = block.icon;
           return (
@@ -100,15 +130,19 @@ export default function BlockPaletteSidebar({ onInsertBlock }) {
               draggable
               onDragStart={(e) => handleDragStart(e, block.type)}
               onClick={() => onInsertBlock && onInsertBlock(block.type)}
-              className="group flex flex-col items-center justify-center p-3 rounded-2xl hover:border-blue-500/60 hover:bg-blue-500/5 hover:shadow-md cursor-grab active:cursor-grabbing transition-all select-none text-center"
+              className={`group flex flex-col items-center justify-center rounded-2xl hover:border-blue-500/60 hover:bg-blue-500/5 hover:shadow-md cursor-grab active:cursor-grabbing transition-all select-none text-center ${
+                isCollapsed ? 'p-2' : 'p-3'
+              }`}
               title={`Klik atau seret untuk menyisipkan ${block.label}`}
             >
-              <div className={`p-2.5 rounded-xl ${block.color} mb-2 group-hover:scale-110 transition-transform`}>
+              <div className={`p-2.5 rounded-xl ${block.color} group-hover:scale-110 transition-transform ${isCollapsed ? 'mb-0' : 'mb-2'}`}>
                 <Icon className="w-5 h-5" />
               </div>
-              <span className="text-xs font-bold text-[var(--text-main)] group-hover:text-blue-500 transition-colors">
-                {block.label}
-              </span>
+              {!isCollapsed && (
+                <span className="text-xs font-bold text-[var(--text-main)] group-hover:text-blue-500 transition-colors">
+                  {block.label}
+                </span>
+              )}
             </div>
           );
         })}
@@ -117,17 +151,32 @@ export default function BlockPaletteSidebar({ onInsertBlock }) {
   );
 
   return (
-    <aside className="w-64 sm:w-72 bg-[var(--bg-surface)] border-r border-[var(--border-color)] p-4 flex flex-col shrink-0 space-y-5 sticky top-16 h-[calc(100vh-64px)] rounded-none shadow-none">
+    <aside className={`${isCollapsed ? 'w-16 p-2 space-y-4' : 'w-64 sm:w-72 p-4 space-y-5'} bg-[var(--bg-surface)] border-r border-[var(--border-color)] flex flex-col shrink-0 sticky top-16 h-[calc(100vh-64px)] rounded-none shadow-none transition-all duration-300 ease-in-out`}>
 
-      {/* Header Palette (No "Sidebar 2:" prefix) */}
-      <div className="border-b border-[var(--border-color)] pb-3">
-        <div className="flex items-center gap-2">
-          <Layers className="w-4 h-4 text-blue-500" />
-          <h3 className="font-extrabold text-sm text-[var(--text-main)] tracking-tight">Palet Komponen</h3>
+      {/* Header Palette */}
+      <div className={`border-b border-[var(--border-color)] ${isCollapsed ? 'pb-2.5 flex flex-col items-center gap-2' : 'pb-3'}`}>
+        <div className="flex items-center justify-between gap-2 w-full">
+          <div className="flex items-center gap-2 overflow-hidden">
+            <Layers className="w-4 h-4 text-blue-500 shrink-0" />
+            {!isCollapsed && (
+              <h3 className="font-extrabold text-sm text-[var(--text-main)] tracking-tight whitespace-nowrap">Palet Komponen</h3>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={toggleCollapse}
+            className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-blue-500 hover:bg-blue-500/10 transition-colors shrink-0"
+            title={isCollapsed ? 'Extend / Perluas Palet Komponen' : 'Collapse / Ciutkan Palet Komponen'}
+            aria-label={isCollapsed ? 'Extend Palet Komponen' : 'Collapse Palet Komponen'}
+          >
+            {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          </button>
         </div>
-        <p className="text-[11px] text-[var(--text-muted)] mt-0.5 leading-snug">
-          Seret tombol atau klik untuk menyisipkan ke Canvas.
-        </p>
+        {!isCollapsed && (
+          <p className="text-[11px] text-[var(--text-muted)] mt-0.5 leading-snug">
+            Seret tombol atau klik untuk menyisipkan ke Canvas.
+          </p>
+        )}
       </div>
 
       {/* Grid Sections */}
@@ -139,3 +188,4 @@ export default function BlockPaletteSidebar({ onInsertBlock }) {
     </aside>
   );
 }
+

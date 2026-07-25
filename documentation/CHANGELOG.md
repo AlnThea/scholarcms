@@ -102,7 +102,13 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 - **Pembaruan Spesifikasi Firestore Security Rules**:
   - Memperbarui dokumentasi [DATABASE.md](file:///c:/web/scholarcms/documentation/DATABASE.md) dengan spesifikasi izin koleksi `match /pages/{pageId}` dan `match /menus/{menuId}`.
 
+---
 
+## [v1.4.2] - 2026-07-25
 
-
-
+### 🚀 Fitur Baru & Peningkatan UX Editor
+- **Palet Komponen Collapse - Extend (`BlockPaletteSidebar.jsx`)**:
+  - Penambahan fitur toggle **Collapse (Ciutkan)** dan **Extend (Perluas)** pada Palet Komponen Gutenberg Editor di sebelah kiri layar.
+  - Pada mode **Collapse**, lebar sidebar menyusut menjadi `w-16` (64px) dan daftar blok secara otomatis berubah menjadi **1 kolom ikon** (*single-column icon view*) yang super rapi dan hemat tempat.
+  - Pada mode **Extend**, sidebar kembali ke ukuran normal (`w-64 sm:w-72`) dengan grid 2 kolom dan label nama blok lengkap.
+  - Menyimpan preferensi state pada `localStorage` (`scholarcms_palette_collapsed`) sehingga pilihan mode tetap bertahan saat halaman di-refresh.
