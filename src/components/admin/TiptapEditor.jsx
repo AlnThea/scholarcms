@@ -4,14 +4,18 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import ImageExtension from '@tiptap/extension-image';
+import LinkExtension from '@tiptap/extension-link';
+import UnderlineExtension from '@tiptap/extension-underline';
 import { useState, useEffect } from 'react';
 import BlockPaletteSidebar from './BlockPaletteSidebar';
 import Link from 'next/link';
 import {
   Save, Eye, Edit3, ArrowLeft, Image as ImageIcon, Sparkles, Settings,
-  Bold, Italic, Strikethrough, Code, Heading, List, ListOrdered, Quote, Undo, Redo
+  Bold, Italic, Underline, Strikethrough, Code, Heading, List, ListOrdered, Quote, Undo, Redo,
+  Trash2, Box, Type, Link2, Eraser, Code2
 } from 'lucide-react';
 import AiGenerateModal from './AiGenerateModal';
+import InsertMediaModal from './InsertMediaModal';
 import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
 import { dbService } from '@/services/dbService';
@@ -127,8 +131,14 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
-        link: {
-          openOnClick: false,
+        link: false,
+      }),
+      UnderlineExtension,
+      LinkExtension.configure({
+        openOnClick: false,
+        autolink: true,
+        HTMLAttributes: {
+          class: 'text-blue-600 dark:text-blue-400 font-semibold underline underline-offset-4 decoration-blue-500/40 hover:text-blue-700 hover:decoration-blue-700 transition-colors cursor-pointer',
         },
       }),
       Placeholder.configure({
@@ -148,6 +158,52 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
       },
     },
   });
+
+  const [mediaModalState, setMediaModalState] = useState({
+    isOpen: false,
+    type: 'link',
+    initialData: {}
+  });
+
+  const handleToggleLink = () => {
+    if (!editor) return;
+    const currentHref = editor.getAttributes('link').href || '';
+    setMediaModalState({
+      isOpen: true,
+      type: 'link',
+      initialData: { url: currentHref, isEditing: !!currentHref }
+    });
+  };
+
+  const handleMediaModalConfirm = (data) => {
+    if (!editor) return;
+    const { url, text, openInNewTab, remove } = data;
+    const modalType = mediaModalState.type;
+
+    if (modalType === 'link') {
+      if (remove) {
+        editor.chain().focus().unsetLink().run();
+      } else if (url) {
+        editor.chain().focus().setLink({ href: url, target: openInNewTab ? '_blank' : '_self' }).run();
+      }
+    } else if (modalType === 'image') {
+      if (url) {
+        editor.chain().focus().setImage({ src: url }).run();
+      }
+    } else if (modalType === 'video') {
+      if (url) {
+        let embedUrl = url;
+        if (url.includes('watch?v=')) {
+          embedUrl = url.replace('watch?v=', 'embed/');
+        }
+        editor.chain().focus().insertContent(`<div class="relative w-full aspect-video rounded-xl overflow-hidden my-4 border border-[var(--border-color)] shadow-md"><iframe src="${embedUrl}" class="w-full h-full border-0" allowfullscreen></iframe></div>`).run();
+      }
+    } else if (modalType === 'button') {
+      if (url && text) {
+        editor.chain().focus().insertContent(`<p class="my-4"><a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 font-bold text-white bg-blue-600 rounded-xl shadow-md hover:bg-blue-700 transition-colors no-underline">${text} ↗</a></p>`).run();
+      }
+    }
+  };
 
   const [, setSelectionTick] = useState(0);
 
@@ -220,25 +276,11 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
     } else if (type === 'table') {
       editor.chain().focus().insertContent('<table class="w-full text-sm border-collapse my-4"><thead class="bg-blue-500/10"><tr><th class="border border-gray-300 dark:border-gray-700 p-2 text-left">Header 1</th><th class="border border-gray-300 dark:border-gray-700 p-2 text-left">Header 2</th><th class="border border-gray-300 dark:border-gray-700 p-2 text-left">Header 3</th></tr></thead><tbody><tr><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 1 Kolom 1</td><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 1 Kolom 2</td><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 1 Kolom 3</td></tr><tr><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 2 Kolom 1</td><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 2 Kolom 2</td><td class="border border-gray-300 dark:border-gray-700 p-2">Baris 2 Kolom 3</td></tr></tbody></table>').run();
     } else if (type === 'image') {
-      const url = prompt('Masukkan URL Gambar Web (HTTPS):', 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1200&q=80');
-      if (url) {
-        editor.chain().focus().setImage({ src: url }).run();
-      }
+      setMediaModalState({ isOpen: true, type: 'image', initialData: {} });
     } else if (type === 'video') {
-      const url = prompt('Masukkan URL Embed Video YouTube (atau HTTPS Video):', 'https://www.youtube.com/embed/dQw4w9WgXcQ');
-      if (url) {
-        let embedUrl = url;
-        if (url.includes('watch?v=')) {
-          embedUrl = url.replace('watch?v=', 'embed/');
-        }
-        editor.chain().focus().insertContent(`<div class="relative w-full aspect-video rounded-xl overflow-hidden my-4 border border-[var(--border-color)] shadow-md"><iframe src="${embedUrl}" class="w-full h-full border-0" allowfullscreen></iframe></div>`).run();
-      }
+      setMediaModalState({ isOpen: true, type: 'video', initialData: {} });
     } else if (type === 'button') {
-      const text = prompt('Teks Tombol CTA:', 'Klik Di Sini Untuk Informasi Lebih Lanjut');
-      const url = prompt('Tautan URL Tujuan (HTTPS):', 'https://example.com');
-      if (text && url) {
-        editor.chain().focus().insertContent(`<p class="my-4"><a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 font-bold text-white bg-blue-600 rounded-xl shadow-md hover:bg-blue-700 transition-colors no-underline">${text} ↗</a></p>`).run();
-      }
+      setMediaModalState({ isOpen: true, type: 'button', initialData: {} });
     } else if (type === 'details') {
       editor.chain().focus().insertContent('<details class="p-4 my-4 rounded-xl bg-blue-500/5 border border-blue-500/20 cursor-pointer"><summary class="font-bold text-base select-none text-[var(--text-main)]">❓ Tulis Pertanyaan / Judul Accordion Di Sini</summary><p class="mt-2 text-sm text-[var(--text-muted)] leading-relaxed">Tulis penjelasan detail atau jawaban yang dapat dibuka dan ditutup oleh pembaca di sini.</p></details>').run();
     } else if (type === 'horizontalRule') {
@@ -341,125 +383,238 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
       {/* Main Editor Column (Di Sebelah Kanan Palet Komponen - Nempel Rapat 0 Gap) */}
       <div className="flex-1 w-full min-w-0 flex flex-col">
 
-        {/* Attached Top Formatting Toolbar Header (Sticky melayang saat scroll) */}
+        {/* Attached Top Unified Gutenberg Header & Toolbar (Sticky melayang di top-16 saat scroll) */}
         {editor && (
-          <div className="sticky top-16 z-20 p-3 bg-[var(--bg-surface)]/95 backdrop-blur-md border-b border-[var(--border-color)] flex flex-wrap items-center justify-between gap-2 shadow-sm">
-            {activeTab === 'editor' ? (
-              <div className="flex flex-wrap items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().undo().run()}
-                  className="p-2 rounded text-xs text-[var(--text-muted)] hover:bg-[var(--bg-primary)] transition-colors"
-                  title="Undo"
-                >
-                  <Undo className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().redo().run()}
-                  className="p-2 rounded text-xs text-[var(--text-muted)] hover:bg-[var(--bg-primary)] transition-colors"
-                  title="Redo"
-                >
-                  <Redo className="w-3.5 h-3.5" />
-                </button>
-
-                <div className="h-4 w-px bg-[var(--border-color)] mx-1" />
-
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().toggleBold().run()}
-                  className={`p-2 rounded text-xs font-bold transition-all ${editor.isActive('bold') ? 'bg-blue-600 text-white font-extrabold shadow-md ring-2 ring-blue-400/40 scale-105' : 'text-[var(--text-muted)] hover:bg-[var(--bg-primary)]'}`}
-                  title="Bold"
-                >
-                  <Bold className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().toggleItalic().run()}
-                  className={`p-2 rounded text-xs transition-all ${editor.isActive('italic') ? 'bg-blue-600 text-white font-extrabold shadow-md ring-2 ring-blue-400/40 scale-105' : 'text-[var(--text-muted)] hover:bg-[var(--bg-primary)]'}`}
-                  title="Italic"
-                >
-                  <Italic className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().toggleStrike().run()}
-                  className={`p-2 rounded text-xs transition-all ${editor.isActive('strike') ? 'bg-blue-600 text-white font-extrabold shadow-md ring-2 ring-blue-400/40 scale-105' : 'text-[var(--text-muted)] hover:bg-[var(--bg-primary)]'}`}
-                  title="Strikethrough"
-                >
-                  <Strikethrough className="w-3.5 h-3.5" />
-                </button>
-
-                <div className="h-4 w-px bg-[var(--border-color)] mx-1" />
+          <div className="sticky top-16 z-20 bg-[var(--bg-surface)]/95 backdrop-blur-md border-b border-[var(--border-color)] flex flex-col shadow-sm divide-y divide-[var(--border-color)]">
+            
+            {/* Baris 1: Aksi Navigasi & Publikasi Dokumen */}
+            <div className="p-2.5 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Link href={backLink}>
+                  <Button variant="ghost" size="sm" icon={ArrowLeft} title="Kembali ke Daftar">
+                    Kembali
+                  </Button>
+                </Link>
+                {activeTab === 'preview' && (
+                  <div className="flex items-center gap-2 text-xs font-bold text-[var(--text-main)] px-2 py-1">
+                    <Eye className="w-4 h-4 text-blue-500" />
+                    <span>Pratinjau Tampilan {isPage ? 'Halaman Statis' : 'Artikel'}</span>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                      Live View
+                    </span>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="flex items-center gap-2 text-xs font-bold text-[var(--text-main)] px-2 py-1">
-                <Eye className="w-4 h-4 text-blue-500" />
-                <span>Pratinjau Tampilan {isPage ? 'Halaman Statis' : 'Artikel'}</span>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] bg-blue-500/10 text-blue-500 border border-blue-500/20">
-                  Live View
-                </span>
-              </div>
-            )}
 
-            {/* Right Workspace Actions: Kembali + Artikel AI + Pratinjau / Editor + Simpan + Simpan & Keluar */}
-            <div className="flex flex-wrap items-center gap-1.5">
-              <Link href={backLink}>
-                <Button variant="ghost" size="sm" icon={ArrowLeft} title="Kembali ke Daftar">
-                  Kembali
+              {/* Right Workspace Actions: Artikel AI + Pratinjau / Editor + Simpan + Simpan & Keluar */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                {!isPage && (
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="sm"
+                    icon={Sparkles}
+                    onClick={() => setIsAiModalOpen(true)}
+                    title="Buat artikel bernilai tinggi (High Value Content) otomatis dengan AI"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 border-none shadow-md shadow-purple-500/20"
+                  >
+                    Buat Artikel AI ✨
+                  </Button>
+                )}
+
+                <Button
+                  type="button"
+                  variant={activeTab === 'preview' ? 'primary' : 'secondary'}
+                  size="sm"
+                  icon={activeTab === 'preview' ? Edit3 : Eye}
+                  onClick={() => setEditorViewMode(activeTab === 'editor' ? 'preview' : 'editor')}
+                  title="Beralih antara Mode Editor dan Pratinjau"
+                >
+                  {activeTab === 'editor' ? 'Pratinjau' : 'Mode Editor'}
                 </Button>
-              </Link>
 
-              {/* Tombol Generasi AI Artikel */}
-              {!isPage && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  icon={Save}
+                  loading={saving}
+                  onClick={() => handleSubmit(null, false)}
+                  title="Simpan tanpa keluar dari editor"
+                >
+                  Simpan
+                </Button>
+
                 <Button
                   type="button"
                   variant="primary"
                   size="sm"
-                  icon={Sparkles}
-                  onClick={() => setIsAiModalOpen(true)}
-                  title="Buat artikel bernilai tinggi (High Value Content) otomatis dengan AI"
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 border-none shadow-md shadow-purple-500/20"
+                  icon={Save}
+                  loading={saving}
+                  onClick={() => handleSubmit(null, true)}
+                  title="Simpan dan kembali ke daftar"
                 >
-                  Buat Artikel AI ✨
+                  Simpan &amp; Keluar
                 </Button>
-              )}
-
-              <Button
-                type="button"
-                variant={activeTab === 'preview' ? 'primary' : 'secondary'}
-                size="sm"
-                icon={activeTab === 'preview' ? Edit3 : Eye}
-                onClick={() => setEditorViewMode(activeTab === 'editor' ? 'preview' : 'editor')}
-                title="Beralih antara Mode Editor dan Pratinjau"
-              >
-                {activeTab === 'editor' ? 'Pratinjau' : 'Mode Editor'}
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                icon={Save}
-                loading={saving}
-                onClick={() => handleSubmit(null, false)}
-                title="Simpan tanpa keluar dari editor"
-              >
-                Simpan
-              </Button>
-
-              <Button
-                type="button"
-                variant="primary"
-                size="sm"
-                icon={Save}
-                loading={saving}
-                onClick={() => handleSubmit(null, true)}
-                title="Simpan dan kembali ke daftar"
-              >
-                Simpan &amp; Keluar
-              </Button>
+              </div>
             </div>
+
+            {/* Baris 2: Unified Gutenberg Block Action & Formatting Toolbar */}
+            {activeTab === 'editor' && (
+              <div className="p-2 px-3 bg-[var(--bg-primary)]/40 flex flex-wrap items-center justify-between gap-2 text-xs">
+                {/* Kiri: Detektor Blok Aktif & Converter Cepat */}
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-500/10 text-blue-500 rounded-md text-[11px] font-extrabold shrink-0 border border-blue-500/20">
+                    <Box className="w-3.5 h-3.5" />
+                    <span>
+                      {editor.isActive('heading', { level: 1 }) ? 'Blok H1' :
+                       editor.isActive('heading', { level: 2 }) ? 'Blok H2' :
+                       editor.isActive('heading', { level: 3 }) ? 'Blok H3' :
+                       editor.isActive('heading', { level: 4 }) ? 'Blok H4' :
+                       editor.isActive('heading', { level: 5 }) ? 'Blok H5' :
+                       editor.isActive('heading', { level: 6 }) ? 'Blok H6' :
+                       editor.isActive('blockquote') ? 'Blok Kutipan' :
+                       editor.isActive('codeBlock') ? 'Blok Kode' :
+                       editor.isActive('bulletList') ? 'Blok Bullet' :
+                       editor.isActive('orderedList') ? 'Blok Angka' :
+                       'Blok Paragraf'}
+                    </span>
+                  </div>
+
+                  <div className="h-3.5 w-px bg-[var(--border-color)] mx-0.5" />
+
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().setParagraph().run()}
+                    className={`px-2 py-1 rounded-md text-xs font-semibold transition-colors flex items-center gap-1 ${editor.isActive('paragraph') ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+                    title="Ubah ke Paragraf Teks"
+                  >
+                    <Type className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Paragraf</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                    className={`px-2 py-1 rounded-md text-xs font-semibold transition-colors flex items-center gap-1 ${editor.isActive('heading', { level: 2 }) ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+                    title="Ubah ke Judul H2"
+                  >
+                    <Heading className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">H2</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                    className={`px-2 py-1 rounded-md text-xs font-semibold transition-colors flex items-center gap-1 ${editor.isActive('blockquote') ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+                    title="Ubah ke Kutipan"
+                  >
+                    <Quote className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Kutipan</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                    className={`px-2 py-1 rounded-md text-xs font-semibold transition-colors flex items-center gap-1 ${editor.isActive('codeBlock') ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+                    title="Ubah ke Kode Snippet"
+                  >
+                    <Code className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Kode</span>
+                  </button>
+                </div>
+
+                {/* Kanan: Formatting Teks (Undo, Redo, B, I, S) & Hapus Blok */}
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().undo().run()}
+                    className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] transition-colors"
+                    title="Undo (Urungkan)"
+                  >
+                    <Undo className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().redo().run()}
+                    className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] transition-colors"
+                    title="Redo (Ulangi)"
+                  >
+                    <Redo className="w-3.5 h-3.5" />
+                  </button>
+
+                  <div className="h-3.5 w-px bg-[var(--border-color)] mx-0.5" />
+
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleBold().run()}
+                    className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive('bold') ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+                    title="Bold (Tebal)"
+                  >
+                    <Bold className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleItalic().run()}
+                    className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive('italic') ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+                    title="Italic (Miring)"
+                  >
+                    <Italic className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleUnderline().run()}
+                    className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive('underline') ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+                    title="Underline (Garis Bawah)"
+                  >
+                    <Underline className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleStrike().run()}
+                    className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive('strike') ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+                    title="Strikethrough (Coret)"
+                  >
+                    <Strikethrough className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleCode().run()}
+                    className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive('code') ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+                    title="Inline Code (Kode Kata)"
+                  >
+                    <Code2 className="w-3.5 h-3.5" />
+                  </button>
+
+                  <div className="h-3.5 w-px bg-[var(--border-color)] mx-0.5" />
+
+                  <button
+                    type="button"
+                    onClick={handleToggleLink}
+                    className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive('link') ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+                    title="Tambah / Edit Tautan Link"
+                  >
+                    <Link2 className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().unsetAllMarks().run()}
+                    className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] transition-colors"
+                    title="Hapus Format Teks (Clear Format)"
+                  >
+                    <Eraser className="w-3.5 h-3.5" />
+                  </button>
+
+                  <div className="h-3.5 w-px bg-[var(--border-color)] mx-0.5" />
+
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().deleteSelection().run()}
+                    className="p-1.5 rounded-md text-rose-500 hover:bg-rose-500/10 font-bold transition-colors flex items-center gap-1"
+                    title="Hapus Blok Terpilih"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -489,6 +644,15 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
         isOpen={isAiModalOpen}
         onClose={() => setIsAiModalOpen(false)}
         onGenerateSuccess={handleAiGenerateSuccess}
+      />
+
+      {/* Modal Custom Insert Media / Link Popup */}
+      <InsertMediaModal
+        isOpen={mediaModalState.isOpen}
+        type={mediaModalState.type}
+        initialData={mediaModalState.initialData}
+        onClose={() => setMediaModalState(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={handleMediaModalConfirm}
       />
 
     </form>

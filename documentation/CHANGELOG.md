@@ -110,5 +110,16 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 - **Palet Komponen Collapse - Extend (`BlockPaletteSidebar.jsx`)**:
   - Penambahan fitur toggle **Collapse (Ciutkan)** dan **Extend (Perluas)** pada Palet Komponen Gutenberg Editor di sebelah kiri layar.
   - Pada mode **Collapse**, lebar sidebar menyusut menjadi `w-16` (64px) dan daftar blok secara otomatis berubah menjadi **1 kolom ikon** (*single-column icon view*) yang super rapi dan hemat tempat.
-  - Pada mode **Extend**, sidebar kembali ke ukuran normal (`w-64 sm:w-72`) dengan grid 2 kolom dan label nama blok lengkap.
+  - Pada mode **Extend**, sidebar kembali ke ukuran normal (`w-64 sm:w-72`) dengan 5 grup kategori blok dan label nama lengkap.
   - Menyimpan preferensi state pada `localStorage` (`scholarcms_palette_collapsed`) sehingga pilihan mode tetap bertahan saat halaman di-refresh.
+- **Suite Blok Lengkap H1-H6 & 5 Pengelompokan Kategori**:
+  - Menyediakan koleksi blok lengkap (Paragraf, Lead, H1-H6, List Bullet, List Angka, Checklist, Tabel Data, Quote, Code, 4 Tipe Callout Alert, Gambar, Video YouTube, Tombol CTA Link, Accordion FAQ, HR) yang dikelompokkan ke dalam 5 grup terstruktur.
+- **WordPress Gutenberg Visual Block Containers & Unified Sticky Toolbar Header**:
+  - Setiap paragraf, judul, quote, dan elemen pada kanvas Tiptap terbingkai sebagai **Visual Block Container** (`.ProseMirror > *`) dengan efek hover outline dan border fokus aktif.
+  - Penambahan **Unified Sticky Gutenberg Toolbar Header** (melayang di `top-16`) yang menyatukan Aksi Navigasi/Publikasi, Detektor Blok Aktif, Converter Tipe Blok Cepat, serta Toolbar Format Teks Lengkap (Undo, Redo, Bold, Italic, Underline <u>U</u>, Strikethrough, Inline Code `</>`, Tautan Link 🔗, Hapus Format 🧹, dan Hapus Blok 🗑️).
+- **Custom React Prompt Modals (`InsertMediaModal.jsx`)**:
+  - Menggantikan seluruh popup dialog abu-abu kaku bawaan browser (`window.prompt`) dengan **Modal Popup Kustom React** bergaya modern Glassmorphism (dengan Live Image Preview & checkbox tab baru) untuk penyisipan Link, Gambar, Video YouTube, dan Tombol CTA.
+
+
+
+
