@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import {
   Type, Heading1, Heading2, Heading3, Heading4, Heading5, Heading6, TextQuote,
   List, ListOrdered, ListTodo, Table, Quote, Code, Sparkles, CheckCircle2, AlertTriangle, AlertOctagon,
-  Image, Video, Link2, HelpCircle, Minus, Layers, ChevronLeft, ChevronRight
+  Image, Video, Link2, HelpCircle, Minus, Layers, ChevronLeft, ChevronRight, Columns, Grid, LayoutGrid
 } from 'lucide-react';
 
 const TEXT_BLOCKS = [
@@ -55,6 +55,93 @@ const TEXT_BLOCKS = [
     label: 'Mikro Judul (H6)',
     icon: Heading6,
     color: 'text-slate-500 bg-slate-500/10'
+  }
+];
+
+const LAYOUT_COLUMNS_BLOCKS = [
+  {
+    type: 'col-50-50',
+    label: '50:50',
+    icon: Columns,
+    color: 'text-blue-500 bg-blue-500/10'
+  },
+  {
+    type: 'col-30-70',
+    label: '30:70',
+    icon: Columns,
+    color: 'text-indigo-500 bg-indigo-500/10'
+  },
+  {
+    type: 'col-70-30',
+    label: '70:30',
+    icon: Columns,
+    color: 'text-purple-500 bg-purple-500/10'
+  },
+  {
+    type: 'col-20-80',
+    label: '20:80',
+    icon: Columns,
+    color: 'text-cyan-500 bg-cyan-500/10'
+  },
+  {
+    type: 'col-80-20',
+    label: '80:20',
+    icon: Columns,
+    color: 'text-teal-500 bg-teal-500/10'
+  },
+  {
+    type: 'col-40-60',
+    label: '40:60',
+    icon: Columns,
+    color: 'text-violet-500 bg-violet-500/10'
+  },
+  {
+    type: 'col-60-40',
+    label: '60:40',
+    icon: Columns,
+    color: 'text-sky-500 bg-sky-500/10'
+  },
+  {
+    type: 'col-10-90',
+    label: '10:90',
+    icon: Columns,
+    color: 'text-emerald-500 bg-emerald-500/10'
+  },
+  {
+    type: 'col-90-10',
+    label: '90:10',
+    icon: Columns,
+    color: 'text-amber-500 bg-amber-500/10'
+  },
+  {
+    type: 'col-33-33-33',
+    label: '33:33:33',
+    icon: Grid,
+    color: 'text-rose-500 bg-rose-500/10'
+  },
+  {
+    type: 'col-25-50-25',
+    label: '25:50:25',
+    icon: Grid,
+    color: 'text-pink-500 bg-pink-500/10'
+  },
+  {
+    type: 'col-25-25-50',
+    label: '25:25:50',
+    icon: Grid,
+    color: 'text-fuchsia-500 bg-fuchsia-500/10'
+  },
+  {
+    type: 'col-50-25-25',
+    label: '50:25:25',
+    icon: Grid,
+    color: 'text-purple-600 bg-purple-600/10'
+  },
+  {
+    type: 'col-25-25-25-25',
+    label: '25:25:25:25',
+    icon: LayoutGrid,
+    color: 'text-blue-600 bg-blue-600/10'
   }
 ];
 
@@ -211,9 +298,8 @@ export default function BlockPaletteSidebar({ onInsertBlock }) {
               draggable
               onDragStart={(e) => handleDragStart(e, block.type)}
               onClick={() => onInsertBlock && onInsertBlock(block.type)}
-              className={`group flex flex-col items-center justify-center rounded-2xl hover:border-blue-500/60 hover:bg-blue-500/5 hover:shadow-md cursor-grab active:cursor-grabbing transition-all select-none text-center ${
-                isCollapsed ? 'p-2' : 'p-3'
-              }`}
+              className={`group flex flex-col items-center justify-center rounded-2xl hover:border-blue-500/60 hover:bg-blue-500/5 hover:shadow-md cursor-grab active:cursor-grabbing transition-all select-none text-center ${isCollapsed ? 'p-2' : 'p-3'
+                }`}
               title={`Klik atau seret untuk menyisipkan ${block.label}`}
             >
               <div className={`p-2.5 rounded-xl ${block.color} group-hover:scale-110 transition-transform ${isCollapsed ? 'mb-0' : 'mb-2'}`}>
@@ -263,6 +349,7 @@ export default function BlockPaletteSidebar({ onInsertBlock }) {
       {/* Grid Sections Grouped */}
       <div className="space-y-5 overflow-y-auto flex-1 pr-1 custom-scrollbar">
         {renderGridSection('🔤 Teks & Headings', TEXT_BLOCKS)}
+        {renderGridSection('📐 Tata Letak & Kolom', LAYOUT_COLUMNS_BLOCKS)}
         {renderGridSection('📑 Daftar & Penataan', LIST_TABLE_BLOCKS)}
         {renderGridSection('💬 Kutipan & Kode', QUOTE_CODE_BLOCKS)}
         {renderGridSection('💡 Callout & Notifikasi', CALLOUT_BLOCKS)}

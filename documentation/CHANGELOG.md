@@ -135,6 +135,20 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 - **Tombol Penataan Teks / Text Alignment (`@tiptap/extension-text-align`)**:
   - Penambahan 4 tombol penataan alignment paragraf & heading pada toolbar editor di samping tombol Undo & Redo: **Rata Kiri (`AlignLeft`)**, **Rata Tengah (`AlignCenter`)**, **Rata Kanan (`AlignRight`)**, dan **Rata Kiri-Kanan (`AlignJustify`)**.
 
+---
+
+## [v1.4.4] - 2026-07-25
+
+### 🚀 Fitur Tata Letak Multikolom & Modern Ultra-Thin Scrollbar
+- **Grup Blok Tata Letak Kolom Presisi (`LAYOUT_COLUMNS_BLOCKS`)**:
+  - Penambahan 14 varian rasio kolom pada Palet Komponen ([BlockPaletteSidebar.jsx](file:///c:/web/scholarcms/src/components/admin/BlockPaletteSidebar.jsx)) untuk tata letak 2 kolom, 3 kolom, dan 4 kolom:
+    - **2 Kolom**: `50:50`, `30:70`, `70:30`, `20:80`, `80:20`, `40:60`, `60:40`, `10:90`, `90:10`.
+    - **3 Kolom**: `33:33:33`, `25:50:25`, `25:25:50`, `50:25:25`.
+    - **4 Kolom**: `25:25:25:25`.
+  - Setiap kolom yang diseret (*drag & drop*) merender kontainer grid/flex responsif dengan latar belakang memikat dan border transparan yang dapat diisi teks/blok secara independen.
+- **Modern Ultra-Thin Scrollbar (5px)**:
+  - Menggantikan scrollbar bawaan browser dengan **Scrollbar Kustom Ramping (5px)** bersudut melengkung halus dan efek hover biru brand (`#3b82f6`) di seluruh aplikasi ([globals.css](file:///c:/web/scholarcms/src/app/globals.css)).
+
 
 
 

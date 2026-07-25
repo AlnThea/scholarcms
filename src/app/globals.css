@@ -73,20 +73,120 @@ body {
   overflow-x: hidden;
 }
 
-/* Custom Scrollbar */
+/* Custom Modern Ultra-Thin Scrollbar & Tailwind Utility */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 5px;
+  height: 5px;
 }
+
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: transparent;
   border-radius: 9999px;
 }
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
+}
+
+.dark * {
+  scrollbar-color: rgba(71, 85, 105, 0.5) transparent;
+}
+
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: rgba(71, 85, 105, 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
+}
+
+/* Tailwind CSS v4 @utility scrollbar-thin */
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+  
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 9999px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.35);
+    border-radius: 9999px;
+    transition: background-color 0.2s ease;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #3b82f6;
+  }
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 9999px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 9999px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.4);
+}
+
+/* Tiptap Columns Layout Styling */
+.ProseMirror div[data-type="columns"],
+div[data-type="columns"] {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  gap: 1rem !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.ProseMirror div[data-type="column"],
+div[data-type="column"] {
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  position: relative !important;
+}
+
+.ProseMirror div[data-type="column"] > *:first-child {
+  margin-top: 0 !important;
+}
+.ProseMirror div[data-type="column"] > *:last-child {
+  margin-bottom: 0 !important;
 }
 
 /* Glassmorphism Classes */

@@ -16,6 +16,7 @@ import { TableRow } from '@tiptap/extension-table-row';
 import { TableCell } from '@tiptap/extension-table-cell';
 import { TableHeader } from '@tiptap/extension-table-header';
 import { TextAlign } from '@tiptap/extension-text-align';
+import { Columns, Column } from './ColumnExtensions';
 
 const BUBBLE_MENU_TIPPY_OPTIONS = {
   duration: 150,
@@ -233,6 +234,8 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
+      Columns,
+      Column,
     ],
     content: initialContent,
     editorProps: {
@@ -368,6 +371,34 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
       editor.chain().focus().insertContent('<details class="p-4 my-4 rounded-xl bg-blue-500/5 border border-blue-500/20 cursor-pointer"><summary class="font-bold text-base select-none text-[var(--text-main)]">❓ Tulis Pertanyaan / Judul Accordion Di Sini</summary><p class="mt-2 text-sm text-[var(--text-muted)] leading-relaxed">Tulis penjelasan detail atau jawaban yang dapat dibuka dan ditutup oleh pembaca di sini.</p></details>').run();
     } else if (type === 'horizontalRule') {
       editor.chain().focus().setHorizontalRule().run();
+    } else if (type === 'col-50-50') {
+      editor.chain().focus().insertContent('<div data-type="columns"><div data-type="column" data-width="50%"><p><strong>Kolom 1 (50%):</strong> Tulis atau seret blok di sini...</p></div><div data-type="column" data-width="50%"><p><strong>Kolom 2 (50%):</strong> Tulis atau seret blok di sini...</p></div></div>').run();
+    } else if (type === 'col-30-70') {
+      editor.chain().focus().insertContent('<div data-type="columns"><div data-type="column" data-width="30%"><p><strong>Kolom Kiri (30%):</strong> Tulis...</p></div><div data-type="column" data-width="70%"><p><strong>Kolom Kanan (70%):</strong> Tulis...</p></div></div>').run();
+    } else if (type === 'col-70-30') {
+      editor.chain().focus().insertContent('<div data-type="columns"><div data-type="column" data-width="70%"><p><strong>Kolom Kiri (70%):</strong> Tulis...</p></div><div data-type="column" data-width="30%"><p><strong>Kolom Kanan (30%):</strong> Tulis...</p></div></div>').run();
+    } else if (type === 'col-20-80') {
+      editor.chain().focus().insertContent('<div data-type="columns"><div data-type="column" data-width="20%"><p><strong>Kolom Kiri (20%):</strong> Tulis...</p></div><div data-type="column" data-width="80%"><p><strong>Kolom Kanan (80%):</strong> Tulis...</p></div></div>').run();
+    } else if (type === 'col-80-20') {
+      editor.chain().focus().insertContent('<div data-type="columns"><div data-type="column" data-width="80%"><p><strong>Kolom Kiri (80%):</strong> Tulis...</p></div><div data-type="column" data-width="20%"><p><strong>Kolom Kanan (20%):</strong> Tulis...</p></div></div>').run();
+    } else if (type === 'col-40-60') {
+      editor.chain().focus().insertContent('<div data-type="columns"><div data-type="column" data-width="40%"><p><strong>Kolom Kiri (40%):</strong> Tulis...</p></div><div data-type="column" data-width="60%"><p><strong>Kolom Kanan (60%):</strong> Tulis...</p></div></div>').run();
+    } else if (type === 'col-60-40') {
+      editor.chain().focus().insertContent('<div data-type="columns"><div data-type="column" data-width="60%"><p><strong>Kolom Kiri (60%):</strong> Tulis...</p></div><div data-type="column" data-width="40%"><p><strong>Kolom Kanan (40%):</strong> Tulis...</p></div></div>').run();
+    } else if (type === 'col-10-90') {
+      editor.chain().focus().insertContent('<div data-type="columns"><div data-type="column" data-width="10%"><p><strong>10%:</strong> Tulis...</p></div><div data-type="column" data-width="90%"><p><strong>Kolom Kanan (90%):</strong> Tulis...</p></div></div>').run();
+    } else if (type === 'col-90-10') {
+      editor.chain().focus().insertContent('<div data-type="columns"><div data-type="column" data-width="90%"><p><strong>Kolom Kiri (90%):</strong> Tulis...</p></div><div data-type="column" data-width="10%"><p><strong>10%:</strong> Tulis...</p></div></div>').run();
+    } else if (type === 'col-33-33-33') {
+      editor.chain().focus().insertContent('<div data-type="columns"><div data-type="column" data-width="33.33%"><p><strong>Kolom 1 (33%):</strong> Tulis...</p></div><div data-type="column" data-width="33.33%"><p><strong>Kolom 2 (33%):</strong> Tulis...</p></div><div data-type="column" data-width="33.33%"><p><strong>Kolom 3 (33%):</strong> Tulis...</p></div></div>').run();
+    } else if (type === 'col-25-50-25') {
+      editor.chain().focus().insertContent('<div data-type="columns"><div data-type="column" data-width="25%"><p><strong>Kolom 1 (25%):</strong> Tulis...</p></div><div data-type="column" data-width="50%"><p><strong>Kolom 2 (50%):</strong> Tulis konten utama...</p></div><div data-type="column" data-width="25%"><p><strong>Kolom 3 (25%):</strong> Tulis...</p></div></div>').run();
+    } else if (type === 'col-25-25-50') {
+      editor.chain().focus().insertContent('<div data-type="columns"><div data-type="column" data-width="25%"><p><strong>Kolom 1 (25%):</strong> Tulis...</p></div><div data-type="column" data-width="25%"><p><strong>Kolom 2 (25%):</strong> Tulis...</p></div><div data-type="column" data-width="50%"><p><strong>Kolom 3 (50%):</strong> Tulis...</p></div></div>').run();
+    } else if (type === 'col-50-25-25') {
+      editor.chain().focus().insertContent('<div data-type="columns"><div data-type="column" data-width="50%"><p><strong>Kolom 1 (50%):</strong> Tulis...</p></div><div data-type="column" data-width="25%"><p><strong>Kolom 2 (25%):</strong> Tulis...</p></div><div data-type="column" data-width="25%"><p><strong>Kolom 3 (25%):</strong> Tulis...</p></div></div>').run();
+    } else if (type === 'col-25-25-25-25') {
+      editor.chain().focus().insertContent('<div data-type="columns"><div data-type="column" data-width="25%"><p><strong>Kolom 1 (25%):</strong> Tulis...</p></div><div data-type="column" data-width="25%"><p><strong>Kolom 2 (25%):</strong> Tulis...</p></div><div data-type="column" data-width="25%"><p><strong>Kolom 3 (25%):</strong> Tulis...</p></div><div data-type="column" data-width="25%"><p><strong>Kolom 4 (25%):</strong> Tulis...</p></div></div>').run();
     }
   };
 
