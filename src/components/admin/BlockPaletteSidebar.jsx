@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import {
   Type, Heading1, Heading2, Heading3, Heading4, Heading5, Heading6, TextQuote,
   List, ListOrdered, ListTodo, Table, Quote, Code, Sparkles, CheckCircle2, AlertTriangle, AlertOctagon,
-  Image, Video, Link2, HelpCircle, Minus, Layers, ChevronLeft, ChevronRight, Columns, Grid, LayoutGrid
+  Image, Video, Link2, HelpCircle, Minus, Layers, ChevronLeft, ChevronRight, Columns, Grid, LayoutGrid,
+  ChevronDown, ChevronUp
 } from 'lucide-react';
 
 const TEXT_BLOCKS = [
@@ -249,6 +250,14 @@ const MEDIA_INTERACTIVE_BLOCKS = [
 
 export default function BlockPaletteSidebar({ onInsertBlock }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [openSections, setOpenSections] = useState({
+    text: true,
+    columns: true,
+    list: true,
+    quote: true,
+    callout: true,
+    media: true,
+  });
 
   useEffect(() => {
     try {
@@ -273,49 +282,72 @@ export default function BlockPaletteSidebar({ onInsertBlock }) {
     });
   };
 
+  const toggleSection = (sectionKey) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey]
+    }));
+  };
+
   const handleDragStart = (e, blockType) => {
     e.dataTransfer.setData('text/plain', blockType);
     e.dataTransfer.setData('blockType', blockType);
     e.dataTransfer.effectAllowed = 'copy';
   };
 
-  const renderGridSection = (title, blocks) => (
-    <div className={isCollapsed ? 'space-y-1.5' : 'space-y-2'}>
-      {!isCollapsed ? (
-        <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--text-muted)] border-b border-[var(--border-color)] pb-1.5 px-0.5">
-          {title}
-        </h4>
-      ) : (
-        <div className="border-b border-[var(--border-color)] my-1 w-full" title={title} />
-      )}
+  const renderGridSection = (key, title, blocks) => {
+    const isOpen = openSections[key] ?? true;
 
-      <div className={isCollapsed ? 'grid grid-cols-1 gap-2' : 'grid grid-cols-2 gap-2.5'}>
-        {blocks.map((block) => {
-          const Icon = block.icon;
-          return (
-            <div
-              key={block.type}
-              draggable
-              onDragStart={(e) => handleDragStart(e, block.type)}
-              onClick={() => onInsertBlock && onInsertBlock(block.type)}
-              className={`group flex flex-col items-center justify-center rounded-2xl hover:border-blue-500/60 hover:bg-blue-500/5 hover:shadow-md cursor-grab active:cursor-grabbing transition-all select-none text-center ${isCollapsed ? 'p-2' : 'p-3'
-                }`}
-              title={`Klik atau seret untuk menyisipkan ${block.label}`}
-            >
-              <div className={`p-2.5 rounded-xl ${block.color} group-hover:scale-110 transition-transform ${isCollapsed ? 'mb-0' : 'mb-2'}`}>
-                <Icon className="w-5 h-5" />
-              </div>
-              {!isCollapsed && (
-                <span className="text-xs font-bold text-[var(--text-main)] group-hover:text-blue-500 transition-colors">
-                  {block.label}
-                </span>
-              )}
-            </div>
-          );
-        })}
+    return (
+      <div className={isCollapsed ? 'space-y-1.5' : 'space-y-2'}>
+        {!isCollapsed ? (
+          <button
+            type="button"
+            onClick={() => toggleSection(key)}
+            className="w-full flex items-center justify-between text-[11px] font-extrabold uppercase tracking-wider text-[var(--text-muted)] hover:text-blue-500 border-b border-[var(--border-color)] pb-1.5 px-0.5 transition-colors cursor-pointer select-none"
+          >
+            <span>{title}</span>
+            {isOpen ? (
+              <ChevronUp className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+            ) : (
+              <ChevronDown className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+            )}
+          </button>
+        ) : (
+          <div className="border-b border-[var(--border-color)] my-1 w-full" title={title} />
+        )}
+
+        {(isOpen || isCollapsed) && (
+          <div className={isCollapsed ? 'grid grid-cols-1 gap-2' : 'grid grid-cols-2 gap-2.5'}>
+            {blocks.map((block) => {
+              const Icon = block.icon;
+              return (
+                <div
+                  key={block.type}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, block.type)}
+                  onClick={() => onInsertBlock && onInsertBlock(block.type)}
+                  className={`group flex flex-col items-center justify-center rounded-2xl hover:border-blue-500/60 hover:bg-blue-500/5 hover:shadow-md cursor-grab active:cursor-grabbing transition-all select-none text-center ${
+                    isCollapsed ? 'p-2' : 'p-3'
+                  }`}
+                  title={`Klik atau seret untuk menyisipkan ${block.label}`}
+                >
+                  <div className={`p-2.5 rounded-xl ${block.color} group-hover:scale-110 transition-transform ${isCollapsed ? 'mb-0' : 'mb-2'}`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  {!isCollapsed && (
+                    <span className="text-xs font-bold text-[var(--text-main)] group-hover:text-blue-500 transition-colors">
+                      {block.label}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <aside className={`${isCollapsed ? 'w-16 p-2 space-y-4' : 'w-64 sm:w-72 p-4 space-y-5'} bg-[var(--bg-surface)] border-r border-[var(--border-color)] flex flex-col shrink-0 sticky top-16 h-[calc(100vh-64px)] rounded-none shadow-none transition-all duration-300 ease-in-out`}>
@@ -348,16 +380,14 @@ export default function BlockPaletteSidebar({ onInsertBlock }) {
 
       {/* Grid Sections Grouped */}
       <div className="space-y-5 overflow-y-auto flex-1 pr-1 custom-scrollbar">
-        {renderGridSection('🔤 Teks & Headings', TEXT_BLOCKS)}
-        {renderGridSection('📐 Tata Letak & Kolom', LAYOUT_COLUMNS_BLOCKS)}
-        {renderGridSection('📑 Daftar & Penataan', LIST_TABLE_BLOCKS)}
-        {renderGridSection('💬 Kutipan & Kode', QUOTE_CODE_BLOCKS)}
-        {renderGridSection('💡 Callout & Notifikasi', CALLOUT_BLOCKS)}
-        {renderGridSection('🎨 Media & Interaktif', MEDIA_INTERACTIVE_BLOCKS)}
+        {renderGridSection('text', '🔤 Teks & Headings', TEXT_BLOCKS)}
+        {renderGridSection('columns', '📐 Tata Letak & Kolom', LAYOUT_COLUMNS_BLOCKS)}
+        {renderGridSection('list', '📑 Daftar & Penataan', LIST_TABLE_BLOCKS)}
+        {renderGridSection('quote', '💬 Kutipan & Kode', QUOTE_CODE_BLOCKS)}
+        {renderGridSection('callout', '💡 Callout & Notifikasi', CALLOUT_BLOCKS)}
+        {renderGridSection('media', '🎨 Media & Interaktif', MEDIA_INTERACTIVE_BLOCKS)}
       </div>
 
     </aside>
   );
 }
-
-

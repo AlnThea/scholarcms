@@ -12,7 +12,7 @@ export default function InsertMediaModal({ isOpen, onClose, type, initialData = 
 
   useEffect(() => {
     if (isOpen) {
-      setUrl(initialData.url || (type === 'image' ? 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1200&q=80' : type === 'video' ? 'https://www.youtube.com/embed/dQw4w9WgXcQ' : ''));
+      setUrl(initialData.url || (type === 'image' ? 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1200&q=80' : ''));
       setText(initialData.text || (type === 'button' ? 'Klik Di Sini Untuk Informasi Lebih Lanjut' : ''));
       setOpenInNewTab(initialData.openInNewTab !== undefined ? initialData.openInNewTab : true);
     }

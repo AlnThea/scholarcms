@@ -146,8 +146,14 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
     - **3 Kolom**: `33:33:33`, `25:50:25`, `25:25:50`, `50:25:25`.
     - **4 Kolom**: `25:25:25:25`.
   - Setiap kolom yang diseret (*drag & drop*) merender kontainer grid/flex responsif dengan latar belakang memikat dan border transparan yang dapat diisi teks/blok secara independen.
-- **Modern Ultra-Thin Scrollbar (5px)**:
-  - Menggantikan scrollbar bawaan browser dengan **Scrollbar Kustom Ramping (5px)** bersudut melengkung halus dan efek hover biru brand (`#3b82f6`) di seluruh aplikasi ([globals.css](file:///c:/web/scholarcms/src/app/globals.css)).
+- **Modern Ultra-Thin Scrollbar (5px) & Utility Class**:
+  - Menggantikan scrollbar bawaan browser dengan **Scrollbar Kustom Ramping (5px)** bersudut melengkung halus dan efek hover biru brand (`#3b82f6`) di seluruh aplikasi serta menambahkan utility class `@utility scrollbar-thin` ([globals.css](file:///c:/web/scholarcms/src/app/globals.css)).
+- **Integrasi Tiptap Youtube Player Extension (`@tiptap/extension-youtube`)**:
+  - Menginstal & mendaftarkan `@tiptap/extension-youtube` agar blok video YouTube merender pemutar video interaktif visual asli di kanvas editor dan pratinjau, bukan string HTML mentah.
+- **Ekstensi Custom Node Accordion FAQ (`Details`, `DetailsSummary`, `DetailsContent`)**:
+  - Dibuat Node Tiptap resmi untuk Accordion FAQ ([AccordionExtensions.js](file:///c:/web/scholarcms/src/components/admin/AccordionExtensions.js)) agar blok `<details>` dan `<summary>` merender komutator accordion interaktif asli yang dapat diklik/dibuka-tutup.
+- **Grup Accordion Melayang pada Palet Komponen ([BlockPaletteSidebar.jsx](file:///c:/web/scholarcms/src/components/admin/BlockPaletteSidebar.jsx))**:
+  - Setiap grup kategori palet (🔤 Teks, 📐 Tata Letak, 📑 Daftar, 💬 Kutipan, 💡 Callout, 🎨 Media) kini memiliki tombol accordion untuk **Hide & Open** secara independen dengan status *default* **SEMUA TERBUKA**.
 
 
 

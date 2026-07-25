@@ -16,7 +16,9 @@ import { TableRow } from '@tiptap/extension-table-row';
 import { TableCell } from '@tiptap/extension-table-cell';
 import { TableHeader } from '@tiptap/extension-table-header';
 import { TextAlign } from '@tiptap/extension-text-align';
+import Youtube from '@tiptap/extension-youtube';
 import { Columns, Column } from './ColumnExtensions';
+import { Details, DetailsSummary, DetailsContent } from './AccordionExtensions';
 
 const BUBBLE_MENU_TIPPY_OPTIONS = {
   duration: 150,
@@ -234,8 +236,16 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
+      Youtube.configure({
+        controls: true,
+        nocookie: true,
+        inline: false,
+      }),
       Columns,
       Column,
+      Details,
+      DetailsSummary,
+      DetailsContent,
     ],
     content: initialContent,
     editorProps: {
@@ -278,11 +288,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
       }
     } else if (modalType === 'video') {
       if (url) {
-        let embedUrl = url;
-        if (url.includes('watch?v=')) {
-          embedUrl = url.replace('watch?v=', 'embed/');
-        }
-        editor.chain().focus().insertContent(`<div class="relative w-full aspect-video rounded-xl overflow-hidden my-4 border border-[var(--border-color)] shadow-md"><iframe src="${embedUrl}" class="w-full h-full border-0" allowfullscreen></iframe></div>`).run();
+        editor.chain().focus().setYoutubeVideo({ src: url }).run();
       }
     } else if (modalType === 'button') {
       if (url && text) {
@@ -364,11 +370,11 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
     } else if (type === 'image') {
       setMediaModalState({ isOpen: true, type: 'image', initialData: {} });
     } else if (type === 'video') {
-      setMediaModalState({ isOpen: true, type: 'video', initialData: {} });
+      setMediaModalState({ isOpen: true, type: 'video', initialData: { url: '' } });
     } else if (type === 'button') {
       setMediaModalState({ isOpen: true, type: 'button', initialData: {} });
     } else if (type === 'details') {
-      editor.chain().focus().insertContent('<details class="p-4 my-4 rounded-xl bg-blue-500/5 border border-blue-500/20 cursor-pointer"><summary class="font-bold text-base select-none text-[var(--text-main)]">❓ Tulis Pertanyaan / Judul Accordion Di Sini</summary><p class="mt-2 text-sm text-[var(--text-muted)] leading-relaxed">Tulis penjelasan detail atau jawaban yang dapat dibuka dan ditutup oleh pembaca di sini.</p></details>').run();
+      editor.chain().focus().insertContent('<details open><summary>❓ Tulis Pertanyaan / Judul Accordion Di Sini</summary><div data-type="details-content"><p>Tulis penjelasan detail atau jawaban yang dapat dibuka dan ditutup oleh pembaca di sini.</p></div></details>').run();
     } else if (type === 'horizontalRule') {
       editor.chain().focus().setHorizontalRule().run();
     } else if (type === 'col-50-50') {
