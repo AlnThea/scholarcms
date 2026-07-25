@@ -128,10 +128,12 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 ### 🎨 Pengondisian & Styling Visual Drag & Drop Gutenberg Editor
 - **Custom Drop Cursor Accent Line (`.ProseMirror-dropcursor`)**:
   - Mengubah garis petunjuk posisi drop (*drop cursor line*) bawaan yang berwarna hitam kaku menjadi **garis biru brand modern (`#3b82f6`)** setebal 3px dengan efek *glowing shadow* (`box-shadow: 0 0 10px rgba(59,130,246,0.75)`) dan `pointer-events: none` agar tidak menghalangi event kursor.
-- **Integrasi Tiptap Interactive Table Extension & Floating Bubble Menu**:
+- **Integrasi Tiptap Interactive Table Extension & Vertical Floating Bubble Menu**:
   - Menginstal & mengintegrasikan `@tiptap/extension-table`, `@tiptap/extension-table-row`, `@tiptap/extension-table-cell`, dan `@tiptap/extension-table-header`.
   - Blok **Tabel Data** saat diseret (*drag & drop*) kini langsung merender struktur node tabel visual asli 3x3 yang interaktif dan dapat diedit.
-  - **Floating Table Action Menu (`BubbleMenu`)**: Menampilkan toolbar melayang otomatis tepat di atas sel tabel saat kursor/pointer aktif di dalam tabel. Menyediakan suite kontrol lengkap: **`+ Baris ↑`**, **`+ Baris ↓`**, **`- Baris`**, **`+ Kolom ←`**, **`+ Kolom →`**, **`- Kolom`**, **`Gabung Sel`**, **`Pisah Sel`**, **`Toggle Header`**, dan **`🗑️ Hapus Tabel`**.
+  - **Floating Table Action Menu (`BubbleMenu`)**: Menampilkan pop-up daftar vertikal melayang otomatis tepat di dekat sel tabel saat kursor/pointer aktif.
+- **Tombol Penataan Teks / Text Alignment (`@tiptap/extension-text-align`)**:
+  - Penambahan 4 tombol penataan alignment paragraf & heading pada toolbar editor di samping tombol Undo & Redo: **Rata Kiri (`AlignLeft`)**, **Rata Tengah (`AlignCenter`)**, **Rata Kanan (`AlignRight`)**, dan **Rata Kiri-Kanan (`AlignJustify`)**.
 
 
 

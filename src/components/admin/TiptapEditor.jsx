@@ -15,6 +15,7 @@ import { Table } from '@tiptap/extension-table';
 import { TableRow } from '@tiptap/extension-table-row';
 import { TableCell } from '@tiptap/extension-table-cell';
 import { TableHeader } from '@tiptap/extension-table-header';
+import { TextAlign } from '@tiptap/extension-text-align';
 
 const BUBBLE_MENU_TIPPY_OPTIONS = {
   duration: 150,
@@ -27,7 +28,7 @@ import Link from 'next/link';
 import {
   Save, Eye, Edit3, ArrowLeft, Image as ImageIcon, Sparkles, Settings,
   Bold, Italic, Underline, Strikethrough, Code, Heading, List, ListOrdered, Quote, Undo, Redo,
-  Trash2, Box, Type, Link2, Eraser, Code2
+  Trash2, Box, Type, Link2, Eraser, Code2, AlignLeft, AlignCenter, AlignRight, AlignJustify
 } from 'lucide-react';
 import AiGenerateModal from './AiGenerateModal';
 import InsertMediaModal from './InsertMediaModal';
@@ -229,6 +230,9 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
       TableRow,
       TableHeader,
       TableCell,
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
     ],
     content: initialContent,
     editorProps: {
@@ -674,6 +678,42 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     title="Redo (Ulangi)"
                   >
                     <Redo className="w-3.5 h-3.5" />
+                  </button>
+
+                  <div className="h-3.5 w-px bg-[var(--border-color)] mx-0.5" />
+
+                  {/* Tombol Penataan Teks: Rata Kiri, Rata Tengah, Rata Kanan, Rata Kiri Kanan (Justify) */}
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().setTextAlign('left').run()}
+                    className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive({ textAlign: 'left' }) ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+                    title="Rata Kiri (Align Left)"
+                  >
+                    <AlignLeft className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().setTextAlign('center').run()}
+                    className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive({ textAlign: 'center' }) ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+                    title="Rata Tengah (Align Center)"
+                  >
+                    <AlignCenter className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().setTextAlign('right').run()}
+                    className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive({ textAlign: 'right' }) ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+                    title="Rata Kanan (Align Right)"
+                  >
+                    <AlignRight className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+                    className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive({ textAlign: 'justify' }) ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+                    title="Rata Kiri Kanan (Justify)"
+                  >
+                    <AlignJustify className="w-3.5 h-3.5" />
                   </button>
 
                   <div className="h-3.5 w-px bg-[var(--border-color)] mx-0.5" />
