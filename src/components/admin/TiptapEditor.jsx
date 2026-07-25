@@ -34,7 +34,7 @@ import Link from 'next/link';
 import {
   Save, Eye, Edit3, ArrowLeft, Image as ImageIcon, Sparkles, Settings,
   Bold, Italic, Underline, Strikethrough, Code, Heading, List, ListOrdered, Quote, Undo, Redo,
-  Trash2, Box, Type, Link2, Eraser, Code2, AlignLeft, AlignCenter, AlignRight, AlignJustify, GripVertical, ChevronUp, ChevronDown
+  Trash2, Box, Type, Link2, Eraser, Code2, AlignLeft, AlignCenter, AlignRight, AlignJustify, GripVertical, ChevronUp, ChevronDown, CheckCircle2, X
 } from 'lucide-react';
 import AiGenerateModal from './AiGenerateModal';
 import InsertMediaModal from './InsertMediaModal';
@@ -120,6 +120,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
 
   const [categories, setCategories] = useState([]);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [saveToast, setSaveToast] = useState(null);
   const [isDraggingOverCanvas, setIsDraggingOverCanvas] = useState(false);
   const activeTab = editorViewMode || 'editor';
 
@@ -815,6 +816,17 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
     };
 
     onSave(postPayload, shouldExit);
+
+    setSaveToast({
+      type: 'success',
+      message: shouldExit
+        ? (isPage ? '✅ Halaman berhasil disimpan! Mengalihkan...' : '✅ Artikel berhasil disimpan! Mengalihkan...')
+        : (isPage ? '✅ Halaman berhasil disimpan!' : '✅ Artikel berhasil disimpan!'),
+    });
+
+    setTimeout(() => {
+      setSaveToast(null);
+    }, 3500);
   };
 
   useEffect(() => {
@@ -1358,6 +1370,25 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
         onClose={() => setIsAiModalOpen(false)}
         onGenerateSuccess={handleAiGenerateSuccess}
       />
+
+      {/* Floating Toast Notification Simpan */}
+      {saveToast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 bg-[var(--bg-surface)] border border-emerald-500/50 text-emerald-400 rounded-2xl shadow-2xl backdrop-blur-xl animate-fade-in transition-all">
+          <CheckCircle2 className="w-5 h-5 text-emerald-500 animate-bounce" />
+          <div className="flex flex-col">
+            <span className="text-xs font-bold text-[var(--text-main)]">{saveToast.message}</span>
+            <span className="text-[10px] text-[var(--text-muted)]">Semua perubahan telah tersimpan ke database.</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSaveToast(null)}
+            className="ml-2 text-gray-400 hover:text-gray-200 transition-colors p-1"
+            title="Tutup Notifikasi"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* Modal Custom Insert Media / Link Popup */}
       <InsertMediaModal

@@ -2,6 +2,17 @@
 
 Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 
+## [v1.6.0] - 2026-07-25
+
+### 🚀 Fitur Baru Utama & Penyempurnaan Tiptap Editor & AI Generator
+- **Layout Kolom Rentang Penuh 100% (Full-Width Flex Ratio)**: Memperbarui kalkulasi `Column` menggunakan `flex: ratio ratio 0%` sehingga seluruh variasi rasio kolom (`80:20`, `50:50`, dll.) merentang penuh mengisi kontainer dari kiri ke kanan tanpa celah kosong.
+- **Node Extension Task List & Task Item Interaktif**: Mendaftarkan paket `@tiptap/extension-task-list` & `@tiptap/extension-task-item` untuk merender kotak centang (*checkbox*) interaktif dengan aksen biru, penataan sejajar 1 baris, dan pencoretan teks otomatis saat tercentang.
+- **Floating Toast Notification System**: Menambahkan notifikasi melayang hijau (*Glassmorphism Floating Toast*) di sudut kanan bawah layar yang muncul otomatis saat mengeklik tombol **`Simpan`** dan **`Simpan & Keluar`**.
+- **Tombol Hapus Blok Node 1-Klik**: Memperbarui tombol sampah (`🗑️`) di toolbar utama dan toolbar melayang agar menghapus blok node terluar secara langsung dalam 1 klik.
+- **Upgrade Generasi Artikel AI (1400+ Kata Bahasa Indonesia)**: Memperbarui prompt utama dan generator fallback AI agar menghasilkan artikel mendalam 1400–1800+ kata Bahasa Indonesia yang secara otomatis memanfaatkan seluruh elemen blok visual (Multi-kolom, Accordion FAQ, Checklist Tugas, Tabel Data Matriks, Callout Boxes, dll.).
+
+---
+
 ## [v1.5.0] - 2026-07-25
 
 ### 🚀 Fitur Baru Utama & Penyempurnaan Tiptap Editor
