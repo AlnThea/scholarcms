@@ -18,7 +18,7 @@ import { TableHeader } from '@tiptap/extension-table-header';
 import { TextAlign } from '@tiptap/extension-text-align';
 import Youtube from '@tiptap/extension-youtube';
 import { Columns, Column } from './ColumnExtensions';
-import { Details, DetailsSummary, DetailsContent } from './AccordionExtensions';
+import { AccordionGroup, AccordionItem, AccordionHeader, AccordionContent } from './AccordionExtensions';
 
 const BUBBLE_MENU_TIPPY_OPTIONS = {
   duration: 150,
@@ -243,9 +243,10 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
       }),
       Columns,
       Column,
-      Details,
-      DetailsSummary,
-      DetailsContent,
+      AccordionGroup,
+      AccordionItem,
+      AccordionHeader,
+      AccordionContent,
     ],
     content: initialContent,
     editorProps: {
@@ -374,7 +375,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
     } else if (type === 'button') {
       setMediaModalState({ isOpen: true, type: 'button', initialData: {} });
     } else if (type === 'details') {
-      editor.chain().focus().insertContent('<details open><summary>❓ Tulis Pertanyaan / Judul Accordion Di Sini</summary><div data-type="details-content"><p>Tulis penjelasan detail atau jawaban yang dapat dibuka dan ditutup oleh pembaca di sini.</p></div></details>').run();
+      editor.chain().focus().insertContent('<div data-type="accordion-group"><div data-type="accordion-item"><div data-type="accordion-header">❓ Pertanyaan / Judul Accordion 1</div><div data-type="accordion-content"><p>Tulis penjelasan detail atau jawaban untuk poin pertama di sini...</p></div></div><div data-type="accordion-item"><div data-type="accordion-header">❓ Pertanyaan / Judul Accordion 2</div><div data-type="accordion-content"><p>Tulis penjelasan detail atau jawaban untuk poin kedua di sini...</p></div></div></div>').run();
     } else if (type === 'horizontalRule') {
       editor.chain().focus().setHorizontalRule().run();
     } else if (type === 'col-50-50') {

@@ -189,6 +189,16 @@ div[data-type="column"] {
   margin-bottom: 0 !important;
 }
 
+/* Accordion FAQ Styling */
+.ProseMirror summary {
+  cursor: text !important;
+  user-select: text !important;
+}
+
+.ProseMirror details[open] summary {
+  border-bottom: 1px solid var(--border-color);
+}
+
 /* Glassmorphism Classes */
 .glass-panel {
   background: var(--glass-bg);
