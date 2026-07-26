@@ -119,15 +119,17 @@ export const INITIAL_PAGES = [
     seoDescription: 'Informasi lengkap tentang platform ScholarCMS dan pengembang.',
     blocks: [
       { id: 'pb1', type: 'heading', level: 1, content: 'Tentang Platform ScholarCMS' },
-      { id: 'pb2', type: 'paragraph', content: 'ScholarCMS adalah platform CMS blog berbasis Next.js 14 App Router, React 18, dan Firebase Firestore Cloud DB yang dirancang untuk kecepatan super cepat dan keterbacaan artikel yang nyaman.' },
-      { id: 'pb3', type: 'callout', content: '✨ **Misi Kami**: Menyediakan mesin publikasi artikel bergaya WordPress modern dengan teknologi terkini.' }
+      { id: 'pb2', type: 'paragraph', content: 'ScholarCMS adalah platform CMS blog independen berbasis Next.js 14 App Router, React 18, dan Firebase Firestore Cloud DB yang dirancang untuk memberikan pengalaman membaca artikel teknologi dan pemprograman dengan kecepatan tinggi.' },
+      { id: 'pb3', type: 'heading', level: 2, content: 'Standar Editorial & Kualitas' },
+      { id: 'pb4', type: 'paragraph', content: 'Seluruh konten dan panduan yang dipublikasikan melalui platform ini ditulis serta ditinjau oleh pakar industri teknologi untuk memastikan keakuratan, orisinalitas, dan nilai manfaat tinggi bagi para pembaca.' },
+      { id: 'pb5', type: 'callout', content: '✨ **Misi Kami**: Menyediakan artikel edukasi teknologi berkualitas tinggi yang dapat diakses secara gratis oleh komunitas pengembang web modern.' }
     ]
   },
   {
     id: 'page-2',
     title: 'Kebijakan Privasi',
     slug: 'kebijakan-privasi',
-    excerpt: 'Informasi mengenai hak privasi dan penggunaan data pengunjung pada ScholarCMS.',
+    excerpt: 'Kebijakan privasi resmi mengenai pengumpulan data anonim, penggunaan Google Cookies (DART Cookie), dan transparansi Google AdSense.',
     status: 'published',
     author: {
       name: 'Ernst Senior Dev',
@@ -135,12 +137,82 @@ export const INITIAL_PAGES = [
       role: 'Chief Software Architect'
     },
     publishedAt: '2026-07-20T08:00:00.000Z',
-    views: 95,
-    seoTitle: 'Kebijakan Privasi | ScholarCMS',
-    seoDescription: 'Kebijakan privasi dan perlindungan data pengguna.',
+    views: 195,
+    seoTitle: 'Kebijakan Privasi (Privacy Policy) | ScholarCMS',
+    seoDescription: 'Kebijakan privasi resmi ScholarCMS mengenai pengumpulan data, Cookie Google AdSense, dan hak privasi pengunjung.',
     blocks: [
-      { id: 'pb1', type: 'heading', level: 1, content: 'Kebijakan Privasi' },
-      { id: 'pb2', type: 'paragraph', content: 'Privasi Anda sangat penting bagi kami. Kebijakan ini menjelaskan bagaimana ScholarCMS mengumpulkan, menggunakan, dan melindungi data pribadi pengunjung.' }
+      { id: 'pb1', type: 'heading', level: 1, content: 'Kebijakan Privasi (Privacy Policy)' },
+      { id: 'pb2', type: 'paragraph', content: 'Di ScholarCMS, privasi pengunjung adalah prioritas utama kami. Dokumen Kebijakan Privasi ini menjelaskan jenis informasi yang dikumpulkan dan dicatat oleh ScholarCMS serta bagaimana kami menggunakannya.' },
+      { id: 'pb3', type: 'heading', level: 2, content: 'Google DoubleClick DART Cookie & Iklan Pihak Ketiga' },
+      { id: 'pb4', type: 'paragraph', content: 'Google adalah vendor pihak ketiga di situs kami. Google menggunakan cookie, yang dikenal sebagai DART cookie, untuk menayangkan iklan kepada pengunjung situs kami berdasarkan kunjungan mereka ke www.scholarcms.com dan situs lainnya di internet.' },
+      { id: 'pb5', type: 'paragraph', content: 'Pengunjung dapat memilih untuk menolak penggunaan DART cookie dengan mengunjungi Kebijakan Privasi jaringan iklan dan konten Google di URL berikut: https://policies.google.com/technologies/ads' },
+      { id: 'pb6', type: 'heading', level: 2, content: 'Mitra Periklanan Kami (Google AdSense)' },
+      { id: 'pb7', type: 'paragraph', content: 'Beberapa pengiklan di situs kami mungkin menggunakan cookie dan web beacon. Mitra periklanan utama kami mencakup Google AdSense. Setiap mitra periklanan kami memiliki Kebijakan Privasi sendiri untuk kebijakan mereka tentang data pengguna.' },
+      { id: 'pb8', type: 'heading', level: 2, content: 'Berkas Log (Log Files)' },
+      { id: 'pb9', type: 'paragraph', content: 'ScholarCMS mengikuti prosedur standar penggunaan berkas log. Berkas ini mencatat pengunjung saat mereka mengunjungi situs web. Informasi yang dikumpulkan mencakup alamat IP, jenis peramban (browser), penyedia layanan internet (ISP), stempel tanggal/waktu, dan jumlah klik untuk menganalisis tren serta mengelola situs.' }
+    ]
+  },
+  {
+    id: 'page-3',
+    title: 'Syarat & Ketentuan',
+    slug: 'syarat-ketentuan',
+    excerpt: 'Ketentuan dan aturan penggunaan materi serta layanan pada platform blog ScholarCMS.',
+    status: 'published',
+    author: {
+      name: 'Ernst Senior Dev',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      role: 'Chief Software Architect'
+    },
+    publishedAt: '2026-07-20T08:00:00.000Z',
+    views: 84,
+    seoTitle: 'Syarat & Ketentuan (Terms of Service) | ScholarCMS',
+    seoDescription: 'Aturan dan ketentuan penggunaan situs ScholarCMS.',
+    blocks: [
+      { id: 'pb1', type: 'heading', level: 1, content: 'Syarat & Ketentuan Penggunaan' },
+      { id: 'pb2', type: 'paragraph', content: 'Selamat datang di ScholarCMS. Dengan mengakses dan menggunakan situs web ini, Anda dianggap telah menyetujui seluruh Syarat & Ketentuan yang berlaku di bawah ini.' },
+      { id: 'pb3', type: 'heading', level: 2, content: 'Hak Cipta & Lisensi Konten' },
+      { id: 'pb4', type: 'paragraph', content: 'Kecuali dinyatakan lain, ScholarCMS dan/atau pemberi lisensinya memegang hak kekayaan intelektual atas semua materi di ScholarCMS. Anda dapat mengakses materi ini untuk penggunaan pribadi dengan tunduk pada batasan dalam syarat dan ketentuan ini.' }
+    ]
+  },
+  {
+    id: 'page-4',
+    title: 'Hubungi Kami',
+    slug: 'hubungi-kami',
+    excerpt: 'Informasi kontak resmi dan formulir komunikasi dengan tim redaksi ScholarCMS.',
+    status: 'published',
+    author: {
+      name: 'Ernst Senior Dev',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      role: 'Chief Software Architect'
+    },
+    publishedAt: '2026-07-20T08:00:00.000Z',
+    views: 110,
+    seoTitle: 'Hubungi Kami (Contact Us) | ScholarCMS',
+    seoDescription: 'Informasi kontak dan alamat komunikasi redaksi ScholarCMS.',
+    blocks: [
+      { id: 'pb1', type: 'heading', level: 1, content: 'Hubungi Tim Redaksi ScholarCMS' },
+      { id: 'pb2', type: 'paragraph', content: 'Jika Anda memiliki pertanyaan, saran, kerja sama periklanan, atau pertanyaan umum terkait isi artikel, silakan hubungi tim kami melalui kontak berikut:' },
+      { id: 'pb3', type: 'callout', content: '📧 **Email Redaksi Resmi**: admin@scholarcms.com\n🌐 **Alamat Situs**: https://scholarcms.com' }
+    ]
+  },
+  {
+    id: 'page-5',
+    title: 'Disclaimer',
+    slug: 'disclaimer',
+    excerpt: 'Pernyataan penyangkalan tanggung jawab atas informasi dan materi tutorial pada blog.',
+    status: 'published',
+    author: {
+      name: 'Ernst Senior Dev',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      role: 'Chief Software Architect'
+    },
+    publishedAt: '2026-07-20T08:00:00.000Z',
+    views: 76,
+    seoTitle: 'Disclaimer & Penyangkalan Tanggung Jawab | ScholarCMS',
+    seoDescription: 'Batasan tanggung jawab informasi dan pengungkapan iklan sponsor.',
+    blocks: [
+      { id: 'pb1', type: 'heading', level: 1, content: 'Pernyataan Penyangkalan (Disclaimer)' },
+      { id: 'pb2', type: 'paragraph', content: 'Seluruh informasi di situs web ini diterbitkan dengan niat baik dan hanya untuk tujuan informasi umum serta edukasi. ScholarCMS tidak memberikan jaminan tentang kelengkapan, keandalan, dan keakuratan informasi ini.' }
     ]
   }
 ];
@@ -154,13 +226,17 @@ export const INITIAL_MENUS = {
     { id: 'm-5', label: 'Glassmorphism Design', type: 'url', url: '/post/desain-antarmuka-glassmorphism-micro-animations', level: 3, order: 5, parentId: 'm-4' },
     { id: 'm-6', label: 'Halaman Statis', type: 'page', target: 'tentang-kami', level: 1, order: 6 },
     { id: 'm-7', label: 'Tentang Kami', type: 'page', target: 'tentang-kami', level: 2, order: 7, parentId: 'm-6' },
-    { id: 'm-8', label: 'Kebijakan Privasi', type: 'page', target: 'kebijakan-privasi', level: 2, order: 8, parentId: 'm-6' }
+    { id: 'm-8', label: 'Kebijakan Privasi', type: 'page', target: 'kebijakan-privasi', level: 2, order: 8, parentId: 'm-6' },
+    { id: 'm-9', label: 'Syarat & Ketentuan', type: 'page', target: 'syarat-ketentuan', level: 2, order: 9, parentId: 'm-6' },
+    { id: 'm-10', label: 'Hubungi Kami', type: 'page', target: 'hubungi-kami', level: 2, order: 10, parentId: 'm-6' }
   ],
   footer: [
     { id: 'f-1', label: 'Beranda', type: 'url', url: '/', level: 1, order: 1 },
     { id: 'f-2', label: 'Tentang Kami', type: 'page', target: 'tentang-kami', level: 1, order: 2 },
     { id: 'f-3', label: 'Kebijakan Privasi', type: 'page', target: 'kebijakan-privasi', level: 1, order: 3 },
-    { id: 'f-4', label: 'Topik Web Dev', type: 'category', target: 'web-development', level: 1, order: 4 }
+    { id: 'f-4', label: 'Syarat & Ketentuan', type: 'page', target: 'syarat-ketentuan', level: 1, order: 4 },
+    { id: 'f-5', label: 'Hubungi Kami', type: 'page', target: 'hubungi-kami', level: 1, order: 5 },
+    { id: 'f-6', label: 'Disclaimer', type: 'page', target: 'disclaimer', level: 1, order: 6 }
   ]
 };
 

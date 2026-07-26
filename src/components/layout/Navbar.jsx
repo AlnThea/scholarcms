@@ -17,8 +17,8 @@ function buildMenuTree(flatItems) {
     const linkUrl = item.type === 'category'
       ? `/?category=${encodeURIComponent(item.target)}`
       : item.type === 'page'
-      ? `/page/${item.target}`
-      : item.url || '/';
+        ? `/page/${item.target}`
+        : item.url || '/';
 
     const node = { ...item, href: linkUrl, children: [] };
 
@@ -68,7 +68,7 @@ export default function Navbar({ onSearch, searchQuery }) {
   return (
     <header className="sticky top-0 z-50 glass-header border-b border-[var(--border-color)] transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-        
+
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-3 group shrink-0">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform">
@@ -77,11 +77,8 @@ export default function Navbar({ onSearch, searchQuery }) {
           <div>
             <div className="font-extrabold text-xl tracking-tight text-[var(--text-main)] flex items-center gap-1.5">
               Scholar<span className="gradient-text">CMS</span>
-              <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
-                Next.js
-              </span>
             </div>
-            <p className="text-[11px] text-[var(--text-muted)] hidden sm:block">Modern WordPress Engine</p>
+            <p className="text-[11px] text-[var(--text-muted)] hidden sm:block">Modern Publishing Platform</p>
           </div>
         </Link>
 
@@ -174,14 +171,6 @@ export default function Navbar({ onSearch, searchQuery }) {
             ) : (
               <Sun className="w-4 h-4 text-amber-400" />
             )}
-          </button>
-          {/* Settings / Meta Sidebar Toggle */}
-          <button
-            onClick={openSidebar}
-            className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
-            title="Buka Meta Sidebar"
-          >
-            <Settings className="w-4 h-4" />
           </button>
 
           {/* User Auth Dropdown */}

@@ -3,12 +3,15 @@
 import { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import AdSenseBanner from '@/components/blog/AdSenseBanner';
 import { dbService } from '@/services/dbService';
+import { useAuth } from '@/context/AuthContext';
 import { Clock, Eye, ArrowLeft, Share2, MessageSquare, Send, Check } from 'lucide-react';
 import Link from 'next/link';
 
 export default function BlogPostDetail({ params }) {
   const { slug } = params;
+  const { user } = useAuth();
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,6 +23,13 @@ export default function BlogPostDetail({ params }) {
   const [commentBody, setCommentBody] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
   const [commentSuccess, setCommentSuccess] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      if (user.name) setCommentName(user.name);
+      if (user.email) setCommentEmail(user.email);
+    }
+  }, [user]);
 
   useEffect(() => {
     async function loadPostAndComments() {
@@ -180,7 +190,7 @@ export default function BlogPostDetail({ params }) {
           </div>
         </header>
 
-        <div className="relative aspect-[21/9] rounded-3xl overflow-hidden mb-12 border border-[var(--border-color)] shadow-xl">
+        <div className="relative aspect-[21/9] rounded-3xl overflow-hidden mb-8 border border-[var(--border-color)] shadow-xl">
           <img
             src={post.featuredImage}
             alt={post.title}
@@ -188,7 +198,10 @@ export default function BlogPostDetail({ params }) {
           />
         </div>
 
-        <article className="gutenberg-content mb-16 border-b border-[var(--border-color)] pb-12">
+        {/* AdSense Top Header Banner Placement */}
+        <AdSenseBanner placement="header-banner" className="mb-10" />
+
+        <article className="gutenberg-content mb-12 border-b border-[var(--border-color)] pb-12">
           {post.content ? (
             <div 
               className="prose dark:prose-invert max-w-none text-sm text-[var(--text-main)] leading-relaxed" 
@@ -221,15 +234,24 @@ export default function BlogPostDetail({ params }) {
           ) : (
             <p>{post.excerpt}</p>
           )}
+
+          {/* AdSense In-Article Placement */}
+          <AdSenseBanner placement="in-article" className="mt-8" />
         </article>
 
         {post.tags && post.tags.length > 0 && (
           <div className="flex items-center gap-2 flex-wrap mb-16">
             <span className="text-xs font-bold text-[var(--text-subtle)] uppercase tracking-wider mr-2">Tags:</span>
             {post.tags.map((tag, idx) => (
-              <span key={idx} className="px-3 py-1 rounded-lg text-xs font-medium bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-muted)]">
-                #{tag}
-              </span>
+              <Link
+                key={idx}
+                href={`/?search=${encodeURIComponent(tag)}`}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-blue-500 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all flex items-center gap-1 group"
+                title={`Cari semua artikel terkait #${tag}`}
+              >
+                <span className="text-blue-500 group-hover:scale-110 transition-transform">#</span>
+                <span>{tag}</span>
+              </Link>
             ))}
           </div>
         )}

@@ -3,6 +3,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { MetaSidebarProvider } from '@/context/MetaSidebarContext';
 import RightMetaSidebar from '@/components/admin/RightMetaSidebar';
+import AdSenseScript from '@/components/blog/AdSenseScript';
 
 export const metadata = {
   title: 'ScholarCMS - Modern WordPress-style Blog Engine',
@@ -21,6 +22,7 @@ export default function RootLayout({ children }) {
         <ThemeProvider>
           <AuthProvider>
             <MetaSidebarProvider>
+              <AdSenseScript />
               {children}
               <RightMetaSidebar />
             </MetaSidebarProvider>

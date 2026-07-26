@@ -1,21 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import HeroFeatured from '@/components/blog/HeroFeatured';
 import PostCard from '@/components/blog/PostCard';
+import TrendingTopicsWidget from '@/components/blog/TrendingTopicsWidget';
 import { dbService } from '@/services/dbService';
 import { Search, BookOpen, Flame } from 'lucide-react';
 import Link from 'next/link';
 
-export default function BlogHome() {
+function BlogHomeContent() {
+  const searchParams = useSearchParams();
   const [posts, setPosts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [dbStatus, setDbStatus] = useState(false);
+
+  useEffect(() => {
+    const paramCat = searchParams.get('category');
+    const paramQuery = searchParams.get('search') || searchParams.get('tag');
+    if (paramCat) setSelectedCategory(paramCat);
+    if (paramQuery) setSearchQuery(paramQuery);
+  }, [searchParams]);
 
   useEffect(() => {
     async function loadData() {
@@ -37,9 +47,20 @@ export default function BlogHome() {
 
   const filteredPosts = posts.filter(post => {
     const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
-    const matchesSearch = !searchQuery || 
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+    const query = searchQuery.trim().toLowerCase();
+
+    let matchesSearch = true;
+    if (query) {
+      const inTitle = post.title?.toLowerCase().includes(query);
+      const inExcerpt = post.excerpt?.toLowerCase().includes(query);
+      const inCategory = post.category?.toLowerCase().includes(query);
+      const inTags = Array.isArray(post.tags) && post.tags.some(tag => tag.toLowerCase().includes(query));
+      const inContent = post.content?.toLowerCase().includes(query);
+      const inBlocks = Array.isArray(post.blocks) && post.blocks.some(b => b.content?.toLowerCase().includes(query));
+
+      matchesSearch = inTitle || inExcerpt || inCategory || inTags || inContent || inBlocks;
+    }
+
     return matchesCategory && matchesSearch;
   });
 
@@ -52,19 +73,6 @@ export default function BlogHome() {
       <Navbar onSearch={setSearchQuery} searchQuery={searchQuery} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
-        
-        {/* Connection Notice Pill */}
-        <div className="flex items-center justify-between gap-4 mb-6 p-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs">
-          <div className="flex items-center gap-2">
-            <span className={`w-2.5 h-2.5 rounded-full ${dbStatus ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
-            <span className="font-semibold">
-              Status Database: {dbStatus ? 'Connected to Firebase Firestore' : 'Demo Local Storage Mode (Ready out-of-the-box)'}
-            </span>
-          </div>
-          <Link href="/dashboard/settings" className="text-blue-500 hover:underline font-medium hidden sm:inline">
-            {dbStatus ? 'Cek Konfigurasi' : 'Hubungkan Ke Firebase Firestore →'}
-          </Link>
-        </div>
 
         {/* Categories Bar */}
         <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar">
@@ -169,24 +177,14 @@ export default function BlogHome() {
               </div>
             </div>
 
-            {/* Quick Admin Callout */}
-            <div className="p-6 rounded-3xl bg-gradient-to-br from-blue-900 to-indigo-950 text-white shadow-xl relative overflow-hidden">
-              <div className="relative z-10">
-                <span className="px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider bg-white/20 text-white mb-3 inline-block">
-                  WordPress CMS Core
-                </span>
-                <h3 className="text-lg font-extrabold mb-2">Ingin menulis & mengelola artikel?</h3>
-                <p className="text-xs text-blue-200 mb-5 leading-relaxed">
-                  Buka Dashboard Admin ala WordPress untuk membuat postingan dengan Gutenberg-like block editor.
-                </p>
-                <Link
-                  href="/dashboard"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-blue-900 text-xs font-bold hover:bg-blue-50 transition-colors shadow-lg"
-                >
-                  Buka Dashboard →
-                </Link>
-              </div>
-            </div>
+            {/* Trending Topics & Tag Cloud Widget */}
+            <TrendingTopicsWidget
+              categories={categories}
+              posts={posts}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+              onSelectTag={(tag) => setSearchQuery(tag)}
+            />
 
           </aside>
 
@@ -196,5 +194,13 @@ export default function BlogHome() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function BlogHome() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[var(--bg-primary)]" />}>
+      <BlogHomeContent />
+    </Suspense>
   );
 }
