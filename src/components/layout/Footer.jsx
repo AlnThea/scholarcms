@@ -6,17 +6,37 @@ import { Feather, Heart, Database, ShieldCheck } from 'lucide-react';
 import { dbService } from '@/services/dbService';
 
 export default function Footer() {
+  const [siteTitle, setSiteTitle] = useState('ScholarCMS');
   const [footerLinks, setFooterLinks] = useState([]);
 
   useEffect(() => {
-    async function loadFooterMenu() {
-      const items = await dbService.getMenu('footer');
-      if (Array.isArray(items) && items.length > 0) {
-        setFooterLinks(items);
+    async function loadFooterData() {
+      try {
+        const [items, genSettings] = await Promise.all([
+          dbService.getMenu('footer'),
+          dbService.getGeneralSettings()
+        ]);
+        if (Array.isArray(items) && items.length > 0) {
+          setFooterLinks(items);
+        }
+        if (genSettings && genSettings.siteTitle) {
+          setSiteTitle(genSettings.siteTitle);
+        }
+      } catch (err) {
+        console.error('Footer data loading error:', err);
       }
     }
-    loadFooterMenu();
+    loadFooterData();
   }, []);
+
+  const renderBrandTitle = (title) => {
+    if (!title) return 'ScholarCMS';
+    if (title.toLowerCase().endsWith('cms')) {
+      const mainPart = title.slice(0, -3);
+      return <>{mainPart}<span className="gradient-text">CMS</span></>;
+    }
+    return title;
+  };
 
   return (
     <footer className="border-t border-[var(--border-color)] bg-[var(--bg-surface)] mt-24 transition-colors">
@@ -28,7 +48,7 @@ export default function Footer() {
               <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
                 <Feather className="w-4 h-4" />
               </div>
-              <span className="font-extrabold text-lg tracking-tight">Scholar<span className="gradient-text">CMS</span></span>
+              <span className="font-extrabold text-lg tracking-tight">{renderBrandTitle(siteTitle)}</span>
             </div>
             <p className="text-sm text-[var(--text-muted)] max-w-md leading-relaxed">
               Platform Website Blog Modern & Portal Publikasi Edukasi Berkecepatan Tinggi dengan Pengalaman Membaca Terbaik.

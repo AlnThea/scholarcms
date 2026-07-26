@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
@@ -10,12 +10,23 @@ import Button from '@/components/ui/Button';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { user, role, login, loading: authLoading } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Redirect if user is already logged in
+  useEffect(() => {
+    if (!authLoading && user) {
+      if (role === 'admin' || role === 'writer') {
+        router.replace('/dashboard');
+      } else {
+        router.replace('/');
+      }
+    }
+  }, [user, role, authLoading, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

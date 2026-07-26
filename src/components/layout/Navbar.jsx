@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import { Search, LayoutDashboard, Sun, Moon, Feather, LogIn, UserPlus, LogOut, User, ShieldCheck, PenTool, Settings, ChevronDown, ChevronRight } from 'lucide-react';
+import { Search, X, LayoutDashboard, Sun, Moon, Feather, LogIn, UserPlus, LogOut, User, ShieldCheck, PenTool, Settings, ChevronDown, ChevronRight } from 'lucide-react';
 import { useMetaSidebar } from '@/context/MetaSidebarContext';
 import { usePathname } from 'next/navigation';
 import { dbService } from '@/services/dbService';
@@ -51,19 +51,79 @@ function buildMenuTree(flatItems) {
 export default function Navbar({ onSearch, searchQuery }) {
   const { isDark, toggleTheme, mounted } = useTheme();
   const { user, role, logout } = useAuth();
+  const [siteTitle, setSiteTitle] = useState('ScholarCMS');
+  const [siteTagline, setSiteTagline] = useState('Modern Publishing Platform');
+  const [allowRegistration, setAllowRegistration] = useState(true);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [menuTree, setMenuTree] = useState([]);
   const [activeL1, setActiveL1] = useState(null);
   const [activeL2, setActiveL2] = useState(null);
   const { openSidebar } = useMetaSidebar();
 
+  // Sliding / Expandable Search States
+  const [isSearchOpen, setIsSearchOpen] = useState(Boolean(searchQuery));
+  const inputRef = useRef(null);
+
   useEffect(() => {
-    async function loadMenu() {
-      const items = await dbService.getMenu('header');
-      setMenuTree(buildMenuTree(items));
+    if (searchQuery) {
+      setIsSearchOpen(true);
     }
-    loadMenu();
+  }, [searchQuery]);
+
+  const handleToggleSearch = () => {
+    if (isSearchOpen) {
+      if (!searchQuery) {
+        setIsSearchOpen(false);
+      }
+    } else {
+      setIsSearchOpen(true);
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  };
+
+  const handleClearSearch = () => {
+    if (onSearch) onSearch('');
+    setIsSearchOpen(false);
+  };
+
+  useEffect(() => {
+    async function loadNavbarData() {
+      try {
+        const [items, genSettings] = await Promise.all([
+          dbService.getMenu('header'),
+          dbService.getGeneralSettings()
+        ]);
+        
+        if (genSettings) {
+          if (genSettings.siteTitle) setSiteTitle(genSettings.siteTitle);
+          if (genSettings.siteTagline) setSiteTagline(genSettings.siteTagline);
+          if (genSettings.allowRegistration === false) setAllowRegistration(false);
+        }
+
+        const filteredHeaderItems = (items || []).filter((item) => {
+          const label = (item.label || '').toLowerCase();
+          const target = (item.target || item.url || '').toLowerCase();
+          return !label.includes('sitemap') && !target.includes('sitemap');
+        });
+        setMenuTree(buildMenuTree(filteredHeaderItems));
+      } catch (err) {
+        console.error('Navbar data loading error:', err);
+      }
+    }
+    loadNavbarData();
   }, []);
+
+  // Helper to split brand title visually if ending with "CMS" or "Blog"
+  const renderBrandTitle = (title) => {
+    if (!title) return 'ScholarCMS';
+    if (title.toLowerCase().endsWith('cms')) {
+      const mainPart = title.slice(0, -3);
+      return <>{mainPart}<span className="gradient-text">CMS</span></>;
+    }
+    return title;
+  };
 
   return (
     <header className="sticky top-0 z-50 glass-header border-b border-[var(--border-color)] transition-colors">
@@ -76,9 +136,9 @@ export default function Navbar({ onSearch, searchQuery }) {
           </div>
           <div>
             <div className="font-extrabold text-xl tracking-tight text-[var(--text-main)] flex items-center gap-1.5">
-              Scholar<span className="gradient-text">CMS</span>
+              {renderBrandTitle(siteTitle)}
             </div>
-            <p className="text-[11px] text-[var(--text-muted)] hidden sm:block">Modern Publishing Platform</p>
+            <p className="text-[11px] text-[var(--text-muted)] hidden sm:block">{siteTagline}</p>
           </div>
         </Link>
 
@@ -144,18 +204,42 @@ export default function Navbar({ onSearch, searchQuery }) {
           })}
         </nav>
 
-        {/* Search Bar */}
-        <div className="flex-1 max-w-xs sm:max-w-md mx-2">
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-subtle)]" />
-            <input
-              type="text"
-              placeholder="Cari artikel, topik, atau kata kunci..."
-              value={searchQuery || ''}
-              onChange={(e) => onSearch && onSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-sm text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
-            />
-          </div>
+        {/* Expandable Sliding Search Bar */}
+        <div className="flex-1 flex justify-end max-w-md mx-2">
+          {!isSearchOpen ? (
+            <button
+              onClick={handleToggleSearch}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] hover:border-blue-500/50 shadow-sm transition-all duration-300 animate-fade-in group cursor-pointer"
+              title="Buka Pencarian Artikel"
+            >
+              <Search className="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform" />
+              <span className="hidden sm:inline">Cari Artikel...</span>
+            </button>
+          ) : (
+            <div className="relative flex items-center w-full max-w-xs sm:max-w-sm md:max-w-md transition-all duration-300 ease-out animate-fade-in">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500" />
+              <input
+                ref={inputRef}
+                type="text"
+                placeholder="Cari artikel, topik, atau kata kunci..."
+                value={searchQuery || ''}
+                onChange={(e) => onSearch && onSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    handleClearSearch();
+                  }
+                }}
+                className="w-full pl-10 pr-9 py-2 rounded-xl bg-[var(--bg-surface)] border border-blue-500/50 text-xs sm:text-sm text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 shadow-md transition-all"
+              />
+              <button
+                onClick={handleClearSearch}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-lg text-[var(--text-subtle)] hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+                title="Tutup & Bersihkan"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Action Controls */}
@@ -230,12 +314,14 @@ export default function Navbar({ onSearch, searchQuery }) {
               >
                 <LogIn className="w-4 h-4 text-blue-500" /> Masuk
               </Link>
-              <Link
-                href="/register"
-                className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-all"
-              >
-                <UserPlus className="w-4 h-4" /> Daftar
-              </Link>
+              {allowRegistration && (
+                <Link
+                  href="/register"
+                  className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-all"
+                >
+                  <UserPlus className="w-4 h-4" /> Daftar
+                </Link>
+              )}
             </div>
           )}
 

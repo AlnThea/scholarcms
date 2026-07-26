@@ -15,6 +15,15 @@ export default function DashboardSettingsPage() {
   const isFirebaseActive = dbService.isRealFirebase();
   const [resetMessage, setResetMessage] = useState(false);
 
+  // General Site & Registration States for Admin
+  const [generalSettings, setGeneralSettings] = useState({
+    siteTitle: 'ScholarCMS',
+    siteTagline: 'Modern Publishing Platform',
+    allowRegistration: true,
+  });
+  const [generalSaving, setGeneralSaving] = useState(false);
+  const [generalSavedMessage, setGeneralSavedMessage] = useState(false);
+
   // Global AdSense States for Admin
   const [adSettings, setAdSettings] = useState({
     globalEnableAds: true,
@@ -33,22 +42,33 @@ export default function DashboardSettingsPage() {
   const [promptSavedMessage, setPromptSavedMessage] = useState(false);
 
   useEffect(() => {
-    async function fetchAdSettings() {
+    async function fetchSettingsData() {
       try {
-        const data = await dbService.getAdSenseSettings();
-        if (data) {
-          setAdSettings(data);
-        }
+        const [adData, genData] = await Promise.all([
+          dbService.getAdSenseSettings(),
+          dbService.getGeneralSettings()
+        ]);
+        if (adData) setAdSettings(adData);
+        if (genData) setGeneralSettings(genData);
       } catch (err) {
-        console.error('Failed to load AdSense settings:', err);
+        console.error('Failed to load settings:', err);
       }
     }
-    fetchAdSettings();
+    fetchSettingsData();
     if (typeof window !== 'undefined') {
       const { aiService } = require('@/services/aiService');
       setMasterPrompt(aiService.getMasterPrompt());
     }
   }, []);
+
+  const handleSaveGeneralSettings = async (e) => {
+    e.preventDefault();
+    setGeneralSaving(true);
+    await dbService.saveGeneralSettings(generalSettings);
+    setGeneralSaving(false);
+    setGeneralSavedMessage(true);
+    setTimeout(() => setGeneralSavedMessage(false), 3000);
+  };
 
   const handleSaveMasterPrompt = (e) => {
     e.preventDefault();
@@ -86,6 +106,94 @@ export default function DashboardSettingsPage() {
         title="Pengaturan CMS & Monetisasi"
         subtitle="Periksa status koneksi Firebase, konfigurasi Google AdSense global, dan kelola preferensi situs blog Anda."
       />
+
+      {/* ADMIN ONLY: GENERAL SITE & REGISTRATION SETTINGS */}
+      {role === 'admin' && (
+        <form onSubmit={handleSaveGeneralSettings} className="p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-6">
+          <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-500">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base text-[var(--text-main)] flex items-center gap-2">
+                  Pengaturan Identitas Situs & Pendaftaran 🌐
+                  <ShieldCheck className="w-4 h-4 text-blue-500" title="Khusus Role Admin" />
+                </h3>
+                <p className="text-xs text-[var(--text-muted)]">Kustomisasi nama/brand website, tagline, dan sakelar izin pendaftaran baru (Khusus Admin)</p>
+              </div>
+            </div>
+
+            <Badge variant={generalSettings.allowRegistration ? 'published' : 'draft'}>
+              {generalSettings.allowRegistration ? 'Pendaftaran Terbuka (ON)' : 'Pendaftaran Ditutup (OFF)'}
+            </Badge>
+          </div>
+
+          <div className="space-y-5">
+            
+            {/* Grid Site Title & Tagline */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
+                  Nama / Judul Situs (Site Title)
+                </label>
+                <Input
+                  type="text"
+                  placeholder="ScholarCMS"
+                  value={generalSettings.siteTitle || ''}
+                  onChange={(e) => setGeneralSettings({ ...generalSettings, siteTitle: e.target.value })}
+                  helperText="Nama utama brand website Anda yang tampil pada Navbar, Footer, & Metadata."
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
+                  Tagline / Sub-Judul Situs (Site Tagline)
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Modern Publishing Platform"
+                  value={generalSettings.siteTagline || ''}
+                  onChange={(e) => setGeneralSettings({ ...generalSettings, siteTagline: e.target.value })}
+                  helperText="Slogan atau deskripsi singkat yang tampil di bawah nama situs pada Navbar."
+                />
+              </div>
+            </div>
+
+            {/* Registration Switch */}
+            <div className="p-4 rounded-2xl bg-[var(--bg-primary)]/60 border border-[var(--border-color)] flex items-center justify-between gap-4">
+              <div>
+                <span className="block font-bold text-xs text-[var(--text-main)]">Izinkan Pendaftaran Akun Baru Publik</span>
+                <span className="block text-[11px] text-[var(--text-muted)]">Jika dimatikan (OFF), halaman /register akan menampilkan pemberitahuan bahwa pendaftaran ditutup.</span>
+              </div>
+              <input
+                type="checkbox"
+                checked={generalSettings.allowRegistration}
+                onChange={(e) => setGeneralSettings({ ...generalSettings, allowRegistration: e.target.checked })}
+                className="w-5 h-5 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+              />
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-[var(--border-color)]">
+              <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                icon={Save}
+                loading={generalSaving}
+              >
+                Simpan Identitas Situs & Pendaftaran
+              </Button>
+
+              {generalSavedMessage && (
+                <span className="text-xs font-bold text-emerald-500 flex items-center gap-1.5 animate-fade-in">
+                  <CheckCircle className="w-4 h-4 text-emerald-500" /> Identitas & pengaturan situs berhasil disimpan!
+                </span>
+              )}
+            </div>
+          </div>
+        </form>
+      )}
 
       {/* ADMIN ONLY: GOOGLE ADSENSE & MONETIZATION GLOBAL SETTINGS */}
       {role === 'admin' && (

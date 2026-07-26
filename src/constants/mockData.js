@@ -236,7 +236,8 @@ export const INITIAL_MENUS = {
     { id: 'f-3', label: 'Kebijakan Privasi', type: 'page', target: 'kebijakan-privasi', level: 1, order: 3 },
     { id: 'f-4', label: 'Syarat & Ketentuan', type: 'page', target: 'syarat-ketentuan', level: 1, order: 4 },
     { id: 'f-5', label: 'Hubungi Kami', type: 'page', target: 'hubungi-kami', level: 1, order: 5 },
-    { id: 'f-6', label: 'Disclaimer', type: 'page', target: 'disclaimer', level: 1, order: 6 }
+    { id: 'f-6', label: 'Disclaimer', type: 'page', target: 'disclaimer', level: 1, order: 6 },
+    { id: 'f-7', label: 'Peta Situs (Sitemap)', type: 'url', url: '/sitemap.xml', level: 1, order: 7 }
   ]
 };
 

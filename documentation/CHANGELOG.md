@@ -23,6 +23,12 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
   - **Pencarian Tag Presisi ([page.jsx](file:///c:/web/scholarcms/src/app/page.jsx))**: Memperbarui filter pencarian `matchesSearch` agar mencocokkan kata kunci pada tag (`post.tags`), judul, excerpt, kategori, dan isi blok konten.
   - **Clickable Post Tags ([post/[slug]/page.jsx](file:///c:/web/scholarcms/src/app/post/[slug]/page.jsx))**: Menjadikan seluruh tag artikel berupa tautan interaktif (`<Link>`) yang mengarahkan pembaca ke beranda dengan filter tag terkait.
   - **Auto-Fill Form Komentar**: Mengisi otomatis Nama & Email pengguna terdaftar yang sedang login pada form komentar pengunjung.
+- **Identitas Situs Dinamis, Sakelar Pendaftaran, & Fitur UX Lanjutan**:
+  - **Sakelar ON/OFF Pendaftaran Pengguna**: Admin dapat menyalakan/mematikan izin pendaftaran baru publik di Admin Settings ([settings/page.jsx](file:///c:/web/scholarcms/src/app/dashboard/settings/page.jsx)). Halaman `/register` menampilkan kartu pemberitahuan *"Pendaftaran Ditutup"* dan tombol *Daftar* pada Navbar disembunyikan otomatis saat OFF.
+  - **Identitas & Tagline Situs Dinamis**: Admin dapat kustomisasi `siteTitle` dan `siteTagline` secara langsung di Admin Settings, yang dirender otomatis pada Navbar, Footer, & Metadata.
+  - **Proteksi Pengalihan Otomasi Login/Register**: Pengguna yang sudah terautentikasi (logged-in) yang membuka `/login` atau `/register` akan secara otomatis dialihkan (*auto-redirect*) ke `/dashboard` (Admin/Writer) atau `/` (User).
+  - **Auto-Seeding Halaman Statis Firestore**: Menambahkan `seedDefaultPagesToFirestore` pada `dbService.js` untuk secara otomatis mengimpor 5 halaman legal bawaan (*Tentang Kami, Kebijakan Privasi, Syarat & Ketentuan, Hubungi Kami, Disclaimer*) sebagai dokumen permanen di Cloud Firestore DB.
+  - **Tombol Pencarian Sliding Interaktif**: Mengubah bilah pencarian statis pada Navbar ([Navbar.jsx](file:///c:/web/scholarcms/src/components/layout/Navbar.jsx)) menjadi tombol pencarian meluncur (*sliding expandable search*) yang mengembang halus saat diklik lengkap dengan tombol pembersih `[✖]`.
 
 ---
 

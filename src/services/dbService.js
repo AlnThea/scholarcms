@@ -450,26 +450,121 @@ export const dbService = {
     return payload;
   },
 
+  // GENERAL SITE SETTINGS (REGISTRATION SWITCH & SITE IDENTITIES)
+  async getGeneralSettings() {
+    const DEFAULT_SETTINGS = {
+      siteTitle: 'ScholarCMS',
+      siteTagline: 'Modern Publishing Platform',
+      allowRegistration: true,
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (isFirebaseConfigured()) {
+      try {
+        const docRef = doc(db, 'settings', 'general');
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          return { ...DEFAULT_SETTINGS, ...snap.data() };
+        }
+      } catch (e) {
+        console.warn('Firestore getGeneralSettings error:', e);
+      }
+    }
+
+    return getLocal('general_settings', DEFAULT_SETTINGS);
+  },
+
+  async saveGeneralSettings(settingsData) {
+    const payload = {
+      siteTitle: (settingsData.siteTitle || 'ScholarCMS').trim(),
+      siteTagline: (settingsData.siteTagline || 'Modern Publishing Platform').trim(),
+      allowRegistration: settingsData.allowRegistration !== undefined ? settingsData.allowRegistration : true,
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (isFirebaseConfigured()) {
+      try {
+        await setDoc(doc(db, 'settings', 'general'), payload, { merge: true });
+        return payload;
+      } catch (e) {
+        console.warn('Firestore saveGeneralSettings error:', e);
+      }
+    }
+
+    setLocal('general_settings', payload);
+    return payload;
+  },
+
   // STATIC PAGES
+  async seedDefaultPagesToFirestore() {
+    if (!isFirebaseConfigured()) return false;
+    try {
+      for (const page of INITIAL_PAGES) {
+        const docRef = doc(db, 'pages', page.id);
+        const snap = await getDoc(docRef);
+        if (!snap.exists()) {
+          await setDoc(docRef, page, { merge: true });
+        }
+      }
+      return true;
+    } catch (e) {
+      console.warn('seedDefaultPagesToFirestore error:', e);
+      return false;
+    }
+  },
+
   async getPages() {
     if (isFirebaseConfigured()) {
       try {
-        const snap = await getDocs(collection(db, 'pages'));
+        let snap = await getDocs(collection(db, 'pages'));
+        
+        // Auto-seed default legal pages if database collection is empty or missing initial pages
+        if (snap.empty) {
+          await this.seedDefaultPagesToFirestore();
+          snap = await getDocs(collection(db, 'pages'));
+        }
+
         if (!snap.empty) {
-          return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          const firestorePages = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          
+          // Check if any default legal page is missing and seed it in background
+          const existingSlugs = new Set(firestorePages.map(p => p.slug));
+          const missingPages = INITIAL_PAGES.filter(p => !existingSlugs.has(p.slug));
+          if (missingPages.length > 0) {
+            for (const page of missingPages) {
+              try {
+                await setDoc(doc(db, 'pages', page.id), page, { merge: true });
+                firestorePages.push(page);
+              } catch(e) {}
+            }
+          }
+
+          return firestorePages;
         }
       } catch (e) {
         console.warn('Firestore getPages error:', e);
       }
     }
-    return getLocal('pages', INITIAL_PAGES);
+    return INITIAL_PAGES;
   },
 
   async getPageBySlug(slug) {
     if (isFirebaseConfigured()) {
       try {
         const q = query(collection(db, 'pages'), where('slug', '==', slug));
-        const snap = await getDocs(q);
+        let snap = await getDocs(q);
+
+        // If page is not in Firestore yet, check if it's a default legal page and seed it
+        if (snap.empty) {
+          const mockPage = INITIAL_PAGES.find(p => p.slug === slug);
+          if (mockPage) {
+            try {
+              await setDoc(doc(db, 'pages', mockPage.id), mockPage, { merge: true });
+              snap = await getDocs(q);
+            } catch(e) {}
+          }
+        }
+
         if (!snap.empty) {
           const docSnap = snap.docs[0];
           let page = { id: docSnap.id, ...docSnap.data() };
@@ -482,11 +577,10 @@ export const dbService = {
         console.warn('Firestore getPageBySlug error:', e);
       }
     }
-    const pages = getLocal('pages', INITIAL_PAGES);
+    const pages = INITIAL_PAGES;
     const p = pages.find(page => page.slug === slug);
     if (p) {
       p.views = (p.views || 0) + 1;
-      setLocal('pages', pages);
       return p;
     }
     return null;
