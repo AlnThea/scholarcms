@@ -49,6 +49,28 @@ export default function PluginWidgetInjector() {
     if (!subEmail) return;
     setSubmitting(true);
     await dbService.addSubscriber({ email: subEmail, name: subName || 'Pembaca' });
+
+    // Kirim email ucapan selamat datang otomatis jika diaktifkan
+    if (newsletterSettings.autoWelcome !== false) {
+      try {
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: subEmail,
+            subject: newsletterSettings.welcomeSubject || 'Selamat Datang di Newsletter ScholarCMS!',
+            body: `Halo ${subName || 'Pembaca'},\n\nTerima kasih telah berlangganan newsletter ScholarCMS. Anda akan menerima ringkasan artikel, berita, dan tutorial terbaik langsung di email Anda.\n\nSalam hangat,\n${newsletterSettings.senderName || 'Redaksi ScholarCMS'}`,
+            apiKey: newsletterSettings.apiKey,
+            senderName: newsletterSettings.senderName,
+            senderEmail: newsletterSettings.senderEmail,
+            provider: newsletterSettings.provider
+          })
+        });
+      } catch (err) {
+        console.warn('Auto-welcome email failed:', err);
+      }
+    }
+
     setSubmitting(false);
     setSubSuccess(true);
     setTimeout(() => {

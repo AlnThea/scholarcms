@@ -17,13 +17,16 @@ PRINSIP PENULISAN & JUMLAH KATA TEKS (HUMAN TONE & DEEP LONG-FORM CONTENT):
    - CHECKLIST TUGAS / AKSI: Buatlah rincian tugas aksi menggunakan <ul data-type="taskList"><li data-type="taskItem" data-checked="false"><p>Langkah 1...</p></li><li data-type="taskItem" data-checked="true"><p>Langkah 2 (selesai)...</p></li></ul>.
    - TABEL DATA: Sertakan 1 tabel matriks data/perbandingan menggunakan <table data-type="table" class="w-full border-collapse my-4"><thead><tr><th class="border p-2 bg-blue-500/10">Parameter</th><th class="border p-2 bg-blue-500/10">Detail</th></tr></thead><tbody><tr><td class="border p-2">Poin A</td><td class="border p-2">Keterangan A</td></tr></tbody></table>.
    - CALLOUT BOXES: Gunakan <blockquote class="p-4 my-4 rounded-xl bg-blue-500/10 border-l-4 border-blue-500 text-blue-400 font-medium">💡 <strong>Catatan:</strong> ...</blockquote> dan <blockquote class="p-4 my-4 rounded-xl bg-emerald-500/10 border-l-4 border-emerald-500 text-emerald-400 font-medium">✅ <strong>Tips Sukses:</strong> ...</blockquote>.
-4. OUTPUT FORMAT: Kembalikan JSON murni tanpa markdown formatting backticks dengan struktur:
+4. STANDAR SEO KETAT (AKURASI AUDIT SEO 100/100):
+   - PANJANG JUDUL ("title" & "seoTitle"): WAJIB BERKISAR 30 HINGGA 60 KARAKTER (IDEAL 30-70 KARAKTER GOOGLE).
+   - PANJANG META DESCRIPTION / RINGKASAN ("excerpt" & "seoDescription"): WAJIB BERKISAR 50 HINGGA 150 KARAKTER (IDEAL 50-160 KARAKTER GOOGLE).
+5. OUTPUT FORMAT: Kembalikan JSON murni tanpa markdown formatting backticks dengan struktur:
 {
-  "title": "Judul Artikel Menarik",
+  "title": "Judul Artikel Menarik (30-60 Karakter)",
   "slug": "judul-artikel-menarik",
-  "excerpt": "Ringkasan memikat 2-3 kalimat...",
-  "seoTitle": "Judul SEO Meta (maks 60 kar)",
-  "seoDescription": "Meta Deskripsi Google Snippet (maks 160 kar)",
+  "excerpt": "Ringkasan memikat 50-150 karakter untuk meta description...",
+  "seoTitle": "Judul SEO Meta (30-60 Karakter)",
+  "seoDescription": "Meta Deskripsi Google Snippet (50-150 Karakter)",
   "focusKeyword": "kata kunci utama",
   "category": "Kategori Artikel",
   "tags": ["Tag1", "Tag2", "Tag3"],
@@ -167,13 +170,41 @@ Format JSON:
     if (apiKey) {
       try {
         const parsed = await this.callGeminiApi({ prompt: fullPrompt, apiKey });
-        if (parsed) return parsed;
+        if (parsed) {
+          parsed.title = this.fitSeoTitle(parsed.title || topic);
+          parsed.seoTitle = this.fitSeoTitle(parsed.seoTitle || parsed.title);
+          parsed.excerpt = this.fitSeoExcerpt(parsed.excerpt || topic, topic);
+          parsed.seoDescription = this.fitSeoExcerpt(parsed.seoDescription || parsed.excerpt, topic);
+          return parsed;
+        }
       } catch (err) {
         console.warn('Gemini API call failed, falling back to Smart AI Engine:', err);
       }
     }
 
     return this.createFallbackArticle({ topic, niche, language, tone, length });
+  },
+
+  fitSeoTitle(inputTitle) {
+    let str = (inputTitle || '').trim();
+    if (str.length > 60) {
+      str = str.substring(0, 57).trim() + '...';
+    }
+    if (str.length < 30) {
+      str = `${str} - Panduan Lengkap 2026`;
+    }
+    return str;
+  },
+
+  fitSeoExcerpt(inputExcerpt, topic = '') {
+    let str = (inputExcerpt || '').trim();
+    if (str.length > 150) {
+      str = str.substring(0, 147).trim() + '...';
+    }
+    if (str.length < 50) {
+      str = `Pelajari panduan lengkap mengenai ${topic || 'topik ini'} untuk meningkatkan wawasan dan strategi terbaik Anda.`;
+    }
+    return str;
   },
 
   async callGeminiApi({ prompt, apiKey }) {
@@ -483,14 +514,21 @@ Format HARUS JSON array murni tanpa markdown triple backtick:
     const inArticleImg = 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1000&auto=format&fit=crop&q=80';
     const cleanCategory = niche || 'Teknologi & Software Development';
     const tagList = [cleanCategory.split(' ')[0], 'SEO', 'Tutorial', 'Google AdSense', 'Strategi 2026'];
+    const formattedTitle = this.fitSeoTitle(cleanTopic);
+    const formattedExcerpt = this.fitSeoExcerpt(
+      isEn
+        ? `Discover essential strategies and expert insights on ${cleanTopic}. Learn actionable methods for ${niche}.`
+        : `Pelajari strategi mendalam dan wawasan ahli mengenai ${cleanTopic} di bidang ${niche}.`,
+      cleanTopic
+    );
 
     if (isEn) {
       return {
-        title: `Comprehensive Guide to ${cleanTopic}: Strategies, Insights, and Best Practices for 2026`,
+        title: formattedTitle,
         slug: slug,
-        excerpt: `Discover essential strategies and expert insights on ${cleanTopic}. Learn actionable methods to elevate your knowledge in ${niche}.`,
-        seoTitle: `${cleanTopic} - Complete Expert Guide | ScholarCMS`,
-        seoDescription: `Master ${cleanTopic} with this in-depth guide covering key concepts, best practices, and practical examples for ${niche}.`,
+        excerpt: formattedExcerpt,
+        seoTitle: formattedTitle,
+        seoDescription: formattedExcerpt,
         focusKeyword: cleanTopic.toLowerCase(),
         category: cleanCategory,
         tags: tagList,
@@ -584,11 +622,11 @@ Format HARUS JSON array murni tanpa markdown triple backtick:
 
     // Default Bahasa Indonesia (1400+ Kata Teks Bacaan Murni Komprehensif)
     return {
-      title: `${cleanTopic}: Strategi, Wawasan, dan Praktik Terbaik 2026`,
+      title: formattedTitle,
       slug: slug,
-      excerpt: `Pelajari strategi mendalam dan wawasan ahli mengenai ${cleanTopic}. Temukan metode praktis untuk meningkatkan efisiensi dan pengetahuan Anda di bidang ${niche}.`,
-      seoTitle: `Panduan Lengkap ${cleanTopic} - Tutorial & Wawasan SEO`,
-      seoDescription: `Kuasai ${cleanTopic} dengan panduan mendalam yang membahas konsep utama, contoh penerapan, dan strategi terbaik di bidang ${niche}.`,
+      excerpt: formattedExcerpt,
+      seoTitle: formattedTitle,
+      seoDescription: formattedExcerpt,
       focusKeyword: cleanTopic.toLowerCase(),
       category: cleanCategory,
       tags: tagList,

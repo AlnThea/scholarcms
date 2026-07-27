@@ -14,13 +14,30 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// LocalStorage Helper for Demo Mode (disabled)
+// Fast Timeout Wrapper (Abort hanging Firestore calls in 600ms for instant response)
+function withTimeout(promise, ms = 600) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore Timeout')), ms))
+  ]);
+}
+
+// LocalStorage Helper for Fast Offline / Demo Mode
 function getLocal(key, defaultData) {
-  return defaultData;
+  if (typeof window === 'undefined') return defaultData;
+  try {
+    const item = localStorage.getItem(`scholarcms_${key}`);
+    return item ? JSON.parse(item) : defaultData;
+  } catch (e) {
+    return defaultData;
+  }
 }
 
 function setLocal(key, data) {
-  // No-op – demo localStorage disabled.
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(`scholarcms_${key}`, JSON.stringify(data));
+  } catch (e) {}
 }
 
 // PUBLIC API DATA SERVICE
@@ -714,7 +731,7 @@ export const dbService = {
     if (isFirebaseConfigured()) {
       try {
         const docRef = doc(db, 'settings', 'theme');
-        const snap = await getDoc(docRef);
+        const snap = await withTimeout(getDoc(docRef));
         if (snap.exists()) {
           return { ...DEFAULT_THEME_SETTING, ...snap.data() };
         }
@@ -774,7 +791,7 @@ export const dbService = {
   async getCustomThemePackages() {
     if (isFirebaseConfigured()) {
       try {
-        const snap = await getDocs(collection(db, 'custom_themes'));
+        const snap = await withTimeout(getDocs(collection(db, 'custom_themes')));
         if (!snap.empty) {
           return snap.docs.map(d => ({ id: d.id, ...d.data() }));
         }
@@ -830,7 +847,7 @@ export const dbService = {
     if (isFirebaseConfigured()) {
       try {
         const docRef = doc(db, 'settings', 'plugins');
-        const snap = await getDoc(docRef);
+        const snap = await withTimeout(getDoc(docRef));
         if (snap.exists()) {
           return { ...DEFAULT_STATES, ...snap.data() };
         }
@@ -882,7 +899,7 @@ export const dbService = {
     if (isFirebaseConfigured()) {
       try {
         const docRef = doc(db, 'settings', `plugin_${pluginId}`);
-        const snap = await getDoc(docRef);
+        const snap = await withTimeout(getDoc(docRef));
         if (snap.exists()) {
           return { ...(DEFAULT_SETTINGS[pluginId] || {}), ...snap.data() };
         }
@@ -918,7 +935,7 @@ export const dbService = {
   async getCustomPluginPackages() {
     if (isFirebaseConfigured()) {
       try {
-        const snap = await getDocs(collection(db, 'custom_plugins'));
+        const snap = await withTimeout(getDocs(collection(db, 'custom_plugins')));
         if (!snap.empty) {
           return snap.docs.map(d => ({ id: d.id, ...d.data() }));
         }
@@ -965,7 +982,7 @@ export const dbService = {
   async getSubscribers() {
     if (isFirebaseConfigured()) {
       try {
-        const snap = await getDocs(collection(db, 'subscribers'));
+        const snap = await withTimeout(getDocs(collection(db, 'subscribers')));
         if (!snap.empty) {
           return snap.docs.map(d => ({ id: d.id, ...d.data() }));
         }

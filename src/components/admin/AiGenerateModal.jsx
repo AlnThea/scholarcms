@@ -26,10 +26,12 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
     if (isOpen) {
       const prefs = aiService.getPreferences();
       if (prefs.niche) setNiche(aiService.normalizeParentNiche(prefs.niche));
-      if (prefs.language) setLanguage(prefs.language);
+      const initLang = prefs.language || 'indonesia';
+      setLanguage(initLang);
       if (prefs.tone) setTone(prefs.tone);
       if (prefs.length) setLength(prefs.length);
       setIsFirstArticle(prefs.isFirstArticle);
+      handleAnalyzeNiches(initLang);
     }
   }, [isOpen]);
 
