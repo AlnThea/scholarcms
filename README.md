@@ -1,7 +1,5 @@
 # ScholarCMS — Modern Publishing Platform & CMS Engine
 
-![ScholarCMS](https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80)
-
 **ScholarCMS** adalah platform *content management system* (CMS) dan publishing engine modern yang dirancang untuk kecepatan tinggi, performa luar biasa, serta kemudahan pengelolaan artikel, berita, halaman statis, tema visual, dan plugin tambahan.
 
 ---
