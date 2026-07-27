@@ -817,6 +817,190 @@ export const dbService = {
     }
     setLocal('custom_theme_packages', currentPackages);
     return payload;
+  },
+
+  // PLUGINS SYSTEM MANAGEMENT (WORDPRESS-STYLE PLUGINS)
+  async getPluginStates() {
+    const DEFAULT_STATES = {
+      'seo-analyzer': true,
+      'newsletter': true,
+      'whatsapp-float': true
+    };
+
+    if (isFirebaseConfigured()) {
+      try {
+        const docRef = doc(db, 'settings', 'plugins');
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          return { ...DEFAULT_STATES, ...snap.data() };
+        }
+      } catch (e) {
+        console.warn('Firestore getPluginStates error:', e);
+      }
+    }
+
+    return getLocal('plugin_states', DEFAULT_STATES);
+  },
+
+  async togglePluginStatus(pluginId, isEnabled) {
+    const current = await this.getPluginStates();
+    const payload = {
+      ...current,
+      [pluginId]: isEnabled,
+      updatedAt: new Date().toISOString()
+    };
+
+    if (isFirebaseConfigured()) {
+      try {
+        await setDoc(doc(db, 'settings', 'plugins'), payload, { merge: true });
+        return payload;
+      } catch (e) {
+        console.warn('Firestore togglePluginStatus error:', e);
+      }
+    }
+
+    setLocal('plugin_states', payload);
+    return payload;
+  },
+
+  async getPluginSettings(pluginId) {
+    const DEFAULT_SETTINGS = {
+      'whatsapp-float': {
+        phoneNumber: '6281234567890',
+        welcomeMessage: 'Halo Admin ScholarCMS, saya mau bertanya mengenai artikel blog!',
+        buttonPosition: 'bottom-right'
+      },
+      'newsletter': {
+        headingTitle: 'Dapatkan Artikel Terbaru di Email Anda',
+        buttonLabel: 'Berlangganan Gratis'
+      },
+      'seo-analyzer': {
+        autoScan: true
+      }
+    };
+
+    if (isFirebaseConfigured()) {
+      try {
+        const docRef = doc(db, 'settings', `plugin_${pluginId}`);
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          return { ...(DEFAULT_SETTINGS[pluginId] || {}), ...snap.data() };
+        }
+      } catch (e) {
+        console.warn('Firestore getPluginSettings error:', e);
+      }
+    }
+
+    return getLocal(`plugin_setting_${pluginId}`, DEFAULT_SETTINGS[pluginId] || {});
+  },
+
+  async savePluginSettings(pluginId, settingsData) {
+    const current = await this.getPluginSettings(pluginId);
+    const payload = {
+      ...current,
+      ...settingsData,
+      updatedAt: new Date().toISOString()
+    };
+
+    if (isFirebaseConfigured()) {
+      try {
+        await setDoc(doc(db, 'settings', `plugin_${pluginId}`), payload, { merge: true });
+        return payload;
+      } catch (e) {
+        console.warn('Firestore savePluginSettings error:', e);
+      }
+    }
+
+    setLocal(`plugin_setting_${pluginId}`, payload);
+    return payload;
+  },
+
+  async getCustomPluginPackages() {
+    if (isFirebaseConfigured()) {
+      try {
+        const snap = await getDocs(collection(db, 'custom_plugins'));
+        if (!snap.empty) {
+          return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
+      } catch (e) {
+        console.warn('Firestore getCustomPluginPackages error:', e);
+      }
+    }
+    return getLocal('custom_plugin_packages', []);
+  },
+
+  async saveCustomPluginPackage(pluginPackage) {
+    const payload = {
+      id: pluginPackage.id || `plugin-${Date.now()}`,
+      name: pluginPackage.name || 'Custom Plugin',
+      description: pluginPackage.description || 'Imported Plugin Package',
+      version: pluginPackage.version || '1.0.0',
+      author: pluginPackage.author || 'Anonymous',
+      routePath: pluginPackage.routePath || pluginPackage.id,
+      navLabel: pluginPackage.navLabel || pluginPackage.name,
+      createdAt: new Date().toISOString()
+    };
+
+    if (isFirebaseConfigured()) {
+      try {
+        await setDoc(doc(db, 'custom_plugins', payload.id), payload, { merge: true });
+        return payload;
+      } catch (e) {
+        console.warn('Firestore saveCustomPluginPackage error:', e);
+      }
+    }
+
+    const currentPackages = getLocal('custom_plugin_packages', []);
+    const idx = currentPackages.findIndex(p => p.id === payload.id);
+    if (idx !== -1) {
+      currentPackages[idx] = payload;
+    } else {
+      currentPackages.push(payload);
+    }
+    setLocal('custom_plugin_packages', currentPackages);
+    return payload;
+  },
+
+  // NEWSLETTER SUBSCRIBERS
+  async getSubscribers() {
+    if (isFirebaseConfigured()) {
+      try {
+        const snap = await getDocs(collection(db, 'subscribers'));
+        if (!snap.empty) {
+          return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
+      } catch (e) {
+        console.warn('Firestore getSubscribers error:', e);
+      }
+    }
+    return getLocal('subscribers', [
+      { id: 'sub-1', email: 'pembaca1@example.com', name: 'Budi Santoso', subscribedAt: new Date().toISOString() },
+      { id: 'sub-2', email: 'pembaca2@example.com', name: 'Siti Rahma', subscribedAt: new Date().toISOString() }
+    ]);
+  },
+
+  async addSubscriber(subscriberData) {
+    const payload = {
+      email: (subscriberData.email || '').trim().toLowerCase(),
+      name: subscriberData.name || 'Pembaca Setia',
+      subscribedAt: new Date().toISOString()
+    };
+
+    if (isFirebaseConfigured()) {
+      try {
+        const res = await addDoc(collection(db, 'subscribers'), payload);
+        return { id: res.id, ...payload };
+      } catch (e) {
+        console.warn('Firestore addSubscriber error:', e);
+      }
+    }
+
+    const subs = getLocal('subscribers', []);
+    const newSub = { id: `sub-${Date.now()}`, ...payload };
+    subs.unshift(newSub);
+    setLocal('subscribers', subs);
+    return newSub;
   }
 };
+
 

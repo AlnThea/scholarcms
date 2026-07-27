@@ -10,9 +10,10 @@ import { useTheme } from '@/context/ThemeContext';
 import {
   LayoutDashboard, FileText, PlusCircle, FolderTree, MessageSquare,
   Settings, ExternalLink, Feather, Menu, X, Users, LogOut, Sun, Moon,
-  ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Layers, ListTree, Palette
+  ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Layers, ListTree, Palette, Puzzle
 } from 'lucide-react';
 import { dbService } from '@/services/dbService';
+import { getEnabledPluginNavItems } from '@/plugins';
 import Button from '@/components/ui/Button';
 
 export default function DashboardLayout({ children }) {
@@ -23,10 +24,26 @@ export default function DashboardLayout({ children }) {
   const { openSidebar, title, setTitle, slug, setSlug } = useMetaSidebar();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [pluginStates, setPluginStates] = useState({});
+  const [customPlugins, setCustomPlugins] = useState([]);
   const isRealDB = dbService.isRealFirebase();
 
   const isPageEditor = pathname.includes('/pages/new') || pathname.includes('/pages/edit');
   const isEditorPage = pathname.includes('/posts/new') || pathname.includes('/posts/edit') || isPageEditor;
+
+  useEffect(() => {
+    async function loadPluginsConfig() {
+      try {
+        const [states, packages] = await Promise.all([
+          dbService.getPluginStates(),
+          dbService.getCustomPluginPackages()
+        ]);
+        setPluginStates(states || {});
+        setCustomPlugins(packages || []);
+      } catch(e){}
+    }
+    loadPluginsConfig();
+  }, [pathname]);
 
   useEffect(() => {
     if (isEditorPage) {
@@ -59,6 +76,8 @@ export default function DashboardLayout({ children }) {
     return null;
   }
 
+  const enabledPluginItems = getEnabledPluginNavItems(pluginStates, customPlugins);
+
   // Navigation Items per Role
   const allNavItems = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'writer'] },
@@ -68,6 +87,8 @@ export default function DashboardLayout({ children }) {
     { label: 'Kategori & Tag', href: '/dashboard/categories', icon: FolderTree, roles: ['admin'] },
     { label: 'Navigasi & Menu', href: '/dashboard/menus', icon: ListTree, roles: ['admin'] },
     { label: 'Tampilan (Themes)', href: '/dashboard/themes', icon: Palette, roles: ['admin'] },
+    { label: 'Plugin CMS', href: '/dashboard/plugins', icon: Puzzle, roles: ['admin'] },
+    ...enabledPluginItems,
     { label: 'Moderasi Komentar', href: '/dashboard/comments', icon: MessageSquare, roles: ['admin', 'writer'] },
     { label: 'Kelola Pengguna', href: '/dashboard/users', icon: Users, roles: ['admin'] },
     { label: 'Pengaturan CMS', href: '/dashboard/settings', icon: Settings, roles: ['admin'] },

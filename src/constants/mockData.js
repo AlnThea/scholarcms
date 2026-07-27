@@ -119,7 +119,7 @@ export const INITIAL_PAGES = [
     seoDescription: 'Informasi lengkap tentang platform ScholarCMS dan pengembang.',
     blocks: [
       { id: 'pb1', type: 'heading', level: 1, content: 'Tentang Platform ScholarCMS' },
-      { id: 'pb2', type: 'paragraph', content: 'ScholarCMS adalah platform CMS blog independen berbasis Next.js 14 App Router, React 18, dan Firebase Firestore Cloud DB yang dirancang untuk memberikan pengalaman membaca artikel teknologi dan pemprograman dengan kecepatan tinggi.' },
+      { id: 'pb2', type: 'paragraph', content: 'ScholarCMS adalah platform CMS blog independen yang dirancang untuk memberikan pengalaman membaca artikel teknologi, berita, dan pemprograman dengan kecepatan tinggi.' },
       { id: 'pb3', type: 'heading', level: 2, content: 'Standar Editorial & Kualitas' },
       { id: 'pb4', type: 'paragraph', content: 'Seluruh konten dan panduan yang dipublikasikan melalui platform ini ditulis serta ditinjau oleh pakar industri teknologi untuk memastikan keakuratan, orisinalitas, dan nilai manfaat tinggi bagi para pembaca.' },
       { id: 'pb5', type: 'callout', content: '✨ **Misi Kami**: Menyediakan artikel edukasi teknologi berkualitas tinggi yang dapat diakses secara gratis oleh komunitas pengembang web modern.' }

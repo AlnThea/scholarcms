@@ -43,7 +43,7 @@ export default function DashboardPagesList() {
     <div className="space-y-6 animate-fade-in">
       
       <PageHeader
-        title="Halaman Statis (WordPress Pages)"
+        title="Halaman Statis"
         subtitle="Kelola halaman statis independen seperti Tentang Kami, Kebijakan Privasi, Kontak, dll."
       >
         <Link href="/dashboard/pages/new">

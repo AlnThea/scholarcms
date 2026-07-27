@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { dbService } from '@/services/dbService';
 import { getThemeComponent, THEMES_REGISTRY } from '@/themes';
+import PluginWidgetInjector from '@/components/blog/PluginWidgetInjector';
 
 export default function ThemeRenderer({
   posts = [],
@@ -47,15 +48,18 @@ export default function ThemeRenderer({
   const ComponentToRender = getThemeComponent(activeThemeId, customPackages);
 
   return (
-    <ComponentToRender
-      posts={posts}
-      categories={categories}
-      selectedCategory={selectedCategory}
-      onSelectCategory={onSelectCategory}
-      searchQuery={searchQuery}
-      onSearch={onSearch}
-      loading={loading}
-      customizations={customizations}
-    />
+    <>
+      <ComponentToRender
+        posts={posts}
+        categories={categories}
+        selectedCategory={selectedCategory}
+        onSelectCategory={onSelectCategory}
+        searchQuery={searchQuery}
+        onSearch={onSearch}
+        loading={loading}
+        customizations={customizations}
+      />
+      <PluginWidgetInjector />
+    </>
   );
 }

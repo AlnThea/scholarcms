@@ -153,7 +153,7 @@ export default function ThemesDashboardPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Palette className="w-6 h-6" />
-            <h1 className="text-2xl font-black">Pengelola Tema Blog (WordPress-Style)</h1>
+            <h1 className="text-2xl font-black">Pengelola Tema Blog</h1>
           </div>
           <p className="text-xs text-blue-100 max-w-xl">
             Pilih tema visual blog Anda, lakukan kustomisasi tanpa koding, atau impor preset tema baru langsung di Vercel.

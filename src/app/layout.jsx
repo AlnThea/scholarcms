@@ -6,9 +6,9 @@ import RightMetaSidebar from '@/components/admin/RightMetaSidebar';
 import AdSenseScript from '@/components/blog/AdSenseScript';
 
 export const metadata = {
-  title: 'ScholarCMS - Modern WordPress-style Blog Engine',
-  description: 'Platform Blog CMS Modern ala WordPress dibangun dengan Next.js, React & Firebase.',
-  keywords: ['Blog', 'CMS', 'WordPress', 'Next.js', 'React', 'Firebase', 'ScholarCMS'],
+  title: 'ScholarCMS - Modern Publishing Platform',
+  description: 'Platform Blog CMS Modern untuk penerbitan artikel, berita, dan konten berkualitas.',
+  keywords: ['Blog', 'CMS', 'Publishing Platform', 'ScholarCMS', 'Artikel', 'Berita'],
 };
 
 export default function RootLayout({ children }) {
