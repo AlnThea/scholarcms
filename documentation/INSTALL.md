@@ -2,12 +2,14 @@
 
 ## 📦 Ringkasan Proyek Saat Ini
 
-Proyek **ScholarCMS** adalah mesin blog berbasis **Next.js 14 App Router**, menggunakan **Firebase Firestore** untuk penyimpanan data dan mengimplementasikan **Role‑Based Access Control (RBAC)**. Dokumentasi ini mencakup struktur direktori, cara instalasi lokal, serta panduan deployment ke Vercel.
+Proyek **ScholarCMS** adalah platform publishing & blog CMS modern berbasis **Next.js 14 App Router**, menggunakan **Firebase Firestore** untuk penyimpanan data dan mengimplementasikan **Role‑Based Access Control (RBAC)**, **Sistem Tema**, serta **Sistem Plugin**. Dokumentasi ini mencakup struktur direktori, cara instalasi lokal, serta panduan deployment ke Vercel.
 
 ```text
 scholarcms/
 ├─ src/
 │  ├─ app/
+│  ├─ themes/
+│  ├─ plugins/
 │  ├─ components/
 │  ├─ context/
 │  ├─ lib/
@@ -33,7 +35,7 @@ Panduan langkah demi langkah untuk menjalankan **ScholarCMS** di lingkungan loka
 
 ## 🚀 Pengoperasian Lokal (Demo Mode Ready)
 
-ScholarCMS dilengkapi dengan **Auto-Fallback Demo Storage Mode** sehingga Anda dapat langsung menjalankan dan mencoba seluruh fitur tanpa perlu melakukan konfigurasi database awal.
+ScholarCMS dilengkapi dengan **Auto-Fallback Demo Storage Mode** sehingga Anda dapat langsung menjalankan dan mencoba seluruh fitur (termasuk Sistem Tema & Sistem Plugin) tanpa perlu melakukan konfigurasi database awal.
 
 ### 1. Jalankan Perintah Pemasangan Dependensi
 Buka terminal di direktori proyek dan jalankan:
@@ -48,8 +50,24 @@ npm run dev
 ```
 
 Akses URL berikut di browser Anda:
-- **Halaman Depan Blog**: [http://localhost:3000](http://localhost:3000)
-- **WordPress Admin Dashboard**: [http://localhost:3000/admin](http://localhost:3000/admin)
+- **Halaman Depan Blog (Public Feed)**: [http://localhost:3000](http://localhost:3000)
+- **Admin Dashboard**: [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
+- **Pengelola Tema Blog**: [http://localhost:3000/dashboard/themes](http://localhost:3000/dashboard/themes)
+- **Pengelola Plugin Blog**: [http://localhost:3000/dashboard/plugins](http://localhost:3000/dashboard/plugins)
+
+---
+
+## 🎨 Penggunaan Sistem Tema & Sistem Plugin
+
+### 🎨 Pengelola Tema (`/dashboard/themes`)
+- Pilih dari 3 tema bawaan siap pakai: **Modern Glassmorphism**, **Editorial News & Gazette**, atau **Minimalist Tech**.
+- Kustomisasi warna aksen, tipografi Google Fonts, dan CSS kustom tanpa koding.
+- Unggah file preset tema `.json` 1-klik untuk mengganti gaya visual blog.
+
+### 🔌 Pengelola Plugin (`/dashboard/plugins`)
+- Aktifkan atau matikan plugin menggunakan sakelar **[ ON / OFF ]** 1-klik.
+- 3 Plugin bawaan: **SEO Analyzer & Realtime Auditor**, **Newsletter & Email Subscriber**, dan **WhatsApp Contact Floating Button**.
+- **Dynamic Catch-All Plugin Router**: Plugin dapat menyajikan rute halaman baru di `/dashboard/[rute-plugin]` tanpa perlunya rebuild di Vercel.
 
 ---
 

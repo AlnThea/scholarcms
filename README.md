@@ -1,79 +1,74 @@
-# ScholarCMS
+# ScholarCMS — Modern Publishing Platform & CMS Engine
 
-![Logo](https://raw.githubusercontent.com/AlnThea/scholarcms/main/assets/logo.png)
+![ScholarCMS](https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80)
 
-**ScholarCMS** is a modern, highly extensible content management system built with **Next.js** and **Tailwind CSS**. It provides a clean, responsive UI for managing scholarly articles, authors, and publications.
-
----
-
-## Table of Contents
-- [Features](#features)
-- [Demo](#demo)
-- [Installation](#installation)
-- [Running Locally](#running-locally)
-- [Documentation](#documentation)
-- [Contributing](#contributing)
-- [License](#license)
+**ScholarCMS** adalah platform *content management system* (CMS) dan publishing engine modern yang dirancang untuk kecepatan tinggi, performa luar biasa, serta kemudahan pengelolaan artikel, berita, halaman statis, tema visual, dan plugin tambahan.
 
 ---
 
-## Features
-- **Next.js** powered server‑side rendering for fast page loads.
-- **Tailwind CSS** with a custom design system (dark mode, glassmorphism, smooth micro‑animations).
-- Modular architecture – easy to add plugins for new article types.
-- Built‑in author, article, and citation management.
-- Internationalization (i18n) ready.
+## 🚀 Fitur Utama (Key Features)
+
+- 🎨 **WordPress-Style Theme Engine**:
+  - Pilihan katalog tema bawaan siap pakai (**Modern Glassmorphism**, **Editorial News & Gazette**, **Minimalist Tech**).
+  - *No-Code Visual Customizer*: Ubah warna aksen, font tipografi, dan gaya kartu tanpa koding.
+  - Impor & ekspor paket preset tema `.json` 1-klik di Vercel.
+
+- 🔌 **WordPress-Style Plugin Engine**:
+  - **Dynamic Catch-All Plugin Router (`/dashboard/[...pluginRoute]`)**: Menambah rute halaman baru untuk plugin 100% tanpa perlu rebuild di Vercel.
+  - 3 Plugin Bawaan: **SEO Analyzer & Realtime Auditor**, **Newsletter & Email Subscribers**, dan **WhatsApp Contact Floating Button**.
+  - *Dynamic Sidebar Injector*: Menampilkan menu plugin aktif secara otomatis pada Sidebar Admin Dashboard.
+
+- ✍️ **Gutenberg Visual Block Editor**:
+  - Editor artikel berbasis blok visual (Paragraf, Heading H1-H6, Multi-kolom Flex Ratio, Tabel Data Interaktif, Accordion FAQ, Checklist Tugas, Callout Box, Code Snippet, Gambar, & Video YouTube).
+  - Integrasi AI Assistant untuk pembuatan artikel otomatis 1400+ kata lengkap dengan SEO tags & featured image.
+
+- 🔐 **Role-Based Access Control (RBAC)**:
+  - Peran pengguna terpisah untuk **Admin 👑**, **Writer ✍️**, dan **User 👤**.
+
+- 📈 **AdSense & SEO Readiness Suite**:
+  - *Dynamic XML Sitemap* (`/sitemap.xml`), *Dynamic ads.txt Route* (`/ads.txt`), *JSON-LD Schema.org Structured Data*, & Slot Iklan AdSense Responsif.
+
+- ☁️ **Hybrid Resilience Data Layer**:
+  - Mendukung integrasi **Google Cloud Firestore DB** dan **Auto-Fallback Demo Storage Mode**.
 
 ---
 
-## Demo
-A live demo is available at:
-```
-https://scholarcms.example.com
-```
-*(Replace with actual URL when deployed.)*
+## 📁 Dokumentasi Lengkap (Documentation)
+
+Seluruh panduan teknis dan dokumentasi proyek tersimpan rapi pada direktori `documentation/`:
+
+- [STRUCTURE.md](documentation/STRUCTURE.md) – Arsitektur folder & struktur kode proyek.
+- [DATABASE.md](documentation/DATABASE.md) – Spesifikasi skema database Firestore & koleksi.
+- [INSTALL.md](documentation/INSTALL.md) – Panduan pengoperasian lokal & integrasi Firebase.
+- [DEVOPS.md](documentation/DEVOPS.md) – Panduan deployment rilis produksi ke Vercel / Netlify.
+- [THEME_DEVELOPMENT.md](documentation/THEME_DEVELOPMENT.md) – **Panduan Pengembang: Cara Membuat Tema Baru**.
+- [PLUGIN_DEVELOPMENT.md](documentation/PLUGIN_DEVELOPMENT.md) – **Panduan Pengembang: Cara Membuat Plugin Baru**.
+- [CHANGELOG.md](documentation/CHANGELOG.md) – Riwayat pembaruan & rilis versi.
 
 ---
 
-## Installation
+## ⚙️ Pengoperasian Lokal (Local Development)
+
 ```bash
-# Clone the repository
+# 1. Clone repositori
 git clone https://github.com/AlnThea/scholarcms.git
 cd scholarcms
 
-# Install dependencies
+# 2. Install dependensi
 npm install
-```
 
----
-
-## Running Locally
-```bash
-# Development server
+# 3. Jalankan server pengembang lokal
 npm run dev
-
-# Build for production
-npm run build
-npm start
 ```
-The app will be available at `http://localhost:3000`.
+
+Akses aplikasi di browser:
+- **Public Feed**: `http://localhost:3000`
+- **Admin Dashboard**: `http://localhost:3000/dashboard`
+- **Pengelola Tema**: `http://localhost:3000/dashboard/themes`
+- **Pengelola Plugin**: `http://localhost:3000/dashboard/plugins`
 
 ---
 
-## Documentation
-The project includes extensive markdown documentation in the `documentation/` folder:
-- [CHANGELOG.md](documentation/CHANGELOG.md) – change history.
-- [DATABASE.md](documentation/DATABASE.md) – database schema and migrations.
-- [DEVOPS.md](documentation/DEVOPS.md) – CI/CD and deployment guidelines.
-- [INSTALL.md](documentation/INSTALL.md) – detailed installation steps.
-- [STRUCTURE.md](documentation/STRUCTURE.md) – project structure overview.
+## 📜 Lisensi (License)
 
----
-
-## Contributing
-We welcome contributions! Please read the [CONTRIBUTING guidelines](CONTRIBUTING.md) (to be added) and open a pull request.
-
----
-
-## License
-This project is licensed under the MIT License – see the `LICENSE` file for details.
+Proyek ini dilisensikan di bawah **MIT License** – lihat berkas [LICENSE.md](LICENSE.md) untuk detail selengkapnya.

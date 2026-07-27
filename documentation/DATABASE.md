@@ -95,3 +95,58 @@ Menyimpan struktur navigasi menu 3-level untuk Header Navbar dan Footer.
 | `items` | Array of Objects | Array item menu (`[{ id, label, type, target, url, level, order }]`) |
 | `updatedAt` | String (ISO 8601) | Timestamp tanggal perubahan terakhir |
 
+---
+
+### 7. Dokumen Settings: `settings/theme` & `settings/plugins`
+Menyimpan status konfigurasi global Sistem Tema dan Sistem Plugin.
+
+#### `settings/theme`
+| Field | Tipe Data | Keterangan |
+| :--- | :--- | :--- |
+| `activeThemeId` | String | ID Tema Aktif (`"modern"`, `"editorial"`, `"minimalist"`, atau custom ID) |
+| `customizations` | Object | `{ primaryColor, fontFamily, cardStyle, customCss }` |
+| `updatedAt` | String (ISO 8601) | Timestamp tanggal pembaruan terakhir |
+
+#### `settings/plugins`
+| Field | Tipe Data | Keterangan |
+| :--- | :--- | :--- |
+| `seo-analyzer` | Boolean | Status aktif/nonaktif Plugin SEO Analyzer (`true`/`false`) |
+| `newsletter` | Boolean | Status aktif/nonaktif Plugin Newsletter (`true`/`false`) |
+| `whatsapp-float` | Boolean | Status aktif/nonaktif Plugin WhatsApp (`true`/`false`) |
+| `updatedAt` | String (ISO 8601) | Timestamp tanggal pembaruan terakhir |
+
+---
+
+### 8. Koleksi: `custom_themes` & `custom_plugins`
+Menyimpan paket preset tema dan plugin kustom yang di-upload melalui Admin Dashboard.
+
+#### `custom_themes`
+| Field | Tipe Data | Keterangan |
+| :--- | :--- | :--- |
+| `id` | String | Document ID Paket Tema |
+| `name` | String | Nama tampilan tema |
+| `description` | String | Deskripsi tema |
+| `author` | String | Pembuat tema |
+| `version` | String | Versi rilis |
+| `customizations` | Object | Objek preset kustomisasi tema |
+
+#### `custom_plugins`
+| Field | Tipe Data | Keterangan |
+| :--- | :--- | :--- |
+| `id` | String | Document ID Paket Plugin |
+| `name` | String | Nama tampilan plugin |
+| `description` | String | Deskripsi plugin |
+| `routePath` | String | Rute URL halaman plugin (`/dashboard/[routePath]`) |
+| `navLabel` | String | Label menu di Sidebar Admin |
+
+---
+
+### 9. Koleksi: `subscribers`
+Menyimpan daftar pembaca yang berlangganan newsletter email.
+
+| Field | Tipe Data | Keterangan |
+| :--- | :--- | :--- |
+| `id` | String | Document ID Subscriber |
+| `email` | String | Alamat email pembaca |
+| `name` | String | Nama pembaca |
+| `subscribedAt` | String (ISO 8601) | Timestamp tanggal berlangganan |

@@ -1,6 +1,6 @@
 # AI Prompt & Development Guidelines (ScholarCMS)
 
-**Tujuan:** ANDA seorang programmer yang berpengalaman lebih dari 20 tahun dan seoarang designer UI/UX yanng sudah berpengalaman lebih dari 20 tahun juga. Memberikan instruksi panduan bagi AI Coding Assistant dalam mengembangkan, memelihara, dan menambah fitur baru pada codebase **ScholarCMS** (Next.js 14 + Firebase Blog Engine) secara efisien dan hemat token.
+**Tujuan:** ANDA seorang programmer berpengalaman lebih dari 20 tahun dan seorang designer UI/UX yang berpengalaman lebih dari 20 tahun. Memberikan instruksi panduan bagi AI Coding Assistant dalam mengembangkan, memelihara, dan menambah fitur baru pada codebase **ScholarCMS** secara efisien dan hemat token.
 
 ---
 
@@ -9,13 +9,15 @@
 Ketika Anda (AI) diminta membuat atau memodifikasi fitur baru pada ScholarCMS, selalu patuhi konvensi arsitektur berikut:
 
 1. **Gunakan Folder `src/` Enterprise Layout**:
-   - `src/app/`: Tempatkan rute halaman baru (App Router).
-   - `src/components/`: Bagi komponen UI ke subfolder yang sesuai (`layout/`, `blog/`, `admin/`).
+   - `src/app/`: Tempatkan rute halaman baru (App Router) & Dynamic Catch-All Plugin Router `src/app/dashboard/[...pluginRoute]/page.jsx`.
+   - `src/themes/`: Tempatkan folder komponen tema React fisik baru (`src/themes/nama-tema/index.jsx`).
+   - `src/plugins/`: Tempatkan folder komponen plugin React fisik baru (`src/plugins/nama-plugin/index.jsx`).
+   - `src/components/`: Bagi komponen UI ke subfolder yang sesuai (`layout/`, `blog/`, `admin/`, `dashboard/`, `ui/`).
    - `src/services/dbService.js`: Tempatkan semua logika transaksi data/CRUD baru di sini.
    - `src/lib/firebase.js`: Inisialisasi SDK Firebase.
    - `src/constants/mockData.js`: Tempatkan data sampel atau konstanta baru.
 2. **Gunakan Path Aliases `@/*`**:
-   - Selalu gunakan import bersih seperti `import { dbService } from '@/services/dbService'` atau `import Navbar from '@/components/layout/Navbar'`.
+   - Selalu gunakan import bersih seperti `import { dbService } from '@/services/dbService'` atau `import { getThemeComponent } from '@/themes'`.
 3. **Resilient Data Service (Hybrid Fallback)**:
    - Pastikan fungsi service baru di `dbService.js` mendukung **duplikasi alur**: Firebase Firestore Cloud DB (saat `isFirebaseConfigured()` bernilai `true`) dan LocalStorage / Demo Mode Fallback.
 
@@ -27,12 +29,13 @@ Saat meminta bantuan AI untuk menambah fitur di ScholarCMS, ikuti struktur promp
 
 ```markdown
 ### 1. Ringkasan Tugas
-Tambah fitur [Nama Fitur] pada ScholarCMS.
+Tambah fitur [Nama Fitur / Tema / Plugin] pada ScholarCMS.
 
 ### 2. File Terkait
 - Edit/Tambah: `src/services/dbService.js`
-- Edit/Tambah UI: `src/components/admin/[NamaKomponen].jsx`
-- Tambah Route: `src/app/admin/[rute]/page.jsx`
+- Tambah Tema: `src/themes/[nama-tema]/index.jsx`
+- Tambah Plugin: `src/plugins/[nama-plugin]/index.jsx`
+- Tambah Route: `src/app/dashboard/[rute]/page.jsx`
 
 ### 3. Batasan Teknis
 - Ikuti standar Tailwind CSS & Glassmorphism yang ada di `src/app/globals.css`.
@@ -42,11 +45,12 @@ Tambah fitur [Nama Fitur] pada ScholarCMS.
 
 ---
 
-## 3. Konvensi Penulisan Komponen & UI
+## 3. Konvensi Penulisan Komponen, Tema, & Plugin
 
 1. **Aestetika Modern**: Gunakan variabel CSS `var(--bg-primary)`, `var(--bg-surface)`, `var(--border-color)`, `var(--text-main)`, `var(--text-muted)`.
-2. **Gutenberg Editor Blocks**: Jika menambah jenis blok baru di editor, perbarui renderer di `src/app/post/[slug]/page.jsx` dan pengeditan di `src/components/admin/GutenbergEditor.jsx`.
-3. **Lucide Icons**: Gunakan ikon dari paket `lucide-react` untuk konsistensi UI WordPress Admin.
+2. **Sistem Tema**: Setiap tema menerima props standar (`posts`, `categories`, `selectedCategory`, `onSelectCategory`, `searchQuery`, `onSearch`, `loading`, `customizations`).
+3. **Sistem Plugin**: Rute plugin baru otomatis ditangkap oleh `Dynamic Catch-All Plugin Router` (`/dashboard/[...pluginRoute]`) tanpa perlu rebuild Vercel.
+4. **Lucide Icons**: Gunakan ikon dari paket `lucide-react` untuk konsistensi UI Admin.
 
 ---
 
