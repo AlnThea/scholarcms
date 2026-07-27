@@ -10,7 +10,7 @@ import { useTheme } from '@/context/ThemeContext';
 import {
   LayoutDashboard, FileText, PlusCircle, FolderTree, MessageSquare,
   Settings, ExternalLink, Feather, Menu, X, Users, LogOut, Sun, Moon,
-  ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Layers, ListTree
+  ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Layers, ListTree, Palette
 } from 'lucide-react';
 import { dbService } from '@/services/dbService';
 import Button from '@/components/ui/Button';
@@ -67,6 +67,7 @@ export default function DashboardLayout({ children }) {
     { label: 'Halaman Statis', href: '/dashboard/pages', icon: Layers, roles: ['admin', 'writer'] },
     { label: 'Kategori & Tag', href: '/dashboard/categories', icon: FolderTree, roles: ['admin'] },
     { label: 'Navigasi & Menu', href: '/dashboard/menus', icon: ListTree, roles: ['admin'] },
+    { label: 'Tampilan (Themes)', href: '/dashboard/themes', icon: Palette, roles: ['admin'] },
     { label: 'Moderasi Komentar', href: '/dashboard/comments', icon: MessageSquare, roles: ['admin', 'writer'] },
     { label: 'Kelola Pengguna', href: '/dashboard/users', icon: Users, roles: ['admin'] },
     { label: 'Pengaturan CMS', href: '/dashboard/settings', icon: Settings, roles: ['admin'] },

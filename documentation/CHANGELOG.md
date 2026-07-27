@@ -2,6 +2,26 @@
 
 Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 
+## [v1.8.0] - 2026-07-27
+
+### 🚀 Sistem Tema Style (Themes Engine & Dynamic Resolver)
+- **Sistem Tema & Katalog Dashboard (`/dashboard/themes`)**:
+  - **Menu Tampilan (Themes) 🎨**: Menambahkan rute pengelola tema di `/dashboard/themes` yang terhubung ke sidebar navigasi Admin Dashboard ([layout.jsx](file:///c:/web/scholarcms/src/app/dashboard/layout.jsx)).
+  - **Katalog Tema Visual**: Kartu visual interaktif dengan badge status "Aktif", deskripsi, pembuat, versi, dan tombol 1-klik "Aktifkan Tema".
+  - **No-Code Theme Customizer**: Pengatur warna aksen utama, tipografi Google Fonts, gaya kartu postingan, dan *Custom CSS Injector*.
+  - **Upload Preset Tema (.json)**: Impor & ekspor paket tema kustom berbasis `.json` 100% aman tanpa perlu *rebuild* serverless Vercel.
+- **3 Preset Tema Bawaan dengan Layout Berbeda Total**:
+  - **Tema 1: Modern Glassmorphism ([modern/index.jsx](file:///c:/web/scholarcms/src/themes/modern/index.jsx))**: Layout blog modern dengan hero featured banner & widget sidebar.
+  - **Tema 2: Editorial News & Gazette ([editorial/index.jsx](file:///c:/web/scholarcms/src/themes/editorial/index.jsx))**: Layout portal berita/koran modern lengkap dengan **Running Ticker / Breaking News**, **Headline Grid**, **Font Serif Klasik**, dan **Seksi Berita per Kategori**.
+  - **Tema 3: Minimalist Tech ([minimalist/index.jsx](file:///c:/web/scholarcms/src/themes/minimalist/index.jsx))**: Layout Medium-style bersih yang berfokus pada kecepatan dan kenyamanan membaca tanpa gangguan.
+- **Unified Theme Resolver & Universal Dynamic Engine ([src/themes/index.js](file:///c:/web/scholarcms/src/themes/index.js))**:
+  - Mendukung komponen tema React fisik di `src/themes/` maupun **Universal Dynamic Theme Engine** untuk merender tema kustom hasil upload via Firestore DB tanpa butuh folder fisik di server Vercel.
+  - Integrasi `ThemeRenderer` pada beranda publik ([page.jsx](file:///c:/web/scholarcms/src/app/page.jsx)).
+- **Ekstensi Service Layer (`dbService.js`)**:
+  - Penambahan fungsi `getActiveTheme`, `setActiveTheme`, `saveThemeCustomizations`, `getCustomThemePackages`, dan `saveCustomThemePackage` dengan dukungan Firestore Cloud DB & Fallback Storage Mode.
+
+---
+
 ## [v1.7.0] - 2026-07-26
 
 ### 🚀 Infrastruktur Kesiapan Google AdSense, Pembersihan Branding UI, & Tagging Interaktif

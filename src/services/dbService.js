@@ -694,5 +694,129 @@ export const dbService = {
     menus[location] = items;
     setLocal('menus', menus);
     return items;
+  },
+
+  // THEMES SYSTEM MANAGEMENT (WORDPRESS-STYLE THEMES)
+  async getActiveTheme() {
+    const DEFAULT_THEME_SETTING = {
+      activeThemeId: 'modern',
+      customizations: {
+        primaryColor: '#2563eb',
+        accentColor: '#3b82f6',
+        fontFamily: 'Inter',
+        cardStyle: 'glassmorphism', // glassmorphism, flat, elevated, classic
+        heroStyle: 'featured', // featured, split, minimal
+        customCss: ''
+      },
+      updatedAt: new Date().toISOString()
+    };
+
+    if (isFirebaseConfigured()) {
+      try {
+        const docRef = doc(db, 'settings', 'theme');
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          return { ...DEFAULT_THEME_SETTING, ...snap.data() };
+        }
+      } catch (e) {
+        console.warn('Firestore getActiveTheme error:', e);
+      }
+    }
+
+    return getLocal('theme_settings', DEFAULT_THEME_SETTING);
+  },
+
+  async setActiveTheme(themeId) {
+    const current = await this.getActiveTheme();
+    const payload = {
+      ...current,
+      activeThemeId: themeId,
+      updatedAt: new Date().toISOString()
+    };
+
+    if (isFirebaseConfigured()) {
+      try {
+        await setDoc(doc(db, 'settings', 'theme'), payload, { merge: true });
+        return payload;
+      } catch (e) {
+        console.warn('Firestore setActiveTheme error:', e);
+      }
+    }
+
+    setLocal('theme_settings', payload);
+    return payload;
+  },
+
+  async saveThemeCustomizations(customizationsData) {
+    const current = await this.getActiveTheme();
+    const payload = {
+      ...current,
+      customizations: {
+        ...(current.customizations || {}),
+        ...customizationsData
+      },
+      updatedAt: new Date().toISOString()
+    };
+
+    if (isFirebaseConfigured()) {
+      try {
+        await setDoc(doc(db, 'settings', 'theme'), payload, { merge: true });
+        return payload;
+      } catch (e) {
+        console.warn('Firestore saveThemeCustomizations error:', e);
+      }
+    }
+
+    setLocal('theme_settings', payload);
+    return payload;
+  },
+
+  async getCustomThemePackages() {
+    if (isFirebaseConfigured()) {
+      try {
+        const snap = await getDocs(collection(db, 'custom_themes'));
+        if (!snap.empty) {
+          return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
+      } catch (e) {
+        console.warn('Firestore getCustomThemePackages error:', e);
+      }
+    }
+    return getLocal('custom_theme_packages', []);
+  },
+
+  async saveCustomThemePackage(themePackage) {
+    const payload = {
+      id: themePackage.id || `custom-${Date.now()}`,
+      name: themePackage.name || 'Custom Theme',
+      description: themePackage.description || 'Imported Custom Theme Package',
+      version: themePackage.version || '1.0.0',
+      author: themePackage.author || 'Anonymous',
+      category: themePackage.category || 'Custom',
+      layoutType: themePackage.layoutType || 'dynamic',
+      customizations: themePackage.customizations || {},
+      layoutConfig: themePackage.layoutConfig || {},
+      createdAt: new Date().toISOString()
+    };
+
+    if (isFirebaseConfigured()) {
+      try {
+        await setDoc(doc(db, 'custom_themes', payload.id), payload, { merge: true });
+        return payload;
+      } catch (e) {
+        console.warn('Firestore saveCustomThemePackage error:', e);
+      }
+    }
+
+    const currentPackages = getLocal('custom_theme_packages', []);
+    const idx = currentPackages.findIndex(p => p.id === payload.id);
+    if (idx !== -1) {
+      currentPackages[idx] = payload;
+    } else {
+      currentPackages.push(payload);
+    }
+    setLocal('custom_theme_packages', currentPackages);
+    return payload;
   }
 };
+
