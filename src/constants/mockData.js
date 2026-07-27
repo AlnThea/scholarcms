@@ -8,7 +8,7 @@ export const INITIAL_CATEGORIES = [
 export const INITIAL_POSTS = [
   {
     id: 'post-1',
-    title: 'Panduan Lengkap Membangun CMS Modern Ala WordPress dengan Next.js 14 dan Firebase',
+    title: 'Panduan Lengkap Membangun CMS Blog Modern Berkinerja Tinggi',
     slug: 'panduan-cms-modern-nextjs-firebase',
     excerpt: 'Pelajari bagaimana mengombinasikan kecepatan SSR Next.js dengan fleksibilitas database Firestore untuk membuat CMS Blog berkinerja tinggi.',
     category: 'Web Development',
@@ -59,23 +59,23 @@ export const INITIAL_POSTS = [
   },
   {
     id: 'post-3',
-    title: 'Implementasi AI Assistant dalam Editor Artikel WordPress Gutenberg',
+    title: 'Implementasi AI Assistant dalam Editor Artikel Visual Block Canvas',
     slug: 'implementasi-ai-assistant-editor-gutenberg',
     excerpt: 'Bagaimana kecerdasan buatan membantu kreator konten dalam menghasilkan draft artikel, memeriksa tata bahasa, dan membuat ringkasan otomatis.',
     category: 'AI & Machine Learning',
-    tags: ['AI', 'Gutenberg', 'Content Creation'],
+    tags: ['AI', 'Visual Editor', 'Content Creation'],
     featuredImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
     status: 'published',
     author: {
-      name: 'Alex AI Specialist',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-      role: 'AI Researcher'
+      name: 'Rian Kusuma',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
+      role: 'Chief Editor'
     },
-    publishedAt: '2026-07-18T09:15:00.000Z',
-    views: 489,
+    publishedAt: '2026-07-22T14:15:00.000Z',
+    views: 342,
     readTime: '5 min read',
     blocks: [
-      { id: 'b1', type: 'paragraph', content: 'Editor berbasis blok seperti Gutenberg memberikan struktur yang sangat ideal bagi AI untuk membantu menulis konten secara modular per-paragraf atau per-heading.' }
+      { id: 'b1', type: 'paragraph', content: 'Editor berbasis blok memberikan struktur yang sangat ideal bagi AI untuk membantu menulis konten secara modular per-paragraf atau per-heading.' }
     ]
   }
 ];

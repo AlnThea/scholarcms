@@ -696,7 +696,7 @@ export const dbService = {
     return items;
   },
 
-  // THEMES SYSTEM MANAGEMENT (WORDPRESS-STYLE THEMES)
+  // THEMES SYSTEM MANAGEMENT (MODULAR THEMES ENGINE)
   async getActiveTheme() {
     const DEFAULT_THEME_SETTING = {
       activeThemeId: 'modern',
@@ -819,7 +819,7 @@ export const dbService = {
     return payload;
   },
 
-  // PLUGINS SYSTEM MANAGEMENT (WORDPRESS-STYLE PLUGINS)
+  // PLUGINS SYSTEM MANAGEMENT (DYNAMIC PLUGINS ENGINE)
   async getPluginStates() {
     const DEFAULT_STATES = {
       'seo-analyzer': true,

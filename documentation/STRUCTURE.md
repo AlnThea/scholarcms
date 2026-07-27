@@ -46,10 +46,10 @@ scholarcms/
 │   │   │   ├── comments/         # Moderasi Komentar Pengunjung (page.jsx)
 │   │   │   ├── menus/            # Pengelola Menu Navigasi Drag & Drop 3 Level (page.jsx)
 │   │   │   ├── pages/            # Tabel & Pengelola Halaman Statis (page.jsx, new/page.jsx, edit/[id]/page.jsx)
-│   │   │   ├── posts/            # Tabel Postingan & Gutenberg Editor
-│   │   │   │   ├── edit/[id]/    # Mode Edit Artikel Dynamic Route (page.jsx)
-│   │   │   │   ├── new/          # Mode Tambah Artikel Baru (page.jsx)
-│   │   │   │   └── page.jsx      # Daftar Semua Artikel (Filtered by Role)
+│   │   │   ├── posts/            # Tabel Postingan & Visual Block Editor
+│   │   │   ├── edit/[id]/        # Mode Edit Artikel Dynamic Route (page.jsx)
+│   │   │   ├── new/              # Mode Tambah Artikel Baru (page.jsx)
+│   │   │   └── page.jsx          # Daftar Semua Artikel (Filtered by Role)
 │   │   │   ├── themes/           # Pengelola Tema Blog & Visual Customizer (page.jsx)
 │   │   │   ├── plugins/          # Pengelola Plugin Blog & Impor JSON (page.jsx)
 │   │   │   ├── [...pluginRoute]/ # Dynamic Catch-All Plugin Router (page.jsx)
@@ -61,17 +61,17 @@ scholarcms/
 │   │   ├── register/             # Halaman Pendaftaran Akun (page.jsx)
 │   │   ├── page/[slug]/          # Reader Single Static Page Dynamic Route (page.jsx)
 │   │   ├── post/[slug]/          # Reader Single Article View Dynamic Route (page.jsx)
-│   │   ├── globals.css           # Styling System, CSS Tokens, & Gutenberg Block Typo
+│   │   ├── globals.css           # Styling System, CSS Tokens, & Visual Block Typo
 │   │   ├── layout.jsx            # Root HTML, AuthProvider & Metadata SEO Layout
 │   │   └── page.jsx              # Blog Homepage Feed (Dynamic Theme Renderer)
 │   │
-│   ├── themes/                   # Sistem Tema Blog (WordPress-Style Themes)
+│   ├── themes/                   # Sistem Tema Blog (Modular Themes Engine)
 │   │   ├── modern/               # Tema 1: Modern Glassmorphism (Default)
 │   │   ├── editorial/            # Tema 2: Editorial News & Gazette (Portal Berita Layout)
 │   │   ├── minimalist/           # Tema 3: Minimalist Tech & Essay (Medium-Style Layout)
 │   │   └── index.js              # Unified Theme Resolver & Universal Dynamic Engine
 │   │
-│   ├── plugins/                  # Sistem Plugin Blog (WordPress-Style Plugins)
+│   ├── plugins/                  # Sistem Plugin Blog (Dynamic Plugin Engine)
 │   │   ├── seo-analyzer/         # Plugin 1: SEO Analyzer & Realtime Auditor
 │   │   ├── newsletter/           # Plugin 2: Newsletter & Subscriber Manager
 │   │   ├── whatsapp-float/       # Plugin 3: WhatsApp Contact Floating Button Widget

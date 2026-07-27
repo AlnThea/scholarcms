@@ -842,7 +842,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
       {/* Main Editor Column (Di Sebelah Kanan Palet Komponen - Nempel Rapat 0 Gap) */}
       <div className="flex-1 w-full min-w-0 flex flex-col">
 
-        {/* Attached Top Unified Gutenberg Header & Toolbar (Sticky melayang di top-16 saat scroll) */}
+        {/* Attached Top Unified Visual Block Canvas Header & Toolbar (Sticky melayang di top-16 saat scroll) */}
         {editor && (
           <div className="sticky top-16 z-20 bg-[var(--bg-surface)]/95 backdrop-blur-md border-b border-[var(--border-color)] flex flex-col shadow-sm divide-y divide-[var(--border-color)]">
 
@@ -918,7 +918,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
               </div>
             </div>
 
-            {/* Baris 2: Unified Gutenberg Block Action & Formatting Toolbar */}
+            {/* Baris 2: Unified Visual Canvas Block Action & Formatting Toolbar */}
             {activeTab === 'editor' && (
               <div className="p-2 px-3 bg-[var(--bg-primary)]/40 flex flex-wrap items-center justify-between gap-2 text-xs">
                 {/* Kiri: Detektor Blok Aktif & Converter Cepat */}
@@ -1181,7 +1181,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
             onMouseLeave={handleEditorMouseLeave}
             className="flex-1 min-h-[500px] relative group/canvas"
           >
-            {/* Notion / Gutenberg Block Move Toolbar (Top-Left on hover) */}
+            {/* Notion / Visual Canvas Block Move Toolbar (Top-Left on hover) */}
             {dragHandleInfo.visible && (
               <div
                 style={{ top: `${dragHandleInfo.top}px`, left: `${dragHandleInfo.left}px` }}

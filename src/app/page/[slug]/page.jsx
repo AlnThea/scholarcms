@@ -137,7 +137,7 @@ export default function StaticPageDetail({ params }) {
           </div>
         </header>
 
-        <article className="gutenberg-content mb-16 border-b border-[var(--border-color)] pb-12">
+        <article className="article-content mb-16 border-b border-[var(--border-color)] pb-12">
           {page.content ? (
             <div 
               className="prose dark:prose-invert max-w-none text-sm text-[var(--text-main)] leading-relaxed" 

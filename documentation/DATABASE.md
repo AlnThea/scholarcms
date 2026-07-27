@@ -21,7 +21,7 @@ Menyimpan profil pengguna terdaftar dan peran hak akses (*Role-Based Access Cont
 ---
 
 ### 2. Koleksi: `posts`
-Menyimpan seluruh artikel blog yang dibuat melalui Editor Gutenberg.
+Menyimpan seluruh artikel blog yang dibuat melalui Visual Block Editor.
 
 | Field | Tipe Data | Keterangan |
 | :--- | :--- | :--- |
@@ -37,7 +37,7 @@ Menyimpan seluruh artikel blog yang dibuat melalui Editor Gutenberg.
 | `views` | Number | Akumulasi total pembaca artikel |
 | `readTime` | String | Estimasi lama baca (misal: `"5 min read"`) |
 | `author` | Object | `{ name, avatar, role }` |
-| `blocks` | Array of Objects | Array blok visual Gutenberg (`[{ id, type, content }]`) |
+| `blocks` | Array of Objects | Array blok visual artikel (`[{ id, type, content }]`) |
 
 ---
 
@@ -82,7 +82,7 @@ Menyimpan seluruh halaman statis blog (seperti *Tentang Kami*, *Kebijakan Privas
 | `publishedAt` | String (ISO 8601) | Timestamp tanggal publikasi |
 | `views` | Number | Akumulasi total pembaca |
 | `author` | Object | `{ name, avatar, role }` |
-| `blocks` | Array of Objects | Array blok visual Gutenberg (`[{ id, type, content }]`) |
+| `blocks` | Array of Objects | Array blok visual artikel (`[{ id, type, content }]`) |
 
 ---
 

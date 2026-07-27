@@ -8,17 +8,17 @@
 
 ## 🚀 Fitur Utama (Key Features)
 
-- 🎨 **WordPress-Style Theme Engine**:
+- 🎨 **Modular Theme Engine**:
   - Pilihan katalog tema bawaan siap pakai (**Modern Glassmorphism**, **Editorial News & Gazette**, **Minimalist Tech**).
   - *No-Code Visual Customizer*: Ubah warna aksen, font tipografi, dan gaya kartu tanpa koding.
   - Impor & ekspor paket preset tema `.json` 1-klik di Vercel.
 
-- 🔌 **WordPress-Style Plugin Engine**:
+- 🔌 **Dynamic Plugin Engine**:
   - **Dynamic Catch-All Plugin Router (`/dashboard/[...pluginRoute]`)**: Menambah rute halaman baru untuk plugin 100% tanpa perlu rebuild di Vercel.
   - 3 Plugin Bawaan: **SEO Analyzer & Realtime Auditor**, **Newsletter & Email Subscribers**, dan **WhatsApp Contact Floating Button**.
   - *Dynamic Sidebar Injector*: Menampilkan menu plugin aktif secara otomatis pada Sidebar Admin Dashboard.
 
-- ✍️ **Gutenberg Visual Block Editor**:
+- ✍️ **Visual Block Editor**:
   - Editor artikel berbasis blok visual (Paragraf, Heading H1-H6, Multi-kolom Flex Ratio, Tabel Data Interaktif, Accordion FAQ, Checklist Tugas, Callout Box, Code Snippet, Gambar, & Video YouTube).
   - Integrasi AI Assistant untuk pembuatan artikel otomatis 1400+ kata lengkap dengan SEO tags & featured image.
 

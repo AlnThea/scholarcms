@@ -99,7 +99,7 @@ export default function DashboardLayout({ children }) {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] flex">
 
-      {/* WordPress-style Dark Sidebar */}
+      {/* Dark Sidebar Layout */}
       <aside className={`fixed inset-y-0 left-0 z-50 bg-[#1d2327] text-gray-300 flex flex-col justify-between transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'
         } ${mobileOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0'}`}>
 

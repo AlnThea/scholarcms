@@ -287,9 +287,10 @@ ul[data-type="taskList"] li[data-type="taskItem"][data-checked="true"] > div > p
   -webkit-text-fill-color: transparent;
 }
 
-/* Tiptap Editor Canvas (.ProseMirror) & Gutenberg Typography (.prose, .gutenberg-content) */
+/* Tiptap Editor Canvas (.ProseMirror) & Article Typography (.prose, .article-content, .gutenberg-content) */
 .ProseMirror,
 .prose,
+.article-content,
 .gutenberg-content {
   color: var(--text-main);
   line-height: 1.8;

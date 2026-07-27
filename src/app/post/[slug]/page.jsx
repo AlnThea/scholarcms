@@ -201,7 +201,7 @@ export default function BlogPostDetail({ params }) {
         {/* AdSense Top Header Banner Placement */}
         <AdSenseBanner placement="header-banner" className="mb-10" />
 
-        <article className="gutenberg-content mb-12 border-b border-[var(--border-color)] pb-12">
+        <article className="article-content mb-12 border-b border-[var(--border-color)] pb-12">
           {post.content ? (
             <div 
               className="prose dark:prose-invert max-w-none text-sm text-[var(--text-main)] leading-relaxed" 

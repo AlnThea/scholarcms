@@ -4,8 +4,8 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 
 ## [v1.8.0] - 2026-07-27
 
-### 🚀 Sistem Tema & Sistem Plugin WordPress-Style (Themes Engine, Plugin Engine, & Dynamic Catch-All Router)
-- **Sistem Plugin WordPress & Dynamic Catch-All Router (`/dashboard/[...pluginRoute]`)**:
+### 🚀 Sistem Tema & Sistem Plugin Modular (Themes Engine, Plugin Engine, & Dynamic Catch-All Router)
+- **Sistem Plugin CMS & Dynamic Catch-All Router (`/dashboard/[...pluginRoute]`)**:
   - **Dynamic Catch-All Router ([...pluginRoute]/page.jsx)**: Penangkap rute dinamis yang memungkinkan plugin baru menyajikan rute halaman di bawah `/dashboard/[rute-plugin]` (seperti `/dashboard/seo-analyzer`, `/dashboard/newsletter`) **100% tanpa perlu rebuild di Vercel**.
   - **Menu Plugin CMS & Dynamic Sidebar Injector**: Rute pengelola plugin di `/dashboard/plugins` dan penginjeksi menu otomatis pada Sidebar Admin Dashboard ([layout.jsx](file:///c:/web/scholarcms/src/app/dashboard/layout.jsx)) saat plugin berstatus **ON**.
   - **Public Plugin Widget Injector ([PluginWidgetInjector.jsx](file:///c:/web/scholarcms/src/components/blog/PluginWidgetInjector.jsx))**: Merender widget publik (tombol WhatsApp melayang & banner Newsletter) pada halaman blog pembaca secara kondisional saat plugin diaktifkan.
@@ -13,7 +13,7 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
   - **Plugin 1: SEO Analyzer & Realtime Auditor ([seo-analyzer/index.jsx](file:///c:/web/scholarcms/src/plugins/seo-analyzer/index.jsx))**: Audit skor SEO real-time, kata kunci fokus, dan kesehatan meta description.
   - **Plugin 2: Newsletter & Subscriber Manager ([newsletter/index.jsx](file:///c:/web/scholarcms/src/plugins/newsletter/index.jsx))**: Kelola email subscriber, kirim broadcast pengumuman, dan widget subskripsi publik.
   - **Plugin 3: WhatsApp Contact Floating Button ([whatsapp-float/index.jsx](file:///c:/web/scholarcms/src/plugins/whatsapp-float/index.jsx))**: Konfigurasi nomor WhatsApp & pesan pembuka, serta widget tombol melayang publik.
-- **Sistem Tema WordPress & Katalog Dashboard (`/dashboard/themes`)**:
+- **Sistem Tema Modular & Katalog Dashboard (`/dashboard/themes`)**:
   - **Katalog Tema Visual**: Kartu visual interaktif dengan badge status "Aktif", deskripsi, pembuat, versi, dan tombol 1-klik "Aktifkan Tema".
   - **No-Code Theme Customizer**: Pengatur warna aksen utama, tipografi Google Fonts, gaya kartu postingan, dan *Custom CSS Injector*.
   - **3 Preset Tema Bawaan**: Modern Glassmorphism, Editorial News & Gazette, dan Minimalist Tech.
