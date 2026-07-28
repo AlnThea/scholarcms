@@ -1,4 +1,4 @@
-import { isFirebaseConfigured, db } from '@/lib/firebase';
+import { isFirebaseConfigured, db, auth } from '@/lib/firebase';
 import { INITIAL_CATEGORIES, INITIAL_POSTS, INITIAL_COMMENTS, INITIAL_PAGES, INITIAL_MENUS } from '@/constants/mockData';
 import {
   collection, doc, getDocs, getDoc, addDoc, setDoc, deleteDoc, updateDoc, query, where, orderBy, increment
@@ -7,15 +7,22 @@ import {
 // Clean up any stale demo data in localStorage on app load (if present).
 if (typeof window !== 'undefined') {
   Object.keys(localStorage).forEach(k => {
-    // Preserve theme setting
-    if (k.startsWith('scholarcms_') && k !== 'scholarcms_theme') {
+    // Preserve theme, plugin states/settings, custom packages, palette layout, and dashboard layout configuration
+    if (
+      k.startsWith('scholarcms_') &&
+      k !== 'scholarcms_theme' &&
+      !k.startsWith('scholarcms_plugin_') &&
+      !k.startsWith('scholarcms_custom_plugin_') &&
+      !k.startsWith('scholarcms_palette_') &&
+      !k.startsWith('scholarcms_dashboard_')
+    ) {
       localStorage.removeItem(k);
     }
   });
 }
 
-// Fast Timeout Wrapper (Abort hanging Firestore calls in 600ms for instant response)
-function withTimeout(promise, ms = 600) {
+// Fast Timeout Wrapper (Abort hanging Firestore calls after 3000ms for stable connection)
+function withTimeout(promise, ms = 3000) {
   return Promise.race([
     promise,
     new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore Timeout')), ms))
@@ -795,9 +802,7 @@ export const dbService = {
         if (!snap.empty) {
           return snap.docs.map(d => ({ id: d.id, ...d.data() }));
         }
-      } catch (e) {
-        console.warn('Firestore getCustomThemePackages error:', e);
-      }
+      } catch (e) {}
     }
     return getLocal('custom_theme_packages', []);
   },
@@ -844,19 +849,24 @@ export const dbService = {
       'whatsapp-float': true
     };
 
+    const localSaved = getLocal('plugin_states', null);
+    if (localSaved) {
+      return { ...DEFAULT_STATES, ...localSaved };
+    }
+
     if (isFirebaseConfigured()) {
       try {
         const docRef = doc(db, 'settings', 'plugins');
-        const snap = await withTimeout(getDoc(docRef));
+        const snap = await withTimeout(getDoc(docRef), 1500);
         if (snap.exists()) {
-          return { ...DEFAULT_STATES, ...snap.data() };
+          const merged = { ...DEFAULT_STATES, ...snap.data() };
+          setLocal('plugin_states', merged);
+          return merged;
         }
-      } catch (e) {
-        console.warn('Firestore getPluginStates error:', e);
-      }
+      } catch (e) {}
     }
 
-    return getLocal('plugin_states', DEFAULT_STATES);
+    return DEFAULT_STATES;
   },
 
   async togglePluginStatus(pluginId, isEnabled) {
@@ -867,16 +877,17 @@ export const dbService = {
       updatedAt: new Date().toISOString()
     };
 
+    // Always persist to local cache first so status survives refreshes and timeouts
+    setLocal('plugin_states', payload);
+
     if (isFirebaseConfigured()) {
       try {
         await setDoc(doc(db, 'settings', 'plugins'), payload, { merge: true });
-        return payload;
       } catch (e) {
         console.warn('Firestore togglePluginStatus error:', e);
       }
     }
 
-    setLocal('plugin_states', payload);
     return payload;
   },
 
@@ -901,7 +912,9 @@ export const dbService = {
         const docRef = doc(db, 'settings', `plugin_${pluginId}`);
         const snap = await withTimeout(getDoc(docRef));
         if (snap.exists()) {
-          return { ...(DEFAULT_SETTINGS[pluginId] || {}), ...snap.data() };
+          const merged = { ...(DEFAULT_SETTINGS[pluginId] || {}), ...snap.data() };
+          setLocal(`plugin_setting_${pluginId}`, merged);
+          return merged;
         }
       } catch (e) {
         console.warn('Firestore getPluginSettings error:', e);
@@ -919,16 +932,16 @@ export const dbService = {
       updatedAt: new Date().toISOString()
     };
 
+    setLocal(`plugin_setting_${pluginId}`, payload);
+
     if (isFirebaseConfigured()) {
       try {
         await setDoc(doc(db, 'settings', `plugin_${pluginId}`), payload, { merge: true });
-        return payload;
       } catch (e) {
         console.warn('Firestore savePluginSettings error:', e);
       }
     }
 
-    setLocal(`plugin_setting_${pluginId}`, payload);
     return payload;
   },
 
@@ -937,11 +950,11 @@ export const dbService = {
       try {
         const snap = await withTimeout(getDocs(collection(db, 'custom_plugins')));
         if (!snap.empty) {
-          return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          setLocal('custom_plugin_packages', list);
+          return list;
         }
-      } catch (e) {
-        console.warn('Firestore getCustomPluginPackages error:', e);
-      }
+      } catch (e) {}
     }
     return getLocal('custom_plugin_packages', []);
   },
@@ -958,15 +971,6 @@ export const dbService = {
       createdAt: new Date().toISOString()
     };
 
-    if (isFirebaseConfigured()) {
-      try {
-        await setDoc(doc(db, 'custom_plugins', payload.id), payload, { merge: true });
-        return payload;
-      } catch (e) {
-        console.warn('Firestore saveCustomPluginPackage error:', e);
-      }
-    }
-
     const currentPackages = getLocal('custom_plugin_packages', []);
     const idx = currentPackages.findIndex(p => p.id === payload.id);
     if (idx !== -1) {
@@ -975,6 +979,13 @@ export const dbService = {
       currentPackages.push(payload);
     }
     setLocal('custom_plugin_packages', currentPackages);
+
+    if (isFirebaseConfigured()) {
+      try {
+        await setDoc(doc(db, 'custom_plugins', payload.id), payload, { merge: true });
+      } catch (e) {}
+    }
+
     return payload;
   },
 
@@ -986,9 +997,7 @@ export const dbService = {
         if (!snap.empty) {
           return snap.docs.map(d => ({ id: d.id, ...d.data() }));
         }
-      } catch (e) {
-        console.warn('Firestore getSubscribers error:', e);
-      }
+      } catch (e) {}
     }
     return getLocal('subscribers', [
       { id: 'sub-1', email: 'pembaca1@example.com', name: 'Budi Santoso', subscribedAt: new Date().toISOString() },
@@ -1017,6 +1026,124 @@ export const dbService = {
     subs.unshift(newSub);
     setLocal('subscribers', subs);
     return newSub;
+  },
+
+  // DASHBOARD DRAG & DROP WIDGET LAYOUT MANAGEMENT
+  async getDashboardWidgetLayout() {
+    const DEFAULT_LAYOUT = {
+      order: [
+        'welcome',
+        'article_management',
+        'stat_categories',
+        'stat_posts',
+        'stat_views',
+        'stat_comments',
+        'seo_summary',
+        'recent_activity',
+        'system_status'
+      ],
+      columns: 10,
+      sizes: {
+        welcome: '5x2',
+        article_management: '3x2',
+        stat_categories: '2x1',
+        stat_posts: '2x1',
+        stat_views: '2x1',
+        stat_comments: '2x1',
+        stat_subscribers: '2x1',
+        stat_whatsapp: '2x1',
+        stat_users: '2x1',
+        stat_theme: '2x1',
+        stat_plugins: '2x1',
+        stat_pages: '2x1',
+        stat_scheduled: '2x1',
+        recent_comments: '5x2',
+        chart_views_trend: '5x2',
+        chart_category_distribution: '5x2',
+        chart_visitors_area: '5x2',
+        chart_seo_keywords_donut: '5x2',
+        chart_system_radar: '5x2',
+        chart_sparklines_grid: '5x2',
+        chart_hourly_heatmap: '5x2',
+        chart_traffic_source_pie: '5x2',
+        chart_top_posts_hbar: '5x2',
+        chart_dual_line_comparison: '5x2',
+        chart_post_status_stacked: '5x2',
+        chart_speedometer_gauge: '5x2',
+        table_comments_moderation: '5x2',
+        table_seo_articles: '5x2',
+        seo_summary: '5x2',
+        recent_activity: '5x2',
+        system_status: '5x2'
+      },
+      rowBreaks: {}
+    };
+
+    const localSaved = getLocal('dashboard_layout_config', null);
+    if (localSaved && Array.isArray(localSaved.order) && localSaved.order.length > 0) {
+      return {
+        order: localSaved.order,
+        columns: localSaved.columns || 10,
+        sizes: { ...DEFAULT_LAYOUT.sizes, ...(localSaved.sizes || {}) },
+        rowBreaks: localSaved.rowBreaks || {},
+        updatedAt: localSaved.updatedAt
+      };
+    }
+
+    if (isFirebaseConfigured()) {
+      try {
+        const docRef = doc(db, 'settings', 'dashboard_layout');
+        const snap = await withTimeout(getDoc(docRef), 1500);
+        if (snap.exists()) {
+          const data = snap.data();
+          const res = {
+            order: Array.isArray(data.order) && data.order.length > 0 ? data.order : DEFAULT_LAYOUT.order,
+            columns: data.columns || DEFAULT_LAYOUT.columns,
+            sizes: { ...DEFAULT_LAYOUT.sizes, ...(data.sizes || {}) },
+            rowBreaks: data.rowBreaks || {},
+            updatedAt: data.updatedAt
+          };
+          setLocal('dashboard_layout_config', res);
+          return res;
+        }
+      } catch (e) {}
+    }
+    return DEFAULT_LAYOUT;
+  },
+
+  async saveDashboardWidgetLayout(payload) {
+    const timestamp = new Date().toISOString();
+    const config = Array.isArray(payload) 
+      ? { order: payload, columns: 10, sizes: {}, rowBreaks: {}, updatedAt: timestamp } 
+      : { ...payload, updatedAt: timestamp };
+
+    setLocal('dashboard_layout_config', config);
+
+    if (isFirebaseConfigured()) {
+      try {
+        await setDoc(doc(db, 'settings', 'dashboard_layout'), config, { merge: true });
+      } catch (e) {}
+    }
+    return config;
+  },
+
+  async getCurrentUser() {
+    if (typeof window === 'undefined') return { role: 'admin', name: 'Super Admin' };
+    const localUser = getLocal('current_user', null);
+    if (localUser) return localUser;
+
+    if (isFirebaseConfigured() && auth?.currentUser) {
+      try {
+        const uid = auth.currentUser.uid;
+        const snap = await getDoc(doc(db, 'users', uid));
+        if (snap.exists()) {
+          const uData = snap.data();
+          setLocal('current_user', uData);
+          return uData;
+        }
+      } catch (e) {}
+    }
+    return { role: 'admin', name: 'Super Admin' };
   }
 };
 

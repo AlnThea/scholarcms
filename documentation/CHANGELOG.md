@@ -2,6 +2,34 @@
 
 Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 
+## [v2.0.0] - 2026-07-28
+
+### 🚀 Custom Canvas 10-Kolom Modular, Suite Chart Visual (Pie, Bar, Dual-Line, Gauge), RBAC Access Control & Single-Portal HUD Engine
+- **Engine Canvas 10-Kolom Modular & Clean Viewing Mode ([page.jsx](file:///c:/web/scholarcms/src/app/dashboard/page.jsx))**:
+  - Peluncuran mode tampilan bersih (*Clean Viewing Mode*) dengan tombol aksi melayang di pojok kanan atas canvas (`✏️ Kustomisasi Tata Letak Dashboard`).
+  - Dukungan lengkap 20+ opsi dimensi matriks grid (`2×1`, `2×2`, `2×3`, `3×1`, `3×2`, `3×3`, `4×1`, `4×2`, `4×3`, `5×1`, `5×2`, `5×3`, `6×1`, `6×2`, `6×3`, `7×1`, `7×2`, `7×3`, `10×1`, `10×2`).
+  - Fitur paksaan alur baris baru (*Row Break*) via `col-start-1` per widget.
+- **Draggable Inspector Modal & Viewport Portal (`createPortal`)**:
+  - Modal pengontrol melayang (*Draggable Floating Inspector Panel*) dengan pegangan header pointer-events.
+  - Perbaikan rumus pembatas seretan bawah (`maxY = window.innerHeight - 80px`), memungkinkan panel ditarik bebas ke paling bawah layar.
+  - Penggunaan React `createPortal(..., document.body)` dengan `zIndex: 9999`, menjamin modal pengontrol melayang tetap melayang kokoh saat halaman di-scroll ke bawah.
+- **Role-Based Access Control (RBAC) & Role View Switcher**:
+  - Pembatasan peranan akses widget (*Super Admin*, *Writer / Penulis*, *Regular User*) pada canvas dan Katalog Widget Dashboard modal.
+  - Penambahan menu selector pratinjau peranan (*Role View Switcher*) pada bar kontrol Mode Edit untuk menguji pratinjau tampilan peranan lain secara langsung.
+- **Koleksi Chart & Tabel Visual Baru**:
+  - **Chart Pie Lingkaran Penuh (`chart_traffic_source_pie`)**: Visual SVG Pie Chart sumber kedatangan pembaca.
+  - **Chart Batang Horisontal (`chart_top_posts_hbar`)**: Visual Horizontal Bar Chart artikel paling populer.
+  - **Chart Garis Komparasi Dual (`chart_dual_line_comparison`)**: Visual Dual Overlay Line Chart perbandingan rilis vs pembaca.
+  - **Chart Stacked Bar (`chart_post_status_stacked`)**: Visual Stacked Bar Chart status artikel bulanan.
+  - **Chart Speedometer Gauge (`chart_speedometer_gauge`)**: Visual Semi-circular Gauge Chart skor kecepatan muat CMS.
+  - **Tabel Moderasi Komentar Cepat & Tabel Kesehatan SEO Artikel**: Tabel interaktif aksi 1-klik di dashboard.
+- **Optimalisasi Sinkronisasi Stempel Waktu & Instant Fallback Cache ([dbService.js](file:///c:/web/scholarcms/src/services/dbService.js))**:
+  - Penambahan stempel waktu (`updatedAt`) pada `saveDashboardWidgetLayout` dan pemuatan instan (`0ms`) dari LocalStorage cache.
+  - Penambahan metode `getCurrentUser()` dan pembersihan pesan error peringatan permission cloud.
+  - Penataan ulang Banner Selamat Datang (*Executive Modular Welcome Card*) dengan gradasi warna biru-purple premium dan kaca transparan (*glassmorphism*).
+
+---
+
 ## [v1.9.0] - 2026-07-27
 
 ### 🚀 Production Email Dispatcher, SEO Auto-Fit, Fast Hydration & Complete Dev Docs

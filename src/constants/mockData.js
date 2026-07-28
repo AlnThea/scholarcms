@@ -77,6 +77,27 @@ export const INITIAL_POSTS = [
     blocks: [
       { id: 'b1', type: 'paragraph', content: 'Editor berbasis blok memberikan struktur yang sangat ideal bagi AI untuk membantu menulis konten secara modular per-paragraf atau per-heading.' }
     ]
+  },
+  {
+    id: 'post-4',
+    title: 'Panduan Strategi SEO Modern & Algoritma Google Terbaru 2026',
+    slug: 'panduan-strategi-seo-modern-algoritma-google-2026',
+    excerpt: 'Pelajari optimasi kata kunci, kesehatan meta description, dan struktur artikel yang lulus audit SEO 100/100.',
+    category: 'Web Development',
+    tags: ['SEO', 'Optimization', 'Google', 'ScholarCMS'],
+    featuredImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
+    status: 'scheduled',
+    author: {
+      name: 'ScholarCMS Team',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      role: 'SEO Specialist'
+    },
+    publishedAt: new Date(Date.now() + 86400000 * 3).toISOString(), // 3 hari ke depan
+    views: 0,
+    readTime: '5 min read',
+    blocks: [
+      { id: 'b1', type: 'paragraph', content: 'Optimasi mesin pencari (SEO) pada platform publishing modern memerlukan perhatian ekstra terhadap kecepatan rendering dan kelengkapan elemen meta tag.' }
+    ]
   }
 ];
 
