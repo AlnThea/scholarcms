@@ -1181,10 +1181,10 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
             onMouseLeave={handleEditorMouseLeave}
             className="flex-1 min-h-[500px] relative group/canvas"
           >
-            {/* Notion / Visual Canvas Block Move Toolbar (Top-Left on hover) */}
+            {/* Notion / Visual Canvas Block Move Toolbar (Positioned outside on Left Margin) */}
             {dragHandleInfo.visible && (
               <div
-                style={{ top: `${dragHandleInfo.top}px`, left: `${dragHandleInfo.left}px` }}
+                style={{ top: `${dragHandleInfo.top}px`, left: `-36px` }}
                 className="absolute z-30 flex items-center gap-0.5 p-0.5 bg-[var(--bg-surface)] border border-blue-500/50 text-blue-500 rounded-lg shadow-md transition-all animate-fade-in"
               >
                 <button

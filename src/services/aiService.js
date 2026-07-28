@@ -205,6 +205,23 @@ export const aiService = {
     return clean;
   },
 
+  cleanHtmlContent(htmlStr) {
+    if (!htmlStr || typeof htmlStr !== 'string') return htmlStr;
+    let clean = htmlStr;
+
+    // Clean redundant bullet prefixes like • [x] or • [ ] or [x] inside p or li
+    clean = clean.replace(/<p>\s*(?:•\s*)?\[[x\s]\]\s*/gi, '<p>');
+    clean = clean.replace(/<li>\s*(?:•\s*)?\[[x\s]\]\s*/gi, '<li>');
+    clean = clean.replace(/<p>\s*•\s*/gi, '<p>');
+
+    // Clean empty columns, empty containers, empty blockquotes
+    clean = clean.replace(/<div data-type="column"[^>]*>\s*<\/div>/gi, '');
+    clean = clean.replace(/<div data-type="columns"[^>]*>\s*<\/div>/gi, '');
+    clean = clean.replace(/<blockquote[^>]*>\s*<\/blockquote>/gi, '');
+
+    return clean;
+  },
+
   async generateArticle({ topic, niche, customPrompt, language, tone, length, subCategory, author }) {
     const parentNiche = this.normalizeParentNiche(niche || 'Teknologi');
     this.savePreferences({ niche: parentNiche, language, tone, length });
@@ -229,24 +246,28 @@ export const aiService = {
     const customInstruction = customPrompt ? `\n- PROMPT / INSTRUKSI BEBAS USER: "${customPrompt}"` : '';
 
     const fullPrompt = `${masterPrompt}
+BAHASA ARTIKEL: ${langInstruction}
+GAYA PENULISAN: ${tone || 'Profesional & Informatif'}
+SUB-KATEGORI: ${detectedSubCat} (Niche Induk: ${parentNiche})
+${lengthInstruction}${customInstruction}
 
-INSTRUKSI KHUSUS ARTIKEL INI:
-- Topik / Judul Target Spesifik: "${activeTopic}"${customInstruction}
-- Niche Utama Situs Blog: "${parentNiche}"
-- Sub-Kategori Spesifik Artikel: "${detectedSubCat}"
-- Bahasa Utama: ${langInstruction}
-- Gaya Bahasa (Tone of Voice): "${tone}"
-- ${lengthInstruction}
+TOPIK UTAMA / JUDUL ARTIKEL: "${activeTopic}"
 
-ATURAN PENTING GENERASI:
-1. ATURAN JUDUL: DILARANG mengcopy-paste kalimat prompt panjang user sebagai judul! Buatlah JUDUL ARTIKEL yang singkat, menarik, SEO-friendly, dan profesional (Maksimal 60 Karakter).
-2. ATURAN STRUKTUR ELEARNING: Jika Gaya Penulisan atau Kedalaman adalah Elearning/Tutorial (2000+ kata), susunlah artikel dalam BAB BERURUTAN yang sistematis (Bab 1: Persiapan Environment & Install Software/NPM/PHP/XAMPP, Bab 2: Struktur Direktori Folder, Bab 3: Penulisan Kode Utama Line-by-Line, Bab 4: Pengujian Server Lokal & Tabel Troubleshooting Error, Bab 5: Peluncuran ke Server Produksi).
-3. ELEMEN VISUAL SCHOLARCMS: Gunakan elemen blok visual lengkap (<div data-type="columns">, <div data-type="accordion-group">, <ul data-type="taskList">, <table data-type="table">, Callout boxes, Kode syntax highlight).
+ATURAN KOMPONEN BLOK PALET SCHOLARCMS (WAJIB INTEGRASI KE KANVAS EDITOR):
+1. WAJIB GUNAKAN BLOK LAYOUT MULTI-KOLOM:
+   <div data-type="columns"><div data-type="column" data-width="50%"><p><strong>Kolom Kiri:</strong> ...</p></div><div data-type="column" data-width="50%"><p><strong>Kolom Kanan:</strong> ...</p></div></div>
+2. WAJIB GUNAKAN BLOK CHECKLIST TASKS:
+   <ul data-type="taskList"><li data-type="taskItem" data-checked="true"><p>Langkah / Item Checklist...</p></li></ul>
+3. WAJIB GUNAKAN BLOK ACCORDION FAQ DI AKHIR ARTIKEL:
+   <div data-type="accordion-group"><div data-type="accordion-item"><div data-type="accordion-header">❓ Pertanyaan FAQ...</div><div data-type="accordion-content"><p>Jawaban detail...</p></div></div></div>
+4. WAJIB GUNAKAN TABEL MATRIKS PERBANDINGAN / TROUBLESHOOTING:
+   <table data-type="table" class="w-full border-collapse my-4"><thead><tr><th class="border p-2 bg-blue-500/10">Header 1</th><th class="border p-2 bg-blue-500/10">Header 2</th></tr></thead><tbody><tr><td class="border p-2">Data 1</td><td class="border p-2">Data 2</td></tr></tbody></table>
+5. WAJIB GUNAKAN CALLOUT BOXES:
+   <blockquote class="p-4 my-4 rounded-xl bg-blue-500/10 border-l-4 border-blue-500 text-blue-400 font-medium">💡 <strong>Catatan Penting:</strong> ...</blockquote>
 
-Output HARUS JSON murni tanpa pembungkus markdown backtick triple.
-Format JSON:
+PENTING: KELUARKAN HANYA OBJEK JSON VALID TANPA FORMAT MARKDOWN CODEBLOCK. FORMAT JSON WAJIB:
 {
-  "title": "Judul Artikel Singkat Relevan",
+  "title": "${activeTopic}",
   "slug": "judul-artikel-singkat-relevan",
   "excerpt": "Ringkasan artikel 2 kalimat...",
   "seoTitle": "Judul SEO Google",
@@ -268,6 +289,7 @@ Format JSON:
           parsed.seoTitle = this.fitSeoTitle(parsed.seoTitle || parsed.title);
           parsed.excerpt = this.fitSeoExcerpt(parsed.excerpt || activeTopic, activeTopic);
           parsed.seoDescription = this.fitSeoExcerpt(parsed.seoDescription || parsed.excerpt, activeTopic);
+          parsed.contentHtml = this.cleanHtmlContent(parsed.contentHtml);
           if (author) parsed.author = author;
           return parsed;
         }
@@ -277,6 +299,7 @@ Format JSON:
     }
 
     const fallback = this.createFallbackArticle({ topic: activeTopic, customPrompt, niche, language, tone, length, subCategory: detectedSubCat });
+    fallback.contentHtml = this.cleanHtmlContent(fallback.contentHtml);
     if (author) fallback.author = author;
     return fallback;
   },

@@ -193,6 +193,12 @@ div[data-type="column"] {
   background-color: rgba(59, 130, 246, 0.05) !important;
 }
 
+/* Hide empty column wrappers if no content */
+div[data-type="column"]:empty,
+div[data-type="columns"]:empty {
+  display: none !important;
+}
+
 /* Accordion FAQ Styling */
 .ProseMirror summary {
   cursor: text !important;
