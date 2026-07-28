@@ -9,7 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import {
   LayoutDashboard, FileText, PlusCircle, FolderTree, MessageSquare,
-  Settings, ExternalLink, Feather, Menu, X, Users, LogOut, Sun, Moon,
+  Settings, ExternalLink, Feather, Menu, X, Users, User, LogOut, Sun, Moon,
   ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Layers, ListTree, Palette, Puzzle,
   Sparkles, Folder, ChevronDown
 } from 'lucide-react';
@@ -150,6 +150,7 @@ export default function DashboardLayout({ children }) {
     {
       groupLabel: 'Administrasi System',
       items: [
+        { label: 'Profil & Akun Saya', href: '/dashboard/profile', icon: User, roles: ['admin', 'writer', 'user'] },
         { label: 'Kelola Pengguna & Role', href: '/dashboard/users', icon: Users, roles: ['admin'] },
         { label: 'Pengaturan CMS Global', href: '/dashboard/settings', icon: Settings, roles: ['admin'] }
       ]

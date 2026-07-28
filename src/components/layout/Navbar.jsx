@@ -297,6 +297,14 @@ export default function Navbar({ onSearch, searchQuery }) {
                     </Link>
                   )}
 
+                  <Link
+                    href="/dashboard/profile"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-[var(--text-main)] hover:bg-blue-600 hover:text-white transition-colors"
+                  >
+                    <User className="w-4 h-4" /> Edit Profil Saya
+                  </Link>
+
                   <button
                     onClick={() => { setUserMenuOpen(false); logout(); }}
                     className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-500 hover:bg-rose-500/10 transition-colors"

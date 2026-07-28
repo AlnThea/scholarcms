@@ -130,9 +130,88 @@ export const aiService = {
     }
   },
 
-  async generateArticle({ topic, niche, language, tone, length }) {
+  resolveSubCategory({ topic = '', niche = '' }) {
+    const t = (topic || '').toLowerCase();
+    const n = (niche || '').toLowerCase();
+    const results = [];
+
+    if (t.includes('ai') || t.includes('agent') || t.includes('llm') || t.includes('generative') || t.includes('machine learning') || t.includes('gpt') || t.includes('claude') || t.includes('neural') || t.includes('sovereign')) {
+      results.push('Artificial Intelligence');
+    }
+    if (t.includes('web') || t.includes('wasm') || t.includes('assembly') || t.includes('react') || t.includes('next') || t.includes('frontend') || t.includes('css') || t.includes('javascript') || t.includes('typescript') || t.includes('html')) {
+      results.push('Web Development');
+    }
+    if (t.includes('security') || t.includes('cyber') || t.includes('auth') || t.includes('zero-trust') || t.includes('privacy') || t.includes('hack') || t.includes('encryption') || t.includes('token') || t.includes('post-quantum')) {
+      results.push('Cybersecurity & Privacy');
+    }
+    if (t.includes('cloud') || t.includes('edge') || t.includes('devops') || t.includes('infrastructure') || t.includes('serverless') || t.includes('finops') || t.includes('idp') || t.includes('micro-services') || t.includes('docker') || t.includes('kubernetes')) {
+      results.push('Cloud & Infrastructure');
+    }
+    if (t.includes('fintech') || t.includes('invest') || t.includes('crypto') || t.includes('keuangan') || t.includes('saham') || t.includes('bank') || t.includes('money') || t.includes('cpc')) {
+      results.push('Fintech & Cryptography');
+    }
+    if (t.includes('design') || t.includes('ui') || t.includes('ux') || t.includes('glassmorphism') || t.includes('figma') || t.includes('style')) {
+      results.push('UI & UX Design');
+    }
+    if (t.includes('mobile') || t.includes('ios') || t.includes('android') || t.includes('flutter') || t.includes('react native')) {
+      results.push('Mobile Apps & Frameworks');
+    }
+
+    if (results.length === 0) {
+      if (n && !n.includes('teknologi')) {
+        results.push(niche);
+      } else {
+        results.push('Artificial Intelligence', 'Web Development');
+      }
+    } else if (results.length === 1) {
+      if (results[0] === 'Artificial Intelligence') results.push('Cloud & Infrastructure');
+      else if (results[0] === 'Web Development') results.push('Cloud & Infrastructure');
+      else results.push('Artificial Intelligence');
+    }
+
+    return results;
+  },
+
+  extractCleanTitle(topic, customPrompt, language = 'indonesia') {
+    const isEn = language === 'english';
+    const raw = customPrompt || topic || '';
+    if (!raw) return isEn ? 'Dynamic Web Development Course' : 'Panduan Pembuatan Website Dinamis';
+
+    let str = raw.trim();
+    const lower = str.toLowerCase();
+    
+    // Check if raw is a long prompt or starts with prompt action words
+    const isPrompt = lower.startsWith('buatkan') || lower.startsWith('create') || lower.startsWith('write') || lower.startsWith('tulis') || lower.startsWith('generate') || str.length > 45;
+
+    if (!isPrompt) {
+      return str;
+    }
+
+    // Clean prompt action prefixes
+    let clean = str.replace(/^(buatkan|tuliskan|tulis|create|write|generate)\s+(artikel|tutorial|panduan|guide|post)?\s+(tentang|mengenai|about|for)?\s*/i, '');
+
+    // Cut off at first period, newline, or instruction conjunctions like "sertakan", "include", "dengan fokus", "with focus"
+    const cutMatch = clean.match(/(\.|\n|;\s*|\s+sertakan|\s+include|\s+dengan\s+fokus|\s+with\s+focus)/i);
+    if (cutMatch && cutMatch.index > 8) {
+      clean = clean.substring(0, cutMatch.index).trim();
+    }
+
+    if (clean.length > 60) {
+      clean = clean.substring(0, 57).trim() + '...';
+    }
+
+    // Capitalize first letter
+    clean = clean.charAt(0).toUpperCase() + clean.slice(1);
+    return clean;
+  },
+
+  async generateArticle({ topic, niche, customPrompt, language, tone, length, subCategory, author }) {
     const parentNiche = this.normalizeParentNiche(niche || 'Teknologi');
     this.savePreferences({ niche: parentNiche, language, tone, length });
+
+    const activeTopic = this.extractCleanTitle(topic, customPrompt, language);
+    const detectedSubCat = subCategory || this.resolveSubCategory({ topic: activeTopic, niche });
+    await dbService.ensureCategoryExists(detectedSubCat, parentNiche);
 
     const masterPrompt = this.getMasterPrompt();
     const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || (typeof window !== 'undefined' ? localStorage.getItem('gemini_api_key') : '') || '';
@@ -141,27 +220,39 @@ export const aiService = {
       ? 'WRITE THE ENTIRE ARTICLE IN NATURAL, HIGH-QUALITY HUMAN ENGLISH.'
       : 'TULIS SELURUH ARTIKEL DALAM BAHASA INDONESIA YANG NATURAL, FLUID, DAN SEPERTI PENULIS MANUSIA ASLI.';
 
+    const isElearning = (tone || '').toLowerCase().includes('elearning') || (tone || '').toLowerCase().includes('kursus') || (length || '').toLowerCase().includes('2000');
+
+    const lengthInstruction = isElearning
+      ? 'TARGET PANJANG KONTEN: KURSUS TUTORIAL ELEARNING PEMULA SANGAT MENDALAM MINIMAL 2000 HINGGA 2500+ KATA TEKS BACAAN PARAGRAF & KODING LENGKAP (Dari Nol: Persiapan, Install Software/NPM/Framework, Struktur Folder, Kode Line-by-Line, Running Dev Server, Testing, & Deployment).'
+      : 'Target Panjang Konten: SANGAT MENDALAM MINIMAL 1400 - 1800+ KATA TEKS BACAAN MURNI INDONESIA.';
+
+    const customInstruction = customPrompt ? `\n- PROMPT / INSTRUKSI BEBAS USER: "${customPrompt}"` : '';
+
     const fullPrompt = `${masterPrompt}
 
 INSTRUKSI KHUSUS ARTIKEL INI:
-- Topik / Judul Target Spesifik: "${topic}"
+- Topik / Judul Target Spesifik: "${activeTopic}"${customInstruction}
 - Niche Utama Situs Blog: "${parentNiche}"
+- Sub-Kategori Spesifik Artikel: "${detectedSubCat}"
 - Bahasa Utama: ${langInstruction}
 - Gaya Bahasa (Tone of Voice): "${tone}"
-- Target Panjang Konten: SANGAT MENDALAM MINIMAL 1400 - 1800+ KATA TEKS BACAAN MURNI INDONESIA.
+- ${lengthInstruction}
 
-PENTING: Gunakan elemen blok visual lengkap ScholarCMS (<div data-type="columns">, <div data-type="accordion-group">, <ul data-type="taskList">, <table data-type="table">, Callout boxes, Kode).
+ATURAN PENTING GENERASI:
+1. ATURAN JUDUL: DILARANG mengcopy-paste kalimat prompt panjang user sebagai judul! Buatlah JUDUL ARTIKEL yang singkat, menarik, SEO-friendly, dan profesional (Maksimal 60 Karakter).
+2. ATURAN STRUKTUR ELEARNING: Jika Gaya Penulisan atau Kedalaman adalah Elearning/Tutorial (2000+ kata), susunlah artikel dalam BAB BERURUTAN yang sistematis (Bab 1: Persiapan Environment & Install Software/NPM/PHP/XAMPP, Bab 2: Struktur Direktori Folder, Bab 3: Penulisan Kode Utama Line-by-Line, Bab 4: Pengujian Server Lokal & Tabel Troubleshooting Error, Bab 5: Peluncuran ke Server Produksi).
+3. ELEMEN VISUAL SCHOLARCMS: Gunakan elemen blok visual lengkap (<div data-type="columns">, <div data-type="accordion-group">, <ul data-type="taskList">, <table data-type="table">, Callout boxes, Kode syntax highlight).
 
 Output HARUS JSON murni tanpa pembungkus markdown backtick triple.
 Format JSON:
 {
-  "title": "Judul Artikel Relevan",
-  "slug": "judul-artikel-relevan",
+  "title": "Judul Artikel Singkat Relevan",
+  "slug": "judul-artikel-singkat-relevan",
   "excerpt": "Ringkasan artikel 2 kalimat...",
   "seoTitle": "Judul SEO Google",
   "seoDescription": "Meta Deskripsi Snippet",
   "focusKeyword": "kata kunci",
-  "category": "${parentNiche}",
+  "category": "${detectedSubCat}",
   "tags": ["Tag1", "Tag2", "Tag3"],
   "featuredImage": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
   "contentHtml": "<h2>...</h2><p>...</p>"
@@ -170,11 +261,14 @@ Format JSON:
     if (apiKey) {
       try {
         const parsed = await this.callGeminiApi({ prompt: fullPrompt, apiKey });
-        if (parsed) {
-          parsed.title = this.fitSeoTitle(parsed.title || topic);
+        if (parsed && parsed.contentHtml && typeof parsed.contentHtml === 'string' && !parsed.contentHtml.trim().startsWith('{')) {
+          parsed.category = parsed.category || detectedSubCat;
+          await dbService.ensureCategoryExists(parsed.category, parentNiche);
+          parsed.title = this.fitSeoTitle(parsed.title || activeTopic);
           parsed.seoTitle = this.fitSeoTitle(parsed.seoTitle || parsed.title);
-          parsed.excerpt = this.fitSeoExcerpt(parsed.excerpt || topic, topic);
-          parsed.seoDescription = this.fitSeoExcerpt(parsed.seoDescription || parsed.excerpt, topic);
+          parsed.excerpt = this.fitSeoExcerpt(parsed.excerpt || activeTopic, activeTopic);
+          parsed.seoDescription = this.fitSeoExcerpt(parsed.seoDescription || parsed.excerpt, activeTopic);
+          if (author) parsed.author = author;
           return parsed;
         }
       } catch (err) {
@@ -182,7 +276,9 @@ Format JSON:
       }
     }
 
-    return this.createFallbackArticle({ topic, niche, language, tone, length });
+    const fallback = this.createFallbackArticle({ topic: activeTopic, customPrompt, niche, language, tone, length, subCategory: detectedSubCat });
+    if (author) fallback.author = author;
+    return fallback;
   },
 
   fitSeoTitle(inputTitle) {
@@ -205,6 +301,58 @@ Format JSON:
       str = `Pelajari panduan lengkap mengenai ${topic || 'topik ini'} untuk meningkatkan wawasan dan strategi terbaik Anda.`;
     }
     return str;
+  },
+
+  parseSafeJson(textResponse) {
+    if (!textResponse) return null;
+    let clean = textResponse.replace(/```json/gi, '').replace(/```/g, '').trim();
+
+    try {
+      const parsed = JSON.parse(clean);
+      if (parsed && typeof parsed.contentHtml === 'string') {
+        return parsed;
+      }
+    } catch (e1) {
+      try {
+        const sanitized = clean.replace(/[\r\n]+/g, '\\n').replace(/\t/g, '\\t');
+        const parsed = JSON.parse(sanitized);
+        if (parsed && typeof parsed.contentHtml === 'string') {
+          return parsed;
+        }
+      } catch (e2) {
+        try {
+          const titleMatch = clean.match(/"title"\s*:\s*"([^"]+)"/);
+          const slugMatch = clean.match(/"slug"\s*:\s*"([^"]+)"/);
+          const excerptMatch = clean.match(/"excerpt"\s*:\s*"([^"]+)"/);
+          const categoryMatch = clean.match(/"category"\s*:\s*"([^"]+)"/);
+
+          let extractedContent = '';
+          const contentStartIdx = clean.indexOf('"contentHtml"');
+          if (contentStartIdx !== -1) {
+            const afterKey = clean.substring(contentStartIdx + 13);
+            const quoteStart = afterKey.indexOf('"');
+            if (quoteStart !== -1) {
+              let rawContent = afterKey.substring(quoteStart + 1).trim();
+              rawContent = rawContent.replace(/"\s*}\s*$/, '').replace(/"\s*,\s*"[a-zA-Z]+"\s*:[\s\S]*$/, '');
+              extractedContent = rawContent.replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\t/g, '\t');
+            }
+          }
+
+          if (titleMatch && extractedContent && !extractedContent.startsWith('{')) {
+            return {
+              title: titleMatch[1],
+              slug: slugMatch ? slugMatch[1] : '',
+              excerpt: excerptMatch ? excerptMatch[1] : '',
+              category: categoryMatch ? categoryMatch[1] : 'Teknologi',
+              contentHtml: extractedContent
+            };
+          }
+        } catch (e3) {
+          console.warn('Regex fallback extraction failed:', e3);
+        }
+      }
+    }
+    return null;
   },
 
   async callGeminiApi({ prompt, apiKey }) {
@@ -230,12 +378,8 @@ Format JSON:
           const data = await res.json();
           const textResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text;
           if (textResponse) {
-            try {
-              return JSON.parse(textResponse);
-            } catch (e) {
-              const cleanJson = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
-              return JSON.parse(cleanJson);
-            }
+            const parsed = this.parseSafeJson(textResponse);
+            if (parsed) return parsed;
           }
         }
       } catch (err) {
@@ -499,9 +643,9 @@ Format HARUS JSON array murni tanpa markdown triple backtick:
     return shuffled.slice(0, 6);
   },
 
-  createFallbackArticle({ topic, niche, language, tone, length }) {
+  createFallbackArticle({ topic, customPrompt, niche, language, tone, length, subCategory }) {
     const isEn = language === 'english';
-    const cleanTopic = topic || (isEn ? 'Modern Web Development Guide' : 'Panduan Pengembangan Web Modern');
+    const cleanTopic = this.extractCleanTitle(topic, customPrompt, language);
     const slug = cleanTopic.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
     const sampleImages = [
@@ -512,8 +656,15 @@ Format HARUS JSON array murni tanpa markdown triple backtick:
     ];
     const featImg = sampleImages[Math.floor(Math.random() * sampleImages.length)];
     const inArticleImg = 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1000&auto=format&fit=crop&q=80';
-    const cleanCategory = niche || 'Teknologi & Software Development';
-    const tagList = [cleanCategory.split(' ')[0], 'SEO', 'Tutorial', 'Google AdSense', 'Strategi 2026'];
+    const catList = Array.isArray(subCategory)
+      ? subCategory
+      : (subCategory ? [subCategory] : this.resolveSubCategory({ topic: cleanTopic, niche }));
+
+    const categoryArray = Array.isArray(catList) ? catList : [catList];
+    const cleanCategoryStr = categoryArray.join(', ');
+    dbService.ensureCategoryExists(categoryArray, niche || 'Teknologi');
+
+    const tagList = [categoryArray[0].split(' ')[0], 'SEO', 'Tutorial', 'Google AdSense', 'Strategi 2026'];
     const formattedTitle = this.fitSeoTitle(cleanTopic);
     const formattedExcerpt = this.fitSeoExcerpt(
       isEn
@@ -521,6 +672,434 @@ Format HARUS JSON array murni tanpa markdown triple backtick:
         : `Pelajari strategi mendalam dan wawasan ahli mengenai ${cleanTopic} di bidang ${niche}.`,
       cleanTopic
     );
+
+    const isElearning = (tone || '').toLowerCase().includes('elearning') || (tone || '').toLowerCase().includes('kursus') || (length || '').toLowerCase().includes('2000');
+
+    if (isElearning) {
+      if (isEn) {
+        return {
+          title: formattedTitle,
+          slug: slug,
+          excerpt: formattedExcerpt,
+          seoTitle: formattedTitle,
+          seoDescription: formattedExcerpt,
+          focusKeyword: cleanTopic.toLowerCase(),
+          category: cleanCategoryStr,
+          categories: categoryArray,
+          tags: [...tagList, 'Beginner Course', 'E-Learning', 'Full Tutorial'],
+          featuredImage: featImg,
+          contentHtml: `<h2>🎓 Full Masterclass: ${cleanTopic} from Scratch to Production</h2>
+<p>Welcome to this comprehensive, end-to-end e-learning masterclass on <strong>${cleanTopic}</strong>. Whether you are a beginner taking your first steps in modern web software engineering or an intermediate developer seeking a disciplined, production-ready reference, this course is tailored for you. You will master environment configuration, runtime engine setup (Node.js, npm, PHP 8, XAMPP, or modern stacks), relational database architecture, line-by-line programming, local server testing, error troubleshooting, and cloud deployment.</p>
+<p>Unlike surface-level guides that encourage blind copy-pasting, each chapter in this module provides in-depth technical rationale. You will understand why modern software architectures enforce clean separation of concerns, robust error handling, prepared database statements, and scalable directory conventions.</p>
+<img src="${inArticleImg}" alt="Visual Masterclass Guide for ${cleanTopic}" class="w-full max-h-[450px] object-cover rounded-2xl my-6 shadow-md border border-slate-700/20" />
+<blockquote class="p-4 my-4 rounded-xl bg-purple-500/10 border-l-4 border-purple-500 text-purple-400 font-medium">🎓 <strong>Core Module Objective:</strong> By completing this 7-chapter course, you will build a fully dynamic, database-backed web application deployed live to public cloud servers with Google AdSense readiness and top-tier security standards.</blockquote>
+
+<h2>Chapter 1: Course Roadmap, System Architecture & Technology Stack Overview</h2>
+<p>Before launching your code editor, it is paramount to understand the architectural foundation of <strong>${cleanTopic}</strong>. Modern web platforms rely on a client-server paradigm where dynamic request routing, server-side data processing, and relational persistence function in seamless harmony.</p>
+<p>In this masterclass, we will construct an enterprise-grade web application architecture comprising:</p>
+<ul data-type="taskList">
+  <li data-type="taskItem" data-checked="true"><p><strong>Client Presentation Layer:</strong> Semantic HTML5, CSS Grid/Flexbox, and progressive JavaScript for responsive, accessible user interfaces.</p></li>
+  <li data-type="taskItem" data-checked="true"><p><strong>Application Server Layer:</strong> PHP 8.x JIT Engine / Node.js runtime executing business logic, input validation, and route dispatching.</p></li>
+  <li data-type="taskItem" data-checked="true"><p><strong>Database Persistence Layer:</strong> MySQL 8.0 / MariaDB relational engine managing normalized tables with foreign key constraints.</p></li>
+</ul>
+
+<h2>Chapter 2: Detailed Software Installation &amp; Environment Setup (XAMPP, VS Code &amp; Node.js)</h2>
+<p>Setting up your development tools properly is mandatory. Below are the official download links and step-by-step installation instructions for beginners:</p>
+
+<h3>1. Installing Local Web Server (XAMPP - Apache, MySQL &amp; PHP 8)</h3>
+<p>XAMPP packs Apache web server, MariaDB/MySQL database, and PHP 8.x into a single installer. Follow these steps:</p>
+<ul data-type="taskList">
+  <li data-type="taskItem" data-checked="true"><p><strong>Step 1: Download Installer</strong> — Visit the official website <a href="https://www.apachefriends.org" target="_blank" rel="noopener noreferrer" class="text-blue-500 underline font-bold">www.apachefriends.org</a> and download the XAMPP package for PHP 8.2+ (Windows, macOS, or Linux).</p></li>
+  <li data-type="taskItem" data-checked="true"><p><strong>Step 2: Run Administrator Installer</strong> — Right-click the downloaded setup file (e.g., <code>xampp-windows-x64-8.2.12-installer.exe</code>) and choose <em>Run as Administrator</em>.</p></li>
+  <li data-type="taskItem" data-checked="true"><p><strong>Step 3: Component Selection</strong> — On the setup wizard, ensure <strong>Apache</strong>, <strong>MySQL</strong>, <strong>phpMyAdmin</strong>, and <strong>PHP 8</strong> checkboxes are selected, then click <em>Next</em>.</p></li>
+  <li data-type="taskItem" data-checked="true"><p><strong>Step 4: Installation Pathing</strong> — Keep the default destination path <code>C:\\xampp</code> (Windows) or <code>/Applications/XAMPP</code> (macOS) and proceed.</p></li>
+  <li data-type="taskItem" data-checked="true"><p><strong>Step 5: Launch Control Panel</strong> — Once the installation wizard finishes, launch <strong>XAMPP Control Panel</strong>.</p></li>
+  <li data-type="taskItem" data-checked="true"><p><strong>Step 6: Start Services</strong> — Click the <strong>Start</strong> button next to <strong>Apache</strong> (port 80/443) and <strong>MySQL</strong> (port 3306) until both badges turn green.</p></li>
+</ul>
+<img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&auto=format&fit=crop&q=80" alt="XAMPP Control Panel & Web Server Setup Setup" class="w-full max-h-[400px] object-cover rounded-2xl my-4 shadow-md border border-slate-700/20" />
+
+<h3>2. Installing Code Editor (VS Code) &amp; Version Control (Git &amp; Node.js)</h3>
+<p>Download and configure your developer toolbelt using these official download portals:</p>
+<p>• <strong>Visual Studio Code:</strong> Download from <a href="https://code.visualstudio.com" target="_blank" rel="noopener noreferrer" class="text-blue-500 underline font-bold">code.visualstudio.com</a>. Install extensions: <em>PHP Intelephense</em>, <em>Prettier</em>, and <em>GitLens</em>.</p>
+<p>• <strong>Node.js &amp; npm:</strong> Download LTS version from <a href="https://nodejs.org" target="_blank" rel="noopener noreferrer" class="text-blue-500 underline font-bold">nodejs.org</a> for modern package bundling.</p>
+<p>• <strong>Git Version Control:</strong> Download from <a href="https://git-scm.com" target="_blank" rel="noopener noreferrer" class="text-blue-500 underline font-bold">git-scm.com</a> to track your code changes.</p>
+
+<p>Verify your command-line setup by executing these commands in VS Code integrated terminal:</p>
+<pre class="bg-slate-900 text-emerald-400 p-4 rounded-2xl text-xs font-mono border border-slate-800 my-4 overflow-x-auto"># 1. Verify Node.js & npm runtime engine
+node -v
+npm -v
+
+# 2. Verify PHP engine
+php -v
+
+# 3. Create workspace project directory
+mkdir project-${slug}
+cd project-${slug}
+
+# 4. Initialize package manifest
+npm init -y</pre>
+
+<h2>Chapter 3: Relational Database Schema Design &amp; SQL Query Initialization</h2>
+<p>A robust data persistence layer is the backbone of any dynamic web application. Open phpMyAdmin at <code>http://localhost/phpmyadmin</code> or connect via MySQL Workbench to execute the initial DDL schema migration script:</p>
+<pre class="bg-slate-900 text-amber-300 p-4 rounded-2xl text-xs font-mono border border-slate-800 my-4 overflow-x-auto">-- Initialize Database Schema for ${cleanTopic}
+CREATE DATABASE IF NOT EXISTS db_${slug.replace(/[^a-z0-9]/g, '_')} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE db_${slug.replace(/[^a-z0-9]/g, '_')};
+
+-- 1. Users Table (Authentication & RBAC Roles)
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'writer', 'user') DEFAULT 'user',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- 2. Articles Table (Dynamic Content Engine)
+CREATE TABLE IF NOT EXISTS articles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    author_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) UNIQUE NOT NULL,
+    content LONGTEXT NOT NULL,
+    views INT DEFAULT 0,
+    status ENUM('published', 'draft') DEFAULT 'published',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;</pre>
+<blockquote class="p-4 my-4 rounded-xl bg-blue-500/10 border-l-4 border-blue-500 text-blue-400 font-medium">💡 <strong>Architectural Tip:</strong> Using <code>utf8mb4_unicode_ci</code> encoding ensures complete support for international character sets and emoji symbols, while <code>ENGINE=InnoDB</code> guarantees ACID transaction compliance and foreign key safety.</blockquote>
+
+<h2>Chapter 4: Project Directory Architecture &amp; Modular Folder Layout</h2>
+<p>Maintaining a clean directory layout prevents spaghetti code and accelerates team collaboration. Below is the modular folder structure for <strong>${cleanTopic}</strong>:</p>
+<div data-type="columns">
+  <div data-type="column" data-width="50%">
+    <p><strong>📂 Application Source Tree:</strong></p>
+    <p>• <code>/config</code> - Database connection &amp; global environment variables.</p>
+    <p>• <code>/includes</code> - Modular UI partials (header.php, footer.php, navbar.php).</p>
+    <p>• <code>/src/controllers</code> - Request handlers and routing logic.</p>
+    <p>• <code>/public</code> - Static assets (CSS stylesheets, JS bundles, images).</p>
+  </div>
+  <div data-type="column" data-width="50%">
+    <p><strong>📄 Core Configuration Files:</strong></p>
+    <p>• <code>package.json / composer.json</code> - Dependency management.</p>
+    <p>• <code>.env.example</code> - Environment credentials template.</p>
+    <p>• <code>.htaccess</code> - Apache rewrite rules for clean SEO URLs.</p>
+    <p>• <code>index.php</code> - Single entry-point dispatcher.</p>
+  </div>
+</div>
+
+<h2>Chapter 5: Line-by-Line Code Implementation &amp; Business Logic</h2>
+<p>Now, let's write the core application logic connecting the server to your MySQL database. Create <code>config/database.php</code> and <code>index.php</code> with the following production-grade code:</p>
+<pre class="bg-slate-900 text-sky-300 p-4 rounded-2xl text-xs font-mono border border-slate-800 my-4 overflow-x-auto">// config/database.php - PDO Database Connection
+&lt;?php
+$host = '127.0.0.1';
+$db   = 'db_${slug.replace(/[^a-z0-9]/g, '_')}';
+$user = 'root';
+$pass = '';
+$charset = 'utf8mb4';
+
+$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$options = [
+    PDO::ATTR_ERRMODE            =&gt; PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE =&gt; PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES   =&gt; false,
+];
+
+try {
+     $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (\PDOException $e) {
+     throw new \PDOException($e-&gt;getMessage(), (int)$e-&gt;getCode());
+}
+?&gt;</pre>
+<pre class="bg-slate-900 text-sky-300 p-4 rounded-2xl text-xs font-mono border border-slate-800 my-4 overflow-x-auto">// index.php - Main Dynamic Entry Point
+&lt;?php
+require_once __DIR__ . '/config/database.php';
+
+// Query Published Articles using Prepared Statements
+$stmt = $pdo-&gt;prepare("SELECT a.*, u.name as author_name FROM articles a JOIN users u ON a.author_id = u.id WHERE a.status = :status ORDER BY a.created_at DESC");
+$stmt-&gt;execute(['status' =&gt; 'published']);
+$articles = $stmt-&gt;fetchAll();
+?&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;${cleanTopic} - Dynamic Portal&lt;/title&gt;
+    &lt;link rel="stylesheet" href="/public/css/style.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;header&gt;&lt;h1&gt;${cleanTopic}&lt;/h1&gt;&lt;/header&gt;
+    &lt;main&gt;
+        &lt;?php foreach ($articles as $item): ?&gt;
+            &lt;article class="card"&gt;
+                &lt;h2&gt;&lt;?= htmlspecialchars($item['title']) ?&gt;&lt;/h2&gt;
+                &lt;p&gt;By &lt;?= htmlspecialchars($item['author_name']) ?&gt; on &lt;?= $item['created_at'] ?&gt;&lt;/p&gt;
+                &lt;div&gt;&lt;?= $item['content'] ?&gt;&lt;/div&gt;
+            &lt;/article&gt;
+        &lt;?php endforeach; ?&gt;
+    &lt;/main&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+<blockquote class="p-4 my-4 rounded-xl bg-emerald-500/10 border-l-4 border-emerald-500 text-emerald-400 font-medium">✅ <strong>Security Best Practice:</strong> Using PDO prepared statements with parameter binding (<code>$stmt-&gt;execute(['status' =&gt; 'published'])</code>) completely immune-shields your application against SQL Injection vulnerabilities.</blockquote>
+
+<h2>Chapter 6: Local Development Testing &amp; Troubleshooting Resolution Matrix</h2>
+<p>Before deploying to production, execute comprehensive local testing across common runtime edge cases. Use the diagnostic matrix below to resolve any operational errors:</p>
+<table data-type="table" class="w-full border-collapse my-4">
+  <thead>
+    <tr>
+      <th class="border p-2 bg-blue-500/10">Error Symptom</th>
+      <th class="border p-2 bg-blue-500/10">Root Cause</th>
+      <th class="border p-2 bg-blue-500/10">Resolution Steps</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="border p-2">SQLSTATE[HY000] [1045] Access denied for user 'root'@'localhost'</td>
+      <td class="border p-2">Incorrect MySQL password in <code>config/database.php</code></td>
+      <td class="border p-2">Verify MySQL credentials in XAMPP control panel and update config settings.</td>
+    </tr>
+    <tr>
+      <td class="border p-2">Port 80 or 3000 occupied by another process</td>
+      <td class="border p-2">Skype, VMware, or Node.js background process locking port</td>
+      <td class="border p-2">Run <code>npx kill-port 3000</code> or reassign port in Apache <code>httpd.conf</code> to 8080.</td>
+    </tr>
+    <tr>
+      <td class="border p-2">Fatal Error: Uncaught Error: Class 'PDO' not found</td>
+      <td class="border p-2">PHP PDO extension disabled in <code>php.ini</code></td>
+      <td class="border p-2">Open <code>php.ini</code>, uncomment <code>extension=pdo_mysql</code>, and restart Apache server.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Chapter 7: Cloud Production Deployment, Security Hardening &amp; Final Checklist</h2>
+<p>The final phase of this course is publishing your application live to cloud servers (Vercel, Netlify, DigitalOcean, or AWS):</p>
+<p><strong>Deployment Step 1: Exporting Production Database Dump</strong></p>
+<p>Export database schema from phpMyAdmin or via terminal: <code>mysqldump -u root -p db_${slug.replace(/[^a-z0-9]/g, '_')} &gt; backup.sql</code>.</p>
+<p><strong>Deployment Step 2: Push Workspace to Git &amp; Deploy</strong></p>
+<pre class="bg-slate-900 text-purple-300 p-4 rounded-2xl text-xs font-mono border border-slate-800 my-4 overflow-x-auto"># Initialize version control & commit codebase
+git init
+git add .
+git commit -m "Build: Release v1.0.0 for ${cleanTopic}"
+
+# Push to remote repository and trigger cloud build
+git remote add origin https://github.com/yourusername/project-${slug}.git
+git branch -M main
+git push -u origin main</pre>
+<blockquote class="p-4 my-4 rounded-xl bg-purple-500/10 border-l-4 border-purple-500 text-purple-400 font-medium">💡 <strong>Final Masterclass Conclusion:</strong> Congratulations! You have successfully mastered <strong>${cleanTopic}</strong> from zero to production deployment. Continue customizing components, expanding database tables, and implementing user features!</blockquote>`
+        };
+      }
+
+      return {
+        title: formattedTitle,
+        slug: slug,
+        excerpt: formattedExcerpt,
+        seoTitle: formattedTitle,
+        seoDescription: formattedExcerpt,
+        focusKeyword: cleanTopic.toLowerCase(),
+        category: cleanCategoryStr,
+        categories: categoryArray,
+        tags: [...tagList, 'Kursus Pemula', 'E-Learning', 'Full Tutorial'],
+        featuredImage: featImg,
+        contentHtml: `<h2>🎓 Masterclass Kursus Lengkap: ${cleanTopic} dari Nol sampai Online</h2>
+<p>Selamat datang di modul kursus e-learning komprehensif mengenai <strong>${cleanTopic}</strong>. Baik Anda seorang pemula yang baru melangkah ke dunia pemrograman web modern maupun pengembang tingkat lanjut yang membutuhkan panduan standar industri, kursus ini dirancang khusus untuk Anda. Anda akan menguasai konfigurasi environment, instalasi runtime engine (Node.js, npm, PHP 8, XAMPP, atau framework modern), arsitektur database relasional, pengkodean baris demi baris, pengujian server lokal, penanganan error, hingga peluncuran aplikasi ke server cloud publik.</p>
+<p>Tidak seperti panduan dangkal yang hanya menyuruh copy-paste kode, setiap bab dalam modul ini memberikan alasan arsitektur di baliknya. Anda akan memahami mengapa arsitektur software modern wajib menerapkan pemisahan logika yang bersih (*clean separation of concerns*), prepared statement database, penanganan exception error, dan struktur folder yang terorganisir.</p>
+<img src="${inArticleImg}" alt="Visual Panduan Masterclass ${cleanTopic}" class="w-full max-h-[450px] object-cover rounded-2xl my-6 shadow-md border border-slate-700/20" />
+<blockquote class="p-4 my-4 rounded-xl bg-purple-500/10 border-l-4 border-purple-500 text-purple-400 font-medium">🎓 <strong>Tujuan Utama Modul:</strong> Setelah menyelesaikan kursus 7 bab ini, Anda akan memiliki aplikasi web dinamis berbasis database yang berjalan sempurna di server cloud publik, siap dimonetisasi dengan Google AdSense, dan memenuhi standar keamanan tertinggi.</blockquote>
+
+<h2>Bab 1: Roadmap Kursus, Arsitektur Sistem & Overview Technology Stack</h2>
+<p>Sebelum membuka editor kode, sangat penting untuk memahami fondasi arsitektur dari <strong>${cleanTopic}</strong>. Platform web modern mengandalkan paradigma *client-server* tempat routing permintaan dinamis, pemrosesan data sisi server, dan database relasional beroperasi secara harmonis.</p>
+<p>Dalam masterclass ini, kita akan membangun arsitektur aplikasi web tingkat industri yang terdiri dari:</p>
+<ul data-type="taskList">
+  <li data-type="taskItem" data-checked="true"><p><strong>Lapisan Presentasi Client:</strong> HTML5 Semantik, CSS Grid/Flexbox, dan JavaScript progresif untuk antarmuka yang responsif dan dapat diakses.</p></li>
+  <li data-type="taskItem" data-checked="true"><p><strong>Lapisan Server Aplikasi:</strong> Engine PHP 8.x JIT / Node.js yang mengeksekusi logika bisnis, validasi input, dan dispatching route.</p></li>
+  <li data-type="taskItem" data-checked="true"><p><strong>Lapisan Database Relasional:</strong> Engine MySQL 8.0 / MariaDB yang mengelola tabel ter-normalisasi dengan relasi foreign key.</p></li>
+</ul>
+
+<h2>Bab 2: Panduan Instalasi Software &amp; Persiapan Environment Lengkap (XAMPP, VS Code &amp; Node.js)</h2>
+<p>Menyiapkan lingkungan kerja (*development environment*) yang tepat adalah syarat wajib sebelum Anda mulai menulis kode. Berikut adalah tautan resmi situs download dan panduan langkah demi langkah bagi pemula dari nol sampai bisa:</p>
+
+<h3>1. Cara Mengunduh &amp; Menginstal Server Web Lokal (XAMPP - Apache, MySQL &amp; PHP 8)</h3>
+<p>XAMPP menggabungkan web server Apache, database MariaDB/MySQL, dan engine PHP 8.x dalam satu installer praktis. Ikuti petunjuk instalasi berikut:</p>
+<ul data-type="taskList">
+  <li data-type="taskItem" data-checked="true"><p><strong>Langkah 1: Unduh File Installer Resmi</strong> — Buka situs web resmi Apache Friends di <a href="https://www.apachefriends.org" target="_blank" rel="noopener noreferrer" class="text-blue-500 underline font-bold">www.apachefriends.org</a> lalu klik tombol download paket XAMPP versi PHP 8.2+ sesuai sistem operasi Anda (Windows, macOS, atau Linux).</p></li>
+  <li data-type="taskItem" data-checked="true"><p><strong>Langkah 2: Jalankan Installer sebagai Administrator</strong> — Buka folder <em>Downloads</em>, klik kanan pada file setup yang terunduh (contoh: <code>xampp-windows-x64-8.2.12-installer.exe</code>) lalu pilih <em>Run as Administrator</em>. Jika muncul pop-up peringatan User Account Control (UAC), klik <em>OK</em>.</p></li>
+  <li data-type="taskItem" data-checked="true"><p><strong>Langkah 3: Pilih Komponen Wajib</strong> — Pada jendela wizard <em>Select Components</em>, pastikan kotak centang komponen <strong>Apache</strong>, <strong>MySQL</strong>, <strong>phpMyAdmin</strong>, dan <strong>PHP 8</strong> dalam keadaan tercentang, lalu klik <em>Next</em>.</p></li>
+  <li data-type="taskItem" data-checked="true"><p><strong>Langkah 4: Tentukan Lokasi Instalasi</strong> — Biarkan lokasi direktori bawaan di <code>C:\\xampp</code> (untuk Windows) atau <code>/Applications/XAMPP</code> (untuk macOS), kemudian klik <em>Next</em> hingga proses instalasi berjalan (sekitar 2–5 menit).</p></li>
+  <li data-type="taskItem" data-checked="true"><p><strong>Langkah 5: Buka XAMPP Control Panel</strong> — Setelah wizard selesai, centang kotak <em>Do you want to start the Control Panel now?</em> dan klik <em>Finish</em>.</p></li>
+  <li data-type="taskItem" data-checked="true"><p><strong>Langkah 6: Jalankan Service Server</strong> — Pada jendela <strong>XAMPP Control Panel</strong>, klik tombol <strong>Start</strong> di samping baris <strong>Apache</strong> (port 80/443) dan baris <strong>MySQL</strong> (port 3306) hingga kedua lencana indikator berubah menjadi warna hijau.</p></li>
+</ul>
+<img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&auto=format&fit=crop&q=80" alt="Panduan Visual XAMPP Control Panel & Web Server Setup" class="w-full max-h-[400px] object-cover rounded-2xl my-4 shadow-md border border-slate-700/20" />
+
+<h3>2. Instalasi Code Editor (VS Code) &amp; Tools Pengembang (Git &amp; Node.js)</h3>
+<p>Unduh perangkat lunak pengembang tambahan melalui tautan situs resmi berikut:</p>
+<p>• <strong>Visual Studio Code:</strong> Unduh gratis dari <a href="https://code.visualstudio.com" target="_blank" rel="noopener noreferrer" class="text-blue-500 underline font-bold">code.visualstudio.com</a>. Setelah diinstal, pasang ekstensi wajib: <em>PHP Intelephense</em>, <em>Prettier</em>, dan <em>GitLens</em>.</p>
+<p>• <strong>Node.js &amp; npm:</strong> Unduh versi LTS dari <a href="https://nodejs.org" target="_blank" rel="noopener noreferrer" class="text-blue-500 underline font-bold">nodejs.org</a> untuk pengelola paket JavaScript &amp; bundler modern.</p>
+<p>• <strong>Git Version Control:</strong> Unduh dari <a href="https://git-scm.com" target="_blank" rel="noopener noreferrer" class="text-blue-500 underline font-bold">git-scm.com</a> untuk melacak riwayat perubahan kode Anda.</p>
+
+<p>Verifikasi lingkungan kerja terminal Anda dengan menjalankan perintah berikut di terminal terintegrasi VS Code:</p>
+<pre class="bg-slate-900 text-emerald-400 p-4 rounded-2xl text-xs font-mono border border-slate-800 my-4 overflow-x-auto"># 1. Periksa instalasi Node.js dan npm
+node -v
+npm -v
+
+# 2. Periksa instalasi engine PHP 8
+php -v
+
+# 3. Buat direktori proyek baru
+mkdir project-${slug}
+cd project-${slug}
+
+# 4. Inisialisasi manifest proyek npm
+npm init -y</pre>
+
+<h2>Bab 3: Perancangan Skema Database Relasional & Query SQL</h2>
+<p>Database yang tangguh adalah tulang punggung dari aplikasi web dinamis. Buka phpMyAdmin di <code>http://localhost/phpmyadmin</code> atau hubungkan via MySQL Workbench untuk mengeksekusi skrip migrasi skema SQL berikut:</p>
+<pre class="bg-slate-900 text-amber-300 p-4 rounded-2xl text-xs font-mono border border-slate-800 my-4 overflow-x-auto">-- Inisialisasi Skema Database untuk ${cleanTopic}
+CREATE DATABASE IF NOT EXISTS db_${slug.replace(/[^a-z0-9]/g, '_')} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE db_${slug.replace(/[^a-z0-9]/g, '_')};
+
+-- 1. Tabel Users (Otentikasi & Peran Hak Akses)
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'writer', 'user') DEFAULT 'user',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- 2. Tabel Artikel (Engine Konten Dinamis)
+CREATE TABLE IF NOT EXISTS articles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    author_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) UNIQUE NOT NULL,
+    content LONGTEXT NOT NULL,
+    views INT DEFAULT 0,
+    status ENUM('published', 'draft') DEFAULT 'published',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;</pre>
+<blockquote class="p-4 my-4 rounded-xl bg-blue-500/10 border-l-4 border-blue-500 text-blue-400 font-medium">💡 <strong>Tips Arsitektur:</strong> Penggunaan enkoding <code>utf8mb4_unicode_ci</code> menjamin dukungan penuh terhadap karakter internasional dan emoji, sedangkan <code>ENGINE=InnoDB</code> memastikan keamanan transaksi database ACID dan integritas relasi foreign key.</blockquote>
+
+<h2>Bab 4: Struktur Direktori Proyek & Layout Folder Modular</h2>
+<p>Memiliki struktur folder yang rapi akan mencegah *spaghetti code* dan mempermudah pengembangan aplikasi skala besar. Berikut adalah susunan folder modular untuk <strong>${cleanTopic}</strong>:</p>
+<div data-type="columns">
+  <div data-type="column" data-width="50%">
+    <p><strong>📂 Direktori Kode Sumber Utama:</strong></p>
+    <p>• <code>/config</code> - Koneksi database &amp; variabel lingkungan global.</p>
+    <p>• <code>/includes</code> - Komponen UI modular (header.php, footer.php, navbar.php).</p>
+    <p>• <code>/src/controllers</code> - Pengelola logika bisnis &amp; routing request.</p>
+    <p>• <code>/public</code> - Aset statis (stylesheet CSS, JS bundle, gambar).</p>
+  </div>
+  <div data-type="column" data-width="50%">
+    <p><strong>📄 Berkas Konfigurasi Penting:</strong></p>
+    <p>• <code>package.json / composer.json</code> - Manajemen dependensi.</p>
+    <p>• <code>.env.example</code> - Berkas template kredensial environment.</p>
+    <p>• <code>.htaccess</code> - Aturan rewrite Apache untuk URL SEO friendly.</p>
+    <p>• <code>index.php</code> - Single entry-point aplikasi.</p>
+  </div>
+</div>
+
+<h2>Bab 5: Penulisan Kode Utama Line-by-Line & Logika Aplikasi</h2>
+<p>Sekarang mari kita bangun logika inti yang menghubungkan server aplikasi ke database MySQL. Buat berkas <code>config/database.php</code> dan <code>index.php</code> dengan kode standar industri berikut:</p>
+<pre class="bg-slate-900 text-sky-300 p-4 rounded-2xl text-xs font-mono border border-slate-800 my-4 overflow-x-auto">// config/database.php - Koneksi Database PDO
+&lt;?php
+$host = '127.0.0.1';
+$db   = 'db_${slug.replace(/[^a-z0-9]/g, '_')}';
+$user = 'root';
+$pass = '';
+$charset = 'utf8mb4';
+
+$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$options = [
+    PDO::ATTR_ERRMODE            =&gt; PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE =&gt; PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES   =&gt; false,
+];
+
+try {
+     $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (\PDOException $e) {
+     throw new \PDOException($e-&gt;getMessage(), (int)$e-&gt;getCode());
+}
+?&gt;</pre>
+<pre class="bg-slate-900 text-sky-300 p-4 rounded-2xl text-xs font-mono border border-slate-800 my-4 overflow-x-auto">// index.php - Entry Point Dinamis Utama
+&lt;?php
+require_once __DIR__ . '/config/database.php';
+
+// Ambil Artikel Terbit Menggunakan Prepared Statement
+$stmt = $pdo-&gt;prepare("SELECT a.*, u.name as author_name FROM articles a JOIN users u ON a.author_id = u.id WHERE a.status = :status ORDER BY a.created_at DESC");
+$stmt-&gt;execute(['status' =&gt; 'published']);
+$articles = $stmt-&gt;fetchAll();
+?&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang="id"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;${cleanTopic} - Portal Dinamis&lt;/title&gt;
+    &lt;link rel="stylesheet" href="/public/css/style.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;header&gt;&lt;h1&gt;${cleanTopic}&lt;/h1&gt;&lt;/header&gt;
+    &lt;main&gt;
+        &lt;?php foreach ($articles as $item): ?&gt;
+            &lt;article class="card"&gt;
+                &lt;h2&gt;&lt;?= htmlspecialchars($item['title']) ?&gt;&lt;/h2&gt;
+                &lt;p&gt;Oleh &lt;?= htmlspecialchars($item['author_name']) ?&gt; pada &lt;?= $item['created_at'] ?&gt;&lt;/p&gt;
+                &lt;div&gt;&lt;?= $item['content'] ?&gt;&lt;/div&gt;
+            &lt;/article&gt;
+        &lt;?php endforeach; ?&gt;
+    &lt;/main&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+<blockquote class="p-4 my-4 rounded-xl bg-emerald-500/10 border-l-4 border-emerald-500 text-emerald-400 font-medium">✅ <strong>Best Practice Keamanan:</strong> Penggunaan PDO Prepared Statements dengan ikatan parameter (<code>$stmt-&gt;execute(['status' =&gt; 'published'])</code>) secara 100% melindungi aplikasi Anda dari celah peretasan SQL Injection.</blockquote>
+
+<h2>Bab 6: Pengujian Server Lokal & Matriks Penanganan Troubleshooting Error</h2>
+<p>Sebelum mempublikasikan aplikasi ke server produksi, lakukan pengujian menyeluruh di lingkungan lokal. Gunakan tabel matriks penanganan error berikut jika menemukan kendala operasional:</p>
+<table data-type="table" class="w-full border-collapse my-4">
+  <thead>
+    <tr>
+      <th class="border p-2 bg-blue-500/10">Gejala Error Umum</th>
+      <th class="border p-2 bg-blue-500/10">Penyebab Utama</th>
+      <th class="border p-2 bg-blue-500/10">Solusi Langkah Perbaikan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="border p-2">SQLSTATE[HY000] [1045] Access denied for user 'root'@'localhost'</td>
+      <td class="border p-2">Password MySQL di <code>config/database.php</code> tidak sesuai</td>
+      <td class="border p-2">Buka XAMPP Control Panel dan perbarui kredensial password di file config.</td>
+    </tr>
+    <tr>
+      <td class="border p-2">Port 80 atau 3000 terpakai service lain</td>
+      <td class="border p-2">Skype, VMware, atau Node.js mengunci port tersebut</td>
+      <td class="border p-2">Jalankan perintah <code>npx kill-port 3000</code> atau ubah port di <code>httpd.conf</code> Apache.</td>
+    </tr>
+    <tr>
+      <td class="border p-2">Fatal Error: Uncaught Error: Class 'PDO' not found</td>
+      <td class="border p-2">Ekstensi PHP PDO belum diaktifkan di file <code>php.ini</code></td>
+      <td class="border p-2">Buka berkas <code>php.ini</code>, hilangkan tanda titik koma pada <code>extension=pdo_mysql</code>, lalu restart Apache.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Bab 7: Peluncuran ke Server Produksi, Keamanan & Checklist Akhir</h2>
+<p>Tahap akhir dari kursus ini adalah mempublikasikan aplikasi Anda secara live ke server cloud (Vercel, Netlify, VPS Serverless, atau cPanel):</p>
+<p><strong>Langkah 1: Export Database Dump Produksi</strong></p>
+<p>Export skema dan data database dari phpMyAdmin atau jalankan di terminal: <code>mysqldump -u root -p db_${slug.replace(/[^a-z0-9]/g, '_')} &gt; backup.sql</code>.</p>
+<p><strong>Langkah 2: Push Repository ke Git & Deploy</strong></p>
+<pre class="bg-slate-900 text-purple-300 p-4 rounded-2xl text-xs font-mono border border-slate-800 my-4 overflow-x-auto"># Inisialisasi Git & commit seluruh kode sumber
+git init
+git add .
+git commit -m "Release: Versi 1.0.0 ${cleanTopic}"
+
+# Push ke repository remote dan jalankan cloud build
+git remote add origin https://github.com/username-anda/project-${slug}.git
+git branch -M main
+git push -u origin main</pre>
+<blockquote class="p-4 my-4 rounded-xl bg-purple-500/10 border-l-4 border-purple-500 text-purple-400 font-medium">💡 <strong>Kesimpulan Masterclass:</strong> Selamat! Anda telah berhasil menguasai <strong>${cleanTopic}</strong> dari nol hingga tahap peluncuran produksi secara online. Silakan kembangkan fitur lanjutan sesuai kebutuhan aplikasi Anda!</blockquote>`
+      };
+    }
 
     if (isEn) {
       return {
@@ -530,7 +1109,8 @@ Format HARUS JSON array murni tanpa markdown triple backtick:
         seoTitle: formattedTitle,
         seoDescription: formattedExcerpt,
         focusKeyword: cleanTopic.toLowerCase(),
-        category: cleanCategory,
+        category: cleanCategoryStr,
+        categories: categoryArray,
         tags: tagList,
         featuredImage: featImg,
         contentHtml: `<h2>1. Understanding the Foundations of ${cleanTopic}</h2>
@@ -628,7 +1208,8 @@ Format HARUS JSON array murni tanpa markdown triple backtick:
       seoTitle: formattedTitle,
       seoDescription: formattedExcerpt,
       focusKeyword: cleanTopic.toLowerCase(),
-      category: cleanCategory,
+      category: cleanCategoryStr,
+      categories: categoryArray,
       tags: tagList,
       featuredImage: featImg,
       contentHtml: `<h2>1. Memahami Landasan Utama & Filosofi ${cleanTopic}</h2>

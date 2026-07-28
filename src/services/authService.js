@@ -150,6 +150,31 @@ export const authService = {
     return false;
   },
 
+  async updateUserProfile(userId, profileData) {
+    if (isFirebaseConfigured() && db && userId) {
+      try {
+        await updateDoc(doc(db, 'users', userId), profileData);
+        if (activeUser && activeUser.id === userId) {
+          activeUser = { ...activeUser, ...profileData };
+        }
+        return { success: true, user: activeUser };
+      } catch (e) {
+        console.error('Firebase updateUserProfile error:', e);
+        return { success: false, error: e.message };
+      }
+    }
+    // Local storage fallback
+    if (activeUser) {
+      activeUser = { ...activeUser, ...profileData };
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('scholarcms_active_user', JSON.stringify(activeUser));
+        } catch (err) {}
+      }
+    }
+    return { success: true, user: activeUser };
+  },
+
   async switchRole(role) {
     // Fetch first user with the specified role from Firestore.
     if (isFirebaseConfigured() && db) {

@@ -4,19 +4,27 @@ import { ArrowRight, Clock, Sparkles } from 'lucide-react';
 export default function HeroFeatured({ post }) {
   if (!post) return null;
 
+  const categoryList = Array.isArray(post.categories) && post.categories.length > 0
+    ? post.categories
+    : (typeof post.category === 'string' && post.category
+        ? post.category.split(',').map(c => c.trim()).filter(Boolean)
+        : [post.category || 'Umum']);
+
   return (
     <div className="relative rounded-3xl overflow-hidden mb-12 border border-[var(--border-color)] bg-[var(--bg-surface)] shadow-2xl group">
       <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[420px]">
         
         <div className="lg:col-span-7 p-8 sm:p-12 flex flex-col justify-between z-10">
           <div>
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex flex-wrap items-center gap-2 mb-6">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/20">
                 <Sparkles className="w-3.5 h-3.5" /> Artikel Utama
               </span>
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-[var(--bg-primary)] text-[var(--text-muted)] border border-[var(--border-color)]">
-                {post.category}
-              </span>
+              {categoryList.map((cat, idx) => (
+                <span key={idx} className="px-3 py-1 rounded-full text-xs font-medium bg-[var(--bg-primary)] text-[var(--text-muted)] border border-[var(--border-color)]">
+                  {cat}
+                </span>
+              ))}
             </div>
 
             <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[var(--text-main)] mb-4 group-hover:text-blue-500 transition-colors leading-tight">

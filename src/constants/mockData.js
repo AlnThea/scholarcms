@@ -1,8 +1,12 @@
 export const INITIAL_CATEGORIES = [
-  { id: 'cat-1', name: 'Web Development', slug: 'web-development', color: '#2563eb', description: 'Panduan dan tutorial seputar React, Next.js, & CSS modern.' },
-  { id: 'cat-2', name: 'Firebase & Cloud', slug: 'firebase-cloud', color: '#f59e0b', description: 'Arsitektur database Firestore, Auth, dan Serverless Functions.' },
-  { id: 'cat-3', name: 'UI & UX Design', slug: 'ui-ux-design', color: '#ec4899', description: 'Prinsip desain antarmuka, glassmorphism, dan sistem desain.' },
-  { id: 'cat-4', name: 'AI & Machine Learning', slug: 'ai-machine-learning', color: '#8b5cf6', description: 'Penerapan AI Generatif dalam aplikasi web modern.' }
+  { id: 'cat-1', name: 'Web Development', slug: 'web-development', color: '#2563eb', description: 'Panduan dan tutorial seputar React, Next.js, & WebAssembly.' },
+  { id: 'cat-2', name: 'Artificial Intelligence', slug: 'artificial-intelligence', color: '#8b5cf6', description: 'Penerapan AI Generatif, Agentic AI, & Arsitektur LLM.' },
+  { id: 'cat-3', name: 'Cybersecurity & Privacy', slug: 'cybersecurity-privacy', color: '#ef4444', description: 'Arsitektur Zero-Trust, Otentikasi, dan Keamanan Cloud.' },
+  { id: 'cat-4', name: 'Cloud & Infrastructure', slug: 'cloud-infrastructure', color: '#f59e0b', description: 'Serverless Edge Functions, Multi-Cloud, & DevOps.' },
+  { id: 'cat-5', name: 'UI & UX Design', slug: 'ui-ux-design', color: '#ec4899', description: 'Prinsip desain antarmuka, glassmorphism, dan sistem desain.' },
+  { id: 'cat-6', name: 'Fintech & Cryptography', slug: 'fintech-cryptography', color: '#10b981', description: 'Teknologi keuangan, blockchain, dan enkripsi data.' },
+  { id: 'cat-7', name: 'DevOps & Platform', slug: 'devops-platform', color: '#06b6d4', description: 'Otomasi platform engineering dan CI/CD pipeline.' },
+  { id: 'cat-8', name: 'Mobile Apps & Frameworks', slug: 'mobile-apps', color: '#3b82f6', description: 'Pengembangan aplikasi mobile modern dan lintas platform.' }
 ];
 
 export const INITIAL_POSTS = [
@@ -62,7 +66,7 @@ export const INITIAL_POSTS = [
     title: 'Implementasi AI Assistant dalam Editor Artikel Visual Block Canvas',
     slug: 'implementasi-ai-assistant-editor-gutenberg',
     excerpt: 'Bagaimana kecerdasan buatan membantu kreator konten dalam menghasilkan draft artikel, memeriksa tata bahasa, dan membuat ringkasan otomatis.',
-    category: 'AI & Machine Learning',
+    category: 'Artificial Intelligence',
     tags: ['AI', 'Visual Editor', 'Content Creation'],
     featuredImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
     status: 'published',
@@ -83,7 +87,7 @@ export const INITIAL_POSTS = [
     title: 'Panduan Strategi SEO Modern & Algoritma Google Terbaru 2026',
     slug: 'panduan-strategi-seo-modern-algoritma-google-2026',
     excerpt: 'Pelajari optimasi kata kunci, kesehatan meta description, dan struktur artikel yang lulus audit SEO 100/100.',
-    category: 'Web Development',
+    category: 'Cloud & Infrastructure',
     tags: ['SEO', 'Optimization', 'Google', 'ScholarCMS'],
     featuredImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
     status: 'scheduled',

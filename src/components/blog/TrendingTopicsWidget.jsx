@@ -11,7 +11,12 @@ export function CategoryTopicsWidget({
 }) {
   // Count articles per category
   const categoryCounts = categories.map((cat) => {
-    const count = posts.filter((p) => p.category === cat.name).length;
+    const count = posts.filter((p) => {
+      const pCats = Array.isArray(p.categories) && p.categories.length > 0
+        ? p.categories
+        : (typeof p.category === 'string' && p.category ? p.category.split(',').map(s => s.trim()) : [p.category]);
+      return pCats.includes(cat.name) || p.category === cat.name;
+    }).length;
     return { ...cat, count };
   });
 

@@ -249,9 +249,9 @@ export default function RightMetaSidebar() {
                 onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'; }}
               />
               <div className="min-w-0 flex-1">
-                <span className="block text-[9px] font-bold uppercase tracking-wider text-blue-500">Pengarang Otomatis:</span>
-                <span className="block font-extrabold text-xs text-[var(--text-main)] truncate">{author?.name || 'Ernst Senior Dev'}</span>
-                <span className="block text-[10px] text-[var(--text-subtle)] truncate">{author?.role || 'CMS Administrator'}</span>
+                <span className="block text-[9px] font-bold uppercase tracking-wider text-blue-500">Pengarang Artikel (Author):</span>
+                <span className="block font-extrabold text-xs text-[var(--text-main)] truncate">{author?.name || user?.name || 'Penulis ScholarCMS'}</span>
+                <span className="block text-[10px] text-[var(--text-subtle)] truncate">{author?.role || user?.titleRole || user?.role || 'Author'}</span>
               </div>
             </div>
 
@@ -454,16 +454,12 @@ export default function RightMetaSidebar() {
             <div className="p-3.5 rounded-2xl border border-blue-500/20 bg-blue-500/5 space-y-2">
               <div className="flex items-center justify-between border-b border-blue-500/10 pb-2">
                 <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-500 flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-blue-500" /> Kredensial AdSense Global
+                  <ShieldCheck className="w-3.5 h-3.5 text-blue-500" /> Kredensial AdSense Situs
                 </span>
-                {role === 'admin' ? (
+                {role === 'admin' && (
                   <Link href="/dashboard/settings" className="text-[9px] font-bold text-blue-500 hover:underline flex items-center gap-1">
                     <SettingsIcon className="w-3 h-3" /> Kelola (Admin)
                   </Link>
-                ) : (
-                  <span className="text-[9px] px-2 py-0.5 rounded-full bg-blue-500/10 font-bold text-blue-400">
-                    Otomatis dari Admin
-                  </span>
                 )}
               </div>
               <div className="text-[11px] text-[var(--text-muted)] space-y-1">
@@ -474,7 +470,7 @@ export default function RightMetaSidebar() {
                   </span>
                 </div>
                 <p className="text-[10px] opacity-75">
-                  Setelan Publisher ID dan Slot Iklan Utama dikelola terpusat oleh Admin di menu Pengaturan CMS.
+                  Iklan disunting dan dikelola secara otomatis terpusat dari Halaman Pengaturan CMS.
                 </p>
               </div>
             </div>
@@ -525,20 +521,6 @@ export default function RightMetaSidebar() {
                   </Select>
                 </div>
 
-                {/* Optional Custom Ad Slot Override */}
-                <div>
-                  <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">
-                    Custom Slot ID Kustom (Opsional Override)
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="Kosongkan jika ingin memakai Slot ID default Admin..."
-                    value={adSlot}
-                    onChange={(e) => setAdSlot(e.target.value)}
-                    helperText="Gunakan jika artikel ini membutuhkan unit iklan dengan ukuran kustom."
-                  />
-                </div>
-
                 {/* Sponsored Post Partnership Badge */}
                 <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] flex items-center justify-between gap-3">
                   <div>
@@ -551,16 +533,6 @@ export default function RightMetaSidebar() {
                     onChange={(e) => setIsSponsored(e.target.checked)}
                     className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
                   />
-                </div>
-
-                {/* AdSense Live Slot Mockup Card */}
-                <div className="p-4 rounded-xl border border-dashed border-emerald-500/40 bg-emerald-500/5 text-center space-y-1">
-                  <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider block">
-                    ⚡ Tag Tayangan AdSense ({adPlacement.toUpperCase()})
-                  </span>
-                  <div className="py-3 px-4 bg-emerald-500/10 rounded-lg text-emerald-600 dark:text-emerald-400 font-mono text-[10px] truncate">
-                    ins class="adsbygoogle" client="{globalAdSettings?.adClient || adClient || 'ca-pub-xxx'}" slot="{adSlot || globalAdSettings?.inArticleAdSlot || '1234567890'}"
-                  </div>
                 </div>
 
               </div>

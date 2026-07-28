@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
 
 const MetaSidebarContext = createContext();
 
@@ -11,6 +12,7 @@ const DEFAULT_AUTHOR = {
 };
 
 export function MetaSidebarProvider({ children }) {
+  const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [excerpt, setExcerpt] = useState('');
@@ -21,7 +23,26 @@ export function MetaSidebarProvider({ children }) {
   const [readTime, setReadTime] = useState('5 min read');
   const [publishedAt, setPublishedAt] = useState('');
   const [views, setViews] = useState(0);
-  const [author, setAuthor] = useState(DEFAULT_AUTHOR);
+
+  const getUserAuthor = (u) => {
+    if (u && u.name) {
+      return {
+        name: u.name,
+        avatar: u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+        role: u.titleRole || (u.role === 'admin' ? 'Chief Software Architect' : u.role === 'writer' ? 'Senior Tech Writer' : 'Content Contributor')
+      };
+    }
+    return DEFAULT_AUTHOR;
+  };
+
+  const [author, setAuthor] = useState(() => getUserAuthor(user));
+
+  useEffect(() => {
+    if (user && user.name) {
+      const activeUserAuthor = getUserAuthor(user);
+      setAuthor(prev => (!prev || prev.name === 'Ernst Senior Dev' || !prev.name ? activeUserAuthor : prev));
+    }
+  }, [user]);
 
   // SEO Pro States
   const [seoTitle, setSeoTitle] = useState('');
@@ -66,7 +87,7 @@ export function MetaSidebarProvider({ children }) {
     setReadTime('5 min read');
     setPublishedAt(new Date().toISOString().slice(0, 16));
     setViews(0);
-    setAuthor(DEFAULT_AUTHOR);
+    setAuthor(getUserAuthor(user));
     setEditorViewMode('editor');
 
     // Reset SEO & AdSense
@@ -94,7 +115,7 @@ export function MetaSidebarProvider({ children }) {
     setReadTime(post.readTime || '5 min read');
     setPublishedAt(post.publishedAt ? new Date(post.publishedAt).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16));
     setViews(post.views || 0);
-    setAuthor(post.author || DEFAULT_AUTHOR);
+    setAuthor(post.author || getUserAuthor(user));
 
     // Load SEO & AdSense
     setSeoTitle(post.seoTitle || post.title || '');

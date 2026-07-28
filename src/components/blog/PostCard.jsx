@@ -4,6 +4,12 @@ import { Clock, Eye, ArrowUpRight } from 'lucide-react';
 export default function PostCard({ post }) {
   if (!post) return null;
 
+  const categoryList = Array.isArray(post.categories) && post.categories.length > 0
+    ? post.categories
+    : (typeof post.category === 'string' && post.category
+        ? post.category.split(',').map(c => c.trim()).filter(Boolean)
+        : [post.category || 'Umum']);
+
   return (
     <article className="group flex flex-col h-full rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] overflow-hidden hover-lift transition-all">
       <div className="relative aspect-[16/9] overflow-hidden bg-[var(--bg-primary)]">
@@ -12,10 +18,12 @@ export default function PostCard({ post }) {
           alt={post.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
-        <div className="absolute top-3 left-3">
-          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-black/60 backdrop-blur-md text-white border border-white/20 shadow-sm">
-            {post.category}
-          </span>
+        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 max-w-[88%] z-10">
+          {categoryList.map((cat, idx) => (
+            <span key={idx} className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-black/60 backdrop-blur-md text-white border border-white/20 shadow-sm">
+              {cat}
+            </span>
+          ))}
         </div>
       </div>
 

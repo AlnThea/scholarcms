@@ -19,7 +19,13 @@ export default function ModernTheme({
   customizations = {}
 }) {
   const filteredPosts = posts.filter(post => {
-    const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
+    const postCatArray = Array.isArray(post.categories) && post.categories.length > 0
+      ? post.categories
+      : (typeof post.category === 'string' && post.category
+          ? post.category.split(',').map(s => s.trim()).filter(Boolean)
+          : [post.category]);
+
+    const matchesCategory = selectedCategory === 'All' || postCatArray.includes(selectedCategory) || post.category === selectedCategory;
     const query = searchQuery.trim().toLowerCase();
 
     let matchesSearch = true;

@@ -276,15 +276,31 @@ export const dbService = {
 
   // CATEGORIES
   async getCategories() {
+    let raw = [];
     if (isFirebaseConfigured()) {
       try {
         const snap = await getDocs(collection(db, 'categories'));
         if (!snap.empty) {
-          return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          raw = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         }
       } catch (err) {}
     }
-    return getLocal('categories', INITIAL_CATEGORIES);
+    if (raw.length === 0) {
+      raw = getLocal('categories', INITIAL_CATEGORIES);
+    }
+    // Deduplicate by lowercase name to ensure no duplicate category buttons on Homepage
+    const uniqueMap = new Map();
+    raw.forEach(cat => {
+      if (cat && cat.name) {
+        const key = cat.name.trim().toLowerCase();
+        if (!uniqueMap.has(key)) {
+          uniqueMap.set(key, cat);
+        }
+      }
+    });
+    const result = Array.from(uniqueMap.values());
+    setLocal('categories', result);
+    return result;
   },
 
   async createCategory(catData) {
@@ -316,7 +332,11 @@ export const dbService = {
       const idx = cats.findIndex(c => c.id === catData.id);
       if (idx !== -1) cats[idx] = { ...cats[idx], ...payload };
     } else {
-      cats.push({ id: `cat-${Date.now()}`, ...payload });
+      // Prevent duplicate insertion
+      const existsIdx = cats.findIndex(c => c.name.toLowerCase() === catData.name.toLowerCase());
+      if (existsIdx === -1) {
+        cats.push({ id: `cat-${Date.now()}`, ...payload });
+      }
     }
     setLocal('categories', cats);
     return cats;
@@ -331,6 +351,35 @@ export const dbService = {
     let cats = getLocal('categories', INITIAL_CATEGORIES);
     cats = cats.filter(c => c.id !== id);
     setLocal('categories', cats);
+    return true;
+  },
+
+  async ensureCategoryExists(categoryInput, parentNiche = 'Teknologi') {
+    if (!categoryInput) return null;
+    const catList = Array.isArray(categoryInput)
+      ? categoryInput
+      : String(categoryInput).split(',').map(s => s.trim()).filter(Boolean);
+
+    for (const catName of catList) {
+      const cleanName = catName.trim();
+      if (!cleanName) continue;
+      try {
+        const cats = await this.getCategories();
+        const exists = cats.some(c => c.name.toLowerCase() === cleanName.toLowerCase());
+        if (!exists) {
+          const paletteColors = ['#8b5cf6', '#2563eb', '#ef4444', '#f59e0b', '#ec4899', '#10b981', '#06b6d4', '#3b82f6', '#84cc16', '#a855f7'];
+          const randomColor = paletteColors[Math.floor(Math.random() * paletteColors.length)];
+          await this.saveCategory({
+            name: cleanName,
+            slug: cleanName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+            color: randomColor,
+            description: `Sub-kategori ${cleanName} dalam payung ${parentNiche}`
+          });
+        }
+      } catch (e) {
+        console.warn('Failed to auto-create category:', e);
+      }
+    }
     return true;
   },
 
