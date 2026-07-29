@@ -14,6 +14,7 @@ export default function StaticPageDetail({ params }) {
   const { t, language } = useLanguage();
   const isEn = language === 'en';
   const [page, setPage] = useState(null);
+  const [siteTitle, setSiteTitle] = useState('ByteLab');
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
@@ -24,12 +25,15 @@ export default function StaticPageDetail({ params }) {
         dbService.getPageBySlug(slug),
         dbService.getGeneralSettings()
       ]);
+      if (genSettings?.siteTitle) {
+        setSiteTitle(genSettings.siteTitle);
+      }
       if (fetchedPage) {
         setPage(fetchedPage);
-        const siteTitle = genSettings?.siteTitle || '';
+        const currentSiteTitle = genSettings?.siteTitle || siteTitle;
         if (typeof document !== 'undefined') {
           const displayTitle = translateLabel(fetchedPage.title, language);
-          document.title = siteTitle ? `${displayTitle} - ${siteTitle}` : displayTitle;
+          document.title = currentSiteTitle ? `${displayTitle} - ${currentSiteTitle}` : displayTitle;
         }
       }
       setLoading(false);
@@ -91,7 +95,7 @@ export default function StaticPageDetail({ params }) {
               dateModified: page.updatedAt || page.publishedAt,
               publisher: {
                 '@type': 'Organization',
-                name: 'ScholarCMS',
+                name: siteTitle || 'ByteLab',
               },
             }),
           }}
@@ -134,8 +138,8 @@ export default function StaticPageDetail({ params }) {
                 className="w-10 h-10 rounded-full object-cover border-2 border-indigo-500/30"
               />
               <div>
-                <h4 className="text-sm font-bold text-[var(--text-main)]">{page.author?.name}</h4>
-                <p className="text-xs text-[var(--text-subtle)]">ScholarCMS Engine • {new Date(page.updatedAt || page.publishedAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                <h4 className="text-sm font-bold text-[var(--text-main)]">{page.author?.name || 'Ernst Senior Dev'}</h4>
+                <p className="text-xs text-[var(--text-subtle)]">{page.author?.role || 'Software Architect'} • {new Date(page.updatedAt || page.publishedAt || Date.now()).toLocaleDateString(isEn ? 'en-US' : 'id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
               </div>
             </div>
 

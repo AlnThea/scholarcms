@@ -13,6 +13,7 @@ export default function BlogPostDetail({ params }) {
   const { slug } = params;
   const { user } = useAuth();
   const [post, setPost] = useState(null);
+  const [siteTitle, setSiteTitle] = useState('ByteLab');
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -38,11 +39,14 @@ export default function BlogPostDetail({ params }) {
         dbService.getPostBySlug(slug),
         dbService.getGeneralSettings()
       ]);
+      if (genSettings?.siteTitle) {
+        setSiteTitle(genSettings.siteTitle);
+      }
       if (fetchedPost) {
         setPost(fetchedPost);
-        const siteTitle = genSettings?.siteTitle || '';
+        const currentSiteTitle = genSettings?.siteTitle || siteTitle;
         if (typeof document !== 'undefined') {
-          document.title = siteTitle ? `${fetchedPost.title} - ${siteTitle}` : fetchedPost.title;
+          document.title = currentSiteTitle ? `${fetchedPost.title} - ${currentSiteTitle}` : fetchedPost.title;
         }
         const fetchedComments = await dbService.getComments(fetchedPost.id);
         setComments(fetchedComments);
@@ -130,7 +134,7 @@ export default function BlogPostDetail({ params }) {
               },
               publisher: {
                 '@type': 'Organization',
-                name: 'ScholarCMS',
+                name: siteTitle || 'ByteLab',
                 logo: {
                   '@type': 'ImageObject',
                   url: post.featuredImage,
