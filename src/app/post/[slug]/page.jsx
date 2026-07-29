@@ -34,9 +34,16 @@ export default function BlogPostDetail({ params }) {
   useEffect(() => {
     async function loadPostAndComments() {
       setLoading(true);
-      const fetchedPost = await dbService.getPostBySlug(slug);
+      const [fetchedPost, genSettings] = await Promise.all([
+        dbService.getPostBySlug(slug),
+        dbService.getGeneralSettings()
+      ]);
       if (fetchedPost) {
         setPost(fetchedPost);
+        const siteTitle = genSettings?.siteTitle || '';
+        if (typeof document !== 'undefined') {
+          document.title = siteTitle ? `${fetchedPost.title} - ${siteTitle}` : fetchedPost.title;
+        }
         const fetchedComments = await dbService.getComments(fetchedPost.id);
         setComments(fetchedComments);
       }

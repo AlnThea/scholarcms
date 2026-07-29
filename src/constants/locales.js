@@ -1,7 +1,7 @@
 export const dictionary = {
   en: {
     // Brand & General
-    brandName: "ScholarCMS",
+    brandName: "ByteLab",
     brandSubtitle: "Engine",
     connectionFirestore: "Firestore Cloud",
     connectionDemo: "Demo DB Mode",
@@ -517,7 +517,7 @@ export const dictionary = {
   },
   id: {
     // Brand & General
-    brandName: "ScholarCMS",
+    brandName: "ByteLab",
     brandSubtitle: "Engine",
     connectionFirestore: "Firestore Cloud",
     connectionDemo: "Demo DB Mode",

@@ -30,7 +30,7 @@ export default function Footer() {
   }, []);
 
   const renderBrandTitle = (title) => {
-    if (!title) return 'ScholarCMS';
+    if (!title) return '';
     if (title.toLowerCase().endsWith('cms')) {
       const mainPart = title.slice(0, -3);
       return <>{mainPart}<span className="gradient-text">CMS</span></>;
@@ -88,7 +88,7 @@ export default function Footer() {
         </div>
 
         <div className="pt-8 border-t border-[var(--border-color)] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--text-muted)]">
-          <p>© {new Date().getFullYear()} ScholarCMS Engine. Didesain secara profesional.</p>
+          <p>© {new Date().getFullYear()} {siteTitle || 'ByteLab'}. All rights reserved.</p>
           <p className="flex items-center gap-1">
             Dibuat dengan <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" /> untuk memberikan pengalaman membaca blog terbaik.
           </p>

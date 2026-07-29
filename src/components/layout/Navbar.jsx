@@ -100,9 +100,15 @@ export default function Navbar({ onSearch, searchQuery }) {
         ]);
         
         if (genSettings) {
+          const titleToUse = genSettings.siteTitle || siteTitle;
+          const taglineToUse = genSettings.siteTagline || siteTagline;
           if (genSettings.siteTitle) setSiteTitle(genSettings.siteTitle);
           if (genSettings.siteTagline) setSiteTagline(genSettings.siteTagline);
           if (genSettings.allowRegistration === false) setAllowRegistration(false);
+
+          if (typeof document !== 'undefined' && titleToUse) {
+            document.title = taglineToUse ? `${titleToUse} - ${taglineToUse}` : titleToUse;
+          }
         }
 
         const filteredHeaderItems = (items || []).filter((item) => {

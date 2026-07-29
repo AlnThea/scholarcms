@@ -9,7 +9,7 @@ import AdSenseScript from '@/components/blog/AdSenseScript';
 export const metadata = {
   title: 'ScholarCMS - Modern Publishing Platform',
   description: 'Platform Blog CMS Modern untuk penerbitan artikel, berita, dan konten berkualitas.',
-  keywords: ['Blog', 'CMS', 'Publishing Platform', 'ScholarCMS', 'Artikel', 'Berita'],
+  keywords: ['ScholarCMS', 'Blog', 'CMS', 'Publishing Platform', 'Artikel', 'Berita'],
 };
 
 export default function RootLayout({ children }) {

@@ -19,8 +19,8 @@ export default function DashboardSettingsPage() {
 
   // General Site & Registration States for Admin
   const [generalSettings, setGeneralSettings] = useState({
-    siteTitle: 'ScholarCMS',
-    siteTagline: 'Modern Publishing Platform',
+    siteTitle: 'ByteLab',
+    siteTagline: 'Empowering AI, Machine Learning & Modern Web Development',
     allowRegistration: true,
   });
   const [generalSaving, setGeneralSaving] = useState(false);

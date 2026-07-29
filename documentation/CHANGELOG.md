@@ -15,6 +15,9 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
   - Melakukan destructuring prop `fullWidth` pada komponen [Button.jsx](file:///c:/web/scholarcms/src/components/ui/Button.jsx) sebelum di-spread ke tag HTML `<button>`, mengeliminasi warning *React does not recognize fullWidth prop on a DOM element*.
 - **Penyesuaian Placeholders Editor & Header Bar**:
   - Menghubungkan placeholder judul utama artikel/halaman statis di top header bar ([layout.jsx](file:///c:/web/scholarcms/src/app/dashboard/layout.jsx)) dan canvas kosong Tiptap editor dengan kamus terjemahan [locales.js](file:///c:/web/scholarcms/src/constants/locales.js).
+- **Sinkronisasi Judul Tab Browser Dinamis dari Database**:
+  - Menghubungkan `siteTitle` dan `siteTagline` secara dinamis dari database (`dbService.getGeneralSettings()`) pada seluruh halaman publik ([Navbar.jsx](file:///c:/web/scholarcms/src/components/layout/Navbar.jsx), [Footer.jsx](file:///c:/web/scholarcms/src/components/layout/Footer.jsx)), halaman detail artikel (`/post/[slug]`), halaman statis (`/page/[slug]`), dan dashboard admin ([layout.jsx](file:///c:/web/scholarcms/src/app/dashboard/layout.jsx)).
+  - Mengubah judul tab browser (`document.title`) secara instan dan otomatis mengikuti nama baru yang disimpan pengguna dari aplikasi di database.
 
 ---
 

@@ -16,9 +16,16 @@ export default function StaticPageDetail({ params }) {
   useEffect(() => {
     async function loadPageData() {
       setLoading(true);
-      const fetchedPage = await dbService.getPageBySlug(slug);
+      const [fetchedPage, genSettings] = await Promise.all([
+        dbService.getPageBySlug(slug),
+        dbService.getGeneralSettings()
+      ]);
       if (fetchedPage) {
         setPage(fetchedPage);
+        const siteTitle = genSettings?.siteTitle || '';
+        if (typeof document !== 'undefined') {
+          document.title = siteTitle ? `${fetchedPage.title} - ${siteTitle}` : fetchedPage.title;
+        }
       }
       setLoading(false);
     }

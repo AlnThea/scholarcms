@@ -47,15 +47,23 @@ export default function DashboardLayout({ children }) {
   const isPageEditor = pathname.includes('/pages/new') || pathname.includes('/pages/edit');
   const isEditorPage = pathname.includes('/posts/new') || pathname.includes('/posts/edit') || isPageEditor;
 
+  const [siteTitle, setSiteTitle] = useState('ScholarCMS');
+
   useEffect(() => {
     async function loadPluginsConfig() {
       try {
-        const [states, packages] = await Promise.all([
+        const [states, packages, genSettings] = await Promise.all([
           dbService.getPluginStates(),
-          dbService.getCustomPluginPackages()
+          dbService.getCustomPluginPackages(),
+          dbService.getGeneralSettings()
         ]);
         setPluginStates(states || {});
         setCustomPlugins(packages || []);
+        const titleToUse = genSettings?.siteTitle || 'ScholarCMS';
+        setSiteTitle(titleToUse);
+        if (typeof document !== 'undefined') {
+          document.title = `${titleToUse} - Dashboard`;
+        }
       } catch(e){}
     }
     loadPluginsConfig();
@@ -176,8 +184,8 @@ export default function DashboardLayout({ children }) {
               </div>
               {!isCollapsed && (
                 <div className="truncate">
-                  <span className="font-extrabold text-white text-base tracking-tight">ScholarCMS</span>
-                  <p className="text-[10px] text-gray-400">Engine</p>
+                  <span className="font-extrabold text-white text-base tracking-tight">{siteTitle}</span>
+                  <p className="text-[10px] text-gray-400">Dashboard Hub</p>
                 </div>
               )}
             </Link>
