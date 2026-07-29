@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 import { dbService } from '@/services/dbService';
 import { THEMES_REGISTRY } from '@/themes';
 import {
@@ -8,6 +9,7 @@ import {
 } from 'lucide-react';
 
 export default function ThemesDashboardPage() {
+  const { t } = useLanguage();
   const [activeThemeId, setActiveThemeId] = useState('modern');
   const [customizations, setCustomizations] = useState({
     primaryColor: '#2563eb',
@@ -153,10 +155,10 @@ export default function ThemesDashboardPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Palette className="w-6 h-6" />
-            <h1 className="text-2xl font-black">Pengelola Tema Blog</h1>
+            <h1 className="text-2xl font-black">{t('themesTitle')}</h1>
           </div>
           <p className="text-xs text-blue-100 max-w-xl">
-            Pilih tema visual blog Anda, lakukan kustomisasi tanpa koding, atau impor preset tema baru langsung di Vercel.
+            {t('themesSubtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -164,7 +166,7 @@ export default function ThemesDashboardPage() {
             onClick={handleExportTheme}
             className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur transition-all flex items-center gap-1.5"
           >
-            <Download className="w-4 h-4" /> Ekspor Preset JSON
+            <Download className="w-4 h-4" /> {t('exportJsonPreset')}
           </button>
         </div>
       </div>
@@ -185,7 +187,7 @@ export default function ThemesDashboardPage() {
               : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-surface)]'
           }`}
         >
-          <Layers className="w-4 h-4" /> Katalog Tema ({allThemeCards.length})
+          <Layers className="w-4 h-4" /> {t('tabThemeCatalog')} ({allThemeCards.length})
         </button>
         <button
           onClick={() => setActiveTab('customizer')}
@@ -195,7 +197,7 @@ export default function ThemesDashboardPage() {
               : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-surface)]'
           }`}
         >
-          <Sliders className="w-4 h-4" /> Kustomisasi Visual
+          <Sliders className="w-4 h-4" /> {t('tabVisualCustomizer')}
         </button>
         <button
           onClick={() => setActiveTab('import')}
@@ -205,7 +207,7 @@ export default function ThemesDashboardPage() {
               : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-surface)]'
           }`}
         >
-          <Upload className="w-4 h-4" /> Upload Preset JSON
+          <Upload className="w-4 h-4" /> {t('tabUploadJson')}
         </button>
         <button
           onClick={() => setActiveTab('guide')}
@@ -215,7 +217,7 @@ export default function ThemesDashboardPage() {
               : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-surface)]'
           }`}
         >
-          <Code className="w-4 h-4" /> Panduan Developer
+          <Code className="w-4 h-4" /> {t('tabDevGuide')}
         </button>
       </div>
 
@@ -252,7 +254,7 @@ export default function ThemesDashboardPage() {
                   </div>
                   {isActive && (
                     <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-emerald-500 text-white text-xs font-bold flex items-center gap-1 shadow-lg">
-                      <CheckCircle className="w-3.5 h-3.5" /> Aktif
+                      <CheckCircle className="w-3.5 h-3.5" /> {t('activeThemeBadge')}
                     </div>
                   )}
                 </div>
@@ -271,7 +273,7 @@ export default function ThemesDashboardPage() {
 
                   <div className="pt-3 border-t border-[var(--border-color)] flex items-center justify-between">
                     <span className="text-[11px] text-[var(--text-subtle)] font-medium">
-                      Oleh: {theme.author}
+                      {t('byAuthor')} {theme.author}
                     </span>
 
                     {isActive ? (
@@ -279,7 +281,7 @@ export default function ThemesDashboardPage() {
                         disabled
                         className="px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-500 text-xs font-bold border border-emerald-500/20 cursor-default"
                       >
-                        Tema Aktif Saat Ini
+                        {t('currentActiveTheme')}
                       </button>
                     ) : (
                       <button
@@ -287,7 +289,7 @@ export default function ThemesDashboardPage() {
                         disabled={saving}
                         className="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-md hover:bg-blue-700 active:scale-95 transition-all disabled:opacity-50"
                       >
-                        {saving ? 'Mengaktifkan...' : 'Aktifkan Tema'}
+                        {saving ? t('activatingTheme') : t('activateThemeBtn')}
                       </button>
                     )}
                   </div>
@@ -303,10 +305,10 @@ export default function ThemesDashboardPage() {
         <form onSubmit={handleSaveCustomizations} className="p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] space-y-8 shadow-sm">
           <div>
             <h2 className="text-lg font-bold text-[var(--text-main)] mb-1 flex items-center gap-2">
-              <Sliders className="w-5 h-5 text-blue-500" /> Kustomisasi Visual Tema ({activeThemeId})
+              <Sliders className="w-5 h-5 text-blue-500" /> {t('visualCustomizerTitle')} ({activeThemeId})
             </h2>
             <p className="text-xs text-[var(--text-muted)]">
-              Sesuaikan skema warna, jenis font, gaya kartu, dan CSS kustom langsung di sini.
+              {t('visualCustomizerHelp')}
             </p>
           </div>
 
@@ -314,7 +316,7 @@ export default function ThemesDashboardPage() {
             {/* Primary Accent Color */}
             <div className="space-y-3">
               <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-main)] block">
-                Warna Aksen Utama
+                {t('primaryAccentColor')}
               </label>
               <div className="flex items-center gap-3">
                 <input
@@ -340,7 +342,7 @@ export default function ThemesDashboardPage() {
             {/* Typography Font Family */}
             <div className="space-y-3">
               <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-main)] block">
-                Font Tipografi
+                {t('typographyFont')}
               </label>
               <select
                 value={customizations.fontFamily || 'Inter'}
@@ -358,7 +360,7 @@ export default function ThemesDashboardPage() {
             {/* Card Style */}
             <div className="space-y-3">
               <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-main)] block">
-                Gaya Kartu Postingan (Card Style)
+                {t('cardStyleLabel')}
               </label>
               <select
                 value={customizations.cardStyle || 'glassmorphism'}
@@ -375,13 +377,13 @@ export default function ThemesDashboardPage() {
             {/* Custom CSS Injector */}
             <div className="space-y-3 md:col-span-2">
               <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-main)] block">
-                CSS Kustom Tambahan (Custom CSS)
+                {t('customCssLabel')}
               </label>
               <textarea
                 rows={4}
                 value={customizations.customCss || ''}
                 onChange={e => setCustomizations({ ...customizations, customCss: e.target.value })}
-                placeholder="/* Masukkan CSS Kustom tambahan di sini. Misal: .post-card { border-radius: 20px; } */"
+                placeholder={t('customCssPlaceholder')}
                 className="w-full px-4 py-3 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-xs font-mono text-[var(--text-main)] focus:outline-none focus:border-blue-500"
               />
             </div>
@@ -393,7 +395,7 @@ export default function ThemesDashboardPage() {
               disabled={saving}
               className="px-6 py-3 rounded-xl bg-blue-600 text-white font-bold text-sm shadow-lg hover:bg-blue-700 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
             >
-              <Save className="w-4 h-4" /> {saving ? 'Menyimpan...' : 'Simpan Kustomisasi Tema'}
+              <Save className="w-4 h-4" /> {saving ? t('saving') : t('saveThemeCustomization')}
             </button>
           </div>
         </form>
@@ -404,21 +406,21 @@ export default function ThemesDashboardPage() {
         <div className="p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] space-y-6 shadow-sm">
           <div>
             <h2 className="text-lg font-bold text-[var(--text-main)] mb-1 flex items-center gap-2">
-              <Upload className="w-5 h-5 text-blue-500" /> Upload Preset Tema (.json)
+              <Upload className="w-5 h-5 text-blue-500" /> {t('uploadJsonTitle')}
             </h2>
             <p className="text-xs text-[var(--text-muted)]">
-              Impor paket tema kustom (.json) buatan orang lain secara instan tanpa perlu rebuild di Vercel.
+              {t('uploadJsonHelp')}
             </p>
           </div>
 
           <div className="border-2 border-dashed border-blue-500/30 rounded-3xl p-10 text-center bg-blue-500/5 hover:bg-blue-500/10 transition-all">
             <Upload className="w-12 h-12 text-blue-500 mx-auto mb-4 animate-bounce" />
-            <h3 className="text-base font-bold text-[var(--text-main)] mb-1">Pilih File Paket Tema (.json)</h3>
+            <h3 className="text-base font-bold text-[var(--text-main)] mb-1">{t('chooseJsonFile')}</h3>
             <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto mb-6">
-              Klik tombol di bawah ini untuk memilih file JSON preset tema dari komputer Anda.
+              {t('chooseJsonHelp')}
             </p>
             <label className="px-6 py-3 rounded-xl bg-blue-600 text-white text-sm font-bold shadow-md hover:bg-blue-700 cursor-pointer inline-flex items-center gap-2 transition-all">
-              <Upload className="w-4 h-4" /> Upload File JSON
+              <Upload className="w-4 h-4" /> {t('uploadJsonBtn')}
               <input type="file" accept=".json" onChange={handleJsonImport} className="hidden" />
             </label>
           </div>
@@ -430,16 +432,16 @@ export default function ThemesDashboardPage() {
         <div className="p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] space-y-6 shadow-sm font-sans">
           <div>
             <h2 className="text-lg font-bold text-[var(--text-main)] mb-1 flex items-center gap-2">
-              <Code className="w-5 h-5 text-blue-500" /> Panduan Developer: Cara Membuat Tema Baru
+              <Code className="w-5 h-5 text-blue-500" /> {t('devGuideTitle')}
             </h2>
             <p className="text-xs text-[var(--text-muted)]">
-              Instruksi teknis bagi pengembang yang ingin membuat struktur komponen React tema baru di ScholarCMS.
+              {t('devGuideHelp')}
             </p>
           </div>
 
           <div className="space-y-4 text-xs leading-relaxed text-[var(--text-muted)]">
-            <p>1. Buat folder baru di direktori <code className="px-2 py-1 rounded bg-[var(--bg-primary)] font-mono text-blue-500">src/themes/[nama-tema]/index.jsx</code>.</p>
-            <p>2. Buat komponen React yang menerima props standar berikut:</p>
+            <p>{t('devGuideStep1')}</p>
+            <p>{t('devGuideStep2')}</p>
             <pre className="p-4 rounded-xl bg-slate-900 text-slate-200 font-mono text-[11px] overflow-x-auto">
 {`export default function MyCustomTheme({
   posts = [],
@@ -453,13 +455,13 @@ export default function ThemesDashboardPage() {
 }) {
   return (
     <div>
-      {/* Struktur Layout Kustom Anda */}
+      {/* Custom Layout Structure */}
     </div>
   );
 }`}
             </pre>
-            <p>3. Daftarkan tema Anda pada file <code className="px-2 py-1 rounded bg-[var(--bg-primary)] font-mono text-blue-500">src/themes/index.js</code> di dalam array <code className="font-mono text-blue-500">THEMES_REGISTRY</code>.</p>
-            <p>4. Push ke GitHub. Vercel akan otomatis melakukan build dan tema baru Anda langsung aktif!</p>
+            <p>{t('devGuideStep3')}</p>
+            <p>{t('devGuideStep4')}</p>
           </div>
         </div>
       )}

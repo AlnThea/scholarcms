@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { dbService } from '@/services/dbService';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   Search, CheckCircle, AlertTriangle, XCircle, FileText, ExternalLink, RefreshCw, BarChart2,
   PieChart, Calendar, Award, ShieldCheck, CheckSquare, Layers, Clock
@@ -9,6 +10,8 @@ import {
 import Link from 'next/link';
 
 export default function SeoAnalyzerPluginPage() {
+  const { t, language } = useLanguage();
+  const isEn = language === 'en';
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState(null);
@@ -43,36 +46,36 @@ export default function SeoAnalyzerPluginPage() {
     const titleLen = post.title ? post.title.length : 0;
     if (titleLen >= 30 && titleLen <= 70) {
       score += 25;
-      items.push({ type: 'pass', text: `Panjang Judul Artikel Sangat Baik (${titleLen} karakter)` });
+      items.push({ type: 'pass', text: isEn ? `Article Title Length is Optimal (${titleLen} characters)` : `Panjang Judul Artikel Sangat Baik (${titleLen} karakter)` });
     } else {
       score += 10;
-      items.push({ type: 'warn', text: `Judul Artikel Kurang Ideal (${titleLen} karakter, disarankan 30–70)` });
+      items.push({ type: 'warn', text: isEn ? `Article Title Length Suboptimal (${titleLen} characters, recommended 30–70)` : `Judul Artikel Kurang Ideal (${titleLen} karakter, disarankan 30–70)` });
     }
 
     // Excerpt / Meta Description Check (50-160 chars)
     const excerptLen = post.excerpt ? post.excerpt.length : 0;
     if (excerptLen >= 50 && excerptLen <= 160) {
       score += 25;
-      items.push({ type: 'pass', text: `Meta Description / Excerpt Sempurna (${excerptLen} karakter)` });
+      items.push({ type: 'pass', text: isEn ? `Meta Description / Excerpt is Perfect (${excerptLen} characters)` : `Meta Description / Excerpt Sempurna (${excerptLen} karakter)` });
     } else {
       score += 10;
-      items.push({ type: 'warn', text: `Meta Description disarankan 50–160 karakter (${excerptLen} karakter saat ini)` });
+      items.push({ type: 'warn', text: isEn ? `Meta Description recommended 50–160 characters (${excerptLen} chars currently)` : `Meta Description disarankan 50–160 karakter (${excerptLen} karakter saat ini)` });
     }
 
     // Featured Image Check
     if (post.featuredImage) {
       score += 25;
-      items.push({ type: 'pass', text: 'Gambar Sampul Utama (Featured Image) Terpasang' });
+      items.push({ type: 'pass', text: isEn ? 'Featured Cover Image is Set' : 'Gambar Sampul Utama (Featured Image) Terpasang' });
     } else {
-      items.push({ type: 'fail', text: 'Gambar Sampul Utama belum terpasang' });
+      items.push({ type: 'fail', text: isEn ? 'Featured Cover Image is not set' : 'Gambar Sampul Utama belum terpasang' });
     }
 
     // Tags & Keywords Check
     if (Array.isArray(post.tags) && post.tags.length > 0) {
       score += 25;
-      items.push({ type: 'pass', text: `Tag SEO Terpasang (${post.tags.length} tag: ${post.tags.join(', ')})` });
+      items.push({ type: 'pass', text: isEn ? `SEO Tags Attached (${post.tags.length} tags: ${post.tags.join(', ')})` : `Tag SEO Terpasang (${post.tags.length} tag: ${post.tags.join(', ')})` });
     } else {
-      items.push({ type: 'fail', text: 'Belum ada Tag SEO terpasang pada artikel ini' });
+      items.push({ type: 'fail', text: isEn ? 'No SEO Tags attached to this article' : 'Belum ada Tag SEO terpasang pada artikel ini' });
     }
 
     return { score, items };
@@ -135,20 +138,20 @@ export default function SeoAnalyzerPluginPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white shadow-xl">
         <div>
           <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm mb-2 inline-block">
-            Plugin Active • ScholarCMS SEO Suite
+            {t('seoPluginBadge')}
           </span>
           <h1 className="text-2xl sm:text-3xl font-black flex items-center gap-3 tracking-tight">
-            <Search className="w-7 h-7 text-emerald-200" /> Audit SEO Artikel Real-time
+            <Search className="w-7 h-7 text-emerald-200" /> {t('seoPluginTitle')}
           </h1>
           <p className="text-xs sm:text-sm text-emerald-100 max-w-2xl mt-1 leading-relaxed">
-            Pantau kesehatan SEO artikel terpublikasi maupun terjadwal secara real-time dengan audit kata kunci, meta tag, dan visualisasi grafik performa.
+            {t('seoPluginSubtitle')}
           </p>
         </div>
         <button
           onClick={loadData}
           className="px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition-all flex items-center gap-2 self-start sm:self-auto shadow-sm"
         >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Scan Ulang SEO
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> {t('rescanSeo')}
         </button>
       </div>
 
@@ -164,11 +167,11 @@ export default function SeoAnalyzerPluginPage() {
             {avgScore}
           </div>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-subtle)]">Rata-Rata Skor SEO</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-subtle)]">{t('avgSeoScore')}</p>
             <h3 className="text-lg font-black text-[var(--text-main)] mt-0.5">
-              {avgScore >= 80 ? 'Sangat Optimal 🚀' : avgScore >= 50 ? 'Cukup Optimal ⚠️' : 'Perlu Perbaikan ❌'}
+              {avgScore >= 80 ? t('seoOptimal') : avgScore >= 50 ? t('seoFair') : t('seoNeedsWork')}
             </h3>
-            <p className="text-[10px] text-[var(--text-muted)]">Audit dari total {posts.length} artikel</p>
+            <p className="text-[10px] text-[var(--text-muted)]">{isEn ? `Audit of total ${posts.length} articles` : `Audit dari total ${posts.length} artikel`}</p>
           </div>
         </div>
 
@@ -178,9 +181,9 @@ export default function SeoAnalyzerPluginPage() {
             <CheckCircle className="w-7 h-7" />
           </div>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-subtle)]">Artikel Diterbitkan</p>
-            <h3 className="text-xl font-black text-[var(--text-main)] mt-0.5">{publishedPosts.length} <span className="text-xs font-normal text-[var(--text-muted)]">Artikel</span></h3>
-            <p className="text-[10px] text-emerald-500 font-bold">Status Live & Terindeks</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-subtle)]">{t('publishedArticles')}</p>
+            <h3 className="text-xl font-black text-[var(--text-main)] mt-0.5">{publishedPosts.length} <span className="text-xs font-normal text-[var(--text-muted)]">{t('articlesUnit')}</span></h3>
+            <p className="text-[10px] text-emerald-500 font-bold">{t('liveAndIndexed')}</p>
           </div>
         </div>
 
@@ -190,9 +193,9 @@ export default function SeoAnalyzerPluginPage() {
             <Clock className="w-7 h-7" />
           </div>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-subtle)]">Artikel Terjadwal</p>
-            <h3 className="text-xl font-black text-[var(--text-main)] mt-0.5">{scheduledPosts.length} <span className="text-xs font-normal text-[var(--text-muted)]">Artikel</span></h3>
-            <p className="text-[10px] text-purple-500 font-bold">Siap Rilis Otomatis</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-subtle)]">{t('scheduledArticles')}</p>
+            <h3 className="text-xl font-black text-[var(--text-main)] mt-0.5">{scheduledPosts.length} <span className="text-xs font-normal text-[var(--text-muted)]">{t('articlesUnit')}</span></h3>
+            <p className="text-[10px] text-purple-500 font-bold">{t('readyAutoRelease')}</p>
           </div>
         </div>
 
@@ -202,9 +205,9 @@ export default function SeoAnalyzerPluginPage() {
             <Award className="w-7 h-7" />
           </div>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-subtle)]">Skor SEO Sempurna</p>
-            <h3 className="text-xl font-black text-[var(--text-main)] mt-0.5">{highSeoCount} <span className="text-xs font-normal text-[var(--text-muted)]">Artikel</span></h3>
-            <p className="text-[10px] text-amber-500 font-bold">Lulus SEO 100/100</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-subtle)]">{t('perfectSeoScore')}</p>
+            <h3 className="text-xl font-black text-[var(--text-main)] mt-0.5">{highSeoCount} <span className="text-xs font-normal text-[var(--text-muted)]">{t('articlesUnit')}</span></h3>
+            <p className="text-[10px] text-amber-500 font-bold">{t('passedSeo100')}</p>
           </div>
         </div>
       </div>
@@ -216,9 +219,9 @@ export default function SeoAnalyzerPluginPage() {
         <div className="lg:col-span-6 p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-[var(--text-main)] flex items-center gap-2">
-              <BarChart2 className="w-4 h-4 text-emerald-500" /> Grafik Distribusi Kualitas SEO Artikel
+              <BarChart2 className="w-4 h-4 text-emerald-500" /> {t('chartSeoDistribution')}
             </h2>
-            <span className="text-[10px] uppercase font-bold text-[var(--text-subtle)]">Skor SEO</span>
+            <span className="text-[10px] uppercase font-bold text-[var(--text-subtle)]">{t('seoScoreLabel')}</span>
           </div>
 
           <div className="space-y-4 pt-2">
@@ -227,9 +230,9 @@ export default function SeoAnalyzerPluginPage() {
               <div className="flex justify-between text-xs font-bold">
                 <span className="text-emerald-500 flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
-                  Sangat Optimal (80–100)
+                  {t('veryOptimalRange')}
                 </span>
-                <span className="text-[var(--text-main)]">{highSeoCount} artikel ({highPct}%)</span>
+                <span className="text-[var(--text-main)]">{highSeoCount} {isEn ? 'articles' : 'artikel'} ({highPct}%)</span>
               </div>
               <div className="w-full h-3 rounded-full bg-[var(--bg-primary)] overflow-hidden p-0.5 border border-[var(--border-color)]">
                 <div
@@ -244,9 +247,9 @@ export default function SeoAnalyzerPluginPage() {
               <div className="flex justify-between text-xs font-bold">
                 <span className="text-amber-500 flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
-                  Cukup Optimal (50–79)
+                  {t('fairOptimalRange')}
                 </span>
-                <span className="text-[var(--text-main)]">{midSeoCount} artikel ({midPct}%)</span>
+                <span className="text-[var(--text-main)]">{midSeoCount} {isEn ? 'articles' : 'artikel'} ({midPct}%)</span>
               </div>
               <div className="w-full h-3 rounded-full bg-[var(--bg-primary)] overflow-hidden p-0.5 border border-[var(--border-color)]">
                 <div
@@ -261,9 +264,9 @@ export default function SeoAnalyzerPluginPage() {
               <div className="flex justify-between text-xs font-bold">
                 <span className="text-rose-500 flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>
-                  Perlu Perbaikan (&lt;50)
+                  {t('needsWorkRange')}
                 </span>
-                <span className="text-[var(--text-main)]">{lowSeoCount} artikel ({lowPct}%)</span>
+                <span className="text-[var(--text-main)]">{lowSeoCount} {isEn ? 'articles' : 'artikel'} ({lowPct}%)</span>
               </div>
               <div className="w-full h-3 rounded-full bg-[var(--bg-primary)] overflow-hidden p-0.5 border border-[var(--border-color)]">
                 <div
@@ -279,17 +282,17 @@ export default function SeoAnalyzerPluginPage() {
         <div className="lg:col-span-6 p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-[var(--text-main)] flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-cyan-500" /> Ringkasan Kesehatan Meta Tag & Kriteria SEO
+              <ShieldCheck className="w-4 h-4 text-cyan-500" /> {t('chartMetaSummary')}
             </h2>
             <span className="text-[10px] uppercase font-bold text-[var(--text-subtle)]">Compliance Rate</span>
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-1">
             <div className="p-3.5 rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-color)] space-y-1">
-              <p className="text-[11px] font-bold text-[var(--text-subtle)] truncate">Panjang Judul SEO</p>
+              <p className="text-[11px] font-bold text-[var(--text-subtle)] truncate">{t('metaTitleLen')}</p>
               <div className="flex items-baseline justify-between">
                 <span className="text-lg font-black text-emerald-500">{titlePassPct}%</span>
-                <span className="text-[10px] text-[var(--text-muted)]">30–70 kar</span>
+                <span className="text-[10px] text-[var(--text-muted)]">30–70 {isEn ? 'chars' : 'kar'}</span>
               </div>
               <div className="w-full h-1.5 rounded-full bg-emerald-500/20 overflow-hidden">
                 <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${titlePassPct}%` }}></div>
@@ -297,10 +300,10 @@ export default function SeoAnalyzerPluginPage() {
             </div>
 
             <div className="p-3.5 rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-color)] space-y-1">
-              <p className="text-[11px] font-bold text-[var(--text-subtle)] truncate">Meta Description</p>
+              <p className="text-[11px] font-bold text-[var(--text-subtle)] truncate">{t('metaDescLabel')}</p>
               <div className="flex items-baseline justify-between">
                 <span className="text-lg font-black text-teal-500">{excerptPassPct}%</span>
-                <span className="text-[10px] text-[var(--text-muted)]">50–160 kar</span>
+                <span className="text-[10px] text-[var(--text-muted)]">50–160 {isEn ? 'chars' : 'kar'}</span>
               </div>
               <div className="w-full h-1.5 rounded-full bg-teal-500/20 overflow-hidden">
                 <div className="h-full bg-teal-500 rounded-full" style={{ width: `${excerptPassPct}%` }}></div>
@@ -308,7 +311,7 @@ export default function SeoAnalyzerPluginPage() {
             </div>
 
             <div className="p-3.5 rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-color)] space-y-1">
-              <p className="text-[11px] font-bold text-[var(--text-subtle)] truncate">Gambar Sampul</p>
+              <p className="text-[11px] font-bold text-[var(--text-subtle)] truncate">{t('metaCoverImg')}</p>
               <div className="flex items-baseline justify-between">
                 <span className="text-lg font-black text-cyan-500">{imagePassPct}%</span>
                 <span className="text-[10px] text-[var(--text-muted)]">Featured Img</span>
@@ -319,7 +322,7 @@ export default function SeoAnalyzerPluginPage() {
             </div>
 
             <div className="p-3.5 rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-color)] space-y-1">
-              <p className="text-[11px] font-bold text-[var(--text-subtle)] truncate">Tag Keyword SEO</p>
+              <p className="text-[11px] font-bold text-[var(--text-subtle)] truncate">{t('metaTagsKeyword')}</p>
               <div className="flex items-baseline justify-between">
                 <span className="text-lg font-black text-blue-500">{tagsPassPct}%</span>
                 <span className="text-[10px] text-[var(--text-muted)]">Tags Ready</span>
@@ -340,7 +343,7 @@ export default function SeoAnalyzerPluginPage() {
         <div className="lg:col-span-5 p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] space-y-4 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--border-color)] pb-3">
             <h2 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-              <FileText className="w-4 h-4 text-emerald-500" /> Daftar Artikel ({filteredPosts.length})
+              <FileText className="w-4 h-4 text-emerald-500" /> {t('articleListTitle')} ({filteredPosts.length})
             </h2>
           </div>
 
@@ -354,17 +357,17 @@ export default function SeoAnalyzerPluginPage() {
                   : 'bg-[var(--bg-primary)] text-[var(--text-muted)] hover:text-[var(--text-main)]'
               }`}
             >
-              <CheckCircle className="w-3.5 h-3.5" /> Diterbitkan ({publishedPosts.length})
+              <CheckCircle className="w-3.5 h-3.5" /> {t('filterPublished')} ({publishedPosts.length})
             </button>
             <button
               onClick={() => setStatusFilter('scheduled')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
                 statusFilter === 'scheduled'
                   ? 'bg-purple-600 text-white shadow-sm'
                   : 'bg-[var(--bg-primary)] text-[var(--text-muted)] hover:text-[var(--text-main)]'
               }`}
             >
-              <Clock className="w-3.5 h-3.5" /> Terjadwal ({scheduledPosts.length})
+              <Clock className="w-3.5 h-3.5" /> {t('filterScheduled')} ({scheduledPosts.length})
             </button>
             <button
               onClick={() => setStatusFilter('draft')}
@@ -374,7 +377,7 @@ export default function SeoAnalyzerPluginPage() {
                   : 'bg-[var(--bg-primary)] text-[var(--text-muted)] hover:text-[var(--text-main)]'
               }`}
             >
-              Draf ({draftPosts.length})
+              {t('filterDraft')} ({draftPosts.length})
             </button>
             <button
               onClick={() => setStatusFilter('all')}
@@ -384,7 +387,7 @@ export default function SeoAnalyzerPluginPage() {
                   : 'bg-[var(--bg-primary)] text-[var(--text-muted)] hover:text-[var(--text-main)]'
               }`}
             >
-              Semua ({posts.length})
+              {t('filterAll')} ({posts.length})
             </button>
           </div>
 
@@ -416,7 +419,7 @@ export default function SeoAnalyzerPluginPage() {
                         )}
                         {isScheduled && (
                           <span className="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-400 text-[9px] font-black uppercase flex items-center gap-1">
-                            <Clock className="w-2.5 h-2.5" /> Terjadwal
+                            <Clock className="w-2.5 h-2.5" /> Scheduled
                           </span>
                         )}
                         {post.status === 'draft' && (
@@ -430,7 +433,7 @@ export default function SeoAnalyzerPluginPage() {
                       <h3 className="text-xs font-bold text-[var(--text-main)] truncate">{post.title}</h3>
                       {isScheduled && post.publishedAt && (
                         <p className="text-[10px] text-purple-400 font-medium flex items-center gap-1">
-                          <Calendar className="w-3 h-3" /> Rilis: {new Date(post.publishedAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
+                          <Calendar className="w-3 h-3" /> {isEn ? 'Release:' : 'Rilis:'} {new Date(post.publishedAt).toLocaleString(isEn ? 'en-US' : 'id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
                         </p>
                       )}
                     </div>
@@ -445,7 +448,7 @@ export default function SeoAnalyzerPluginPage() {
               })
             ) : (
               <div className="text-center py-12 text-[var(--text-muted)] text-xs">
-                Tidak ada artikel dalam kategori filter ini.
+                {t('noArticlesFound')}
               </div>
             )}
           </div>
@@ -458,10 +461,10 @@ export default function SeoAnalyzerPluginPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--border-color)] pb-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] uppercase font-bold text-emerald-500 tracking-wider">Hasil Audit SEO Real-time</span>
+                    <span className="text-[10px] uppercase font-bold text-emerald-500 tracking-wider">{t('auditRealtimeResults')}</span>
                     {isPostScheduled(selectedPost) && (
                       <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 text-[10px] font-bold">
-                        Terjadwal
+                        {t('filterScheduled')}
                       </span>
                     )}
                   </div>
@@ -471,7 +474,7 @@ export default function SeoAnalyzerPluginPage() {
                   href={`/dashboard/posts/edit/${selectedPost.id}`}
                   className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 self-start sm:self-auto shrink-0 shadow-sm"
                 >
-                  Edit Artikel <ExternalLink className="w-3.5 h-3.5" />
+                  {t('editArticleBtn')} <ExternalLink className="w-3.5 h-3.5" />
                 </Link>
               </div>
 
@@ -483,18 +486,18 @@ export default function SeoAnalyzerPluginPage() {
                   'border-rose-500 text-rose-500 shadow-rose-500/20'
                 }`}>
                   <span className="text-3xl tracking-tight">{analysis.score}</span>
-                  <span className="text-[9px] uppercase font-bold text-[var(--text-subtle)]">Skor SEO</span>
+                  <span className="text-[9px] uppercase font-bold text-[var(--text-subtle)]">{t('seoScoreLabel')}</span>
                 </div>
                 <div className="flex-1 text-center sm:text-left space-y-1.5">
                   <h3 className="text-base font-bold text-[var(--text-main)]">
-                    {analysis.score >= 80 ? 'Kondisi SEO Artikel Sangat Optimal! 🚀' : analysis.score >= 50 ? 'Kondisi SEO Artikel Cukup Baik ⚠️' : 'Perlu Perbaikan SEO ❌'}
+                    {analysis.score >= 80 ? t('seoConditionExcellent') : analysis.score >= 50 ? t('seoConditionGood') : t('seoConditionNeedsImprovement')}
                   </h3>
                   <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                    Artikel ini memenuhi <strong className="text-[var(--text-main)]">{analysis.items.filter(i => i.type === 'pass').length} dari {analysis.items.length}</strong> standar kriteria SEO Google modern.
+                    {t('meetsSeoCriteria')} <strong className="text-[var(--text-main)]">{analysis.items.filter(i => i.type === 'pass').length} {t('ofCriteria')} {analysis.items.length}</strong> {t('googleStandards')}
                   </p>
                   {selectedPost.status === 'scheduled' && selectedPost.publishedAt && (
                     <p className="text-xs text-purple-400 font-medium pt-1 flex items-center justify-center sm:justify-start gap-1">
-                      <Clock className="w-3.5 h-3.5" /> Dijadwalkan otomatis terbit pada {new Date(selectedPost.publishedAt).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })}
+                      <Clock className="w-3.5 h-3.5" /> {t('scheduledReleaseNotice')} {new Date(selectedPost.publishedAt).toLocaleString(isEn ? 'en-US' : 'id-ID', { dateStyle: 'full', timeStyle: 'short' })}
                     </p>
                   )}
                 </div>
@@ -503,7 +506,7 @@ export default function SeoAnalyzerPluginPage() {
               {/* Checklist Detail */}
               <div className="space-y-3">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-main)] flex items-center gap-2">
-                  <CheckSquare className="w-4 h-4 text-emerald-500" /> Rincian Pemeriksaan Parameter SEO
+                  <CheckSquare className="w-4 h-4 text-emerald-500" /> {t('seoChecklistHeader')}
                 </h3>
                 {analysis.items.map((item, idx) => (
                   <div key={idx} className="p-3.5 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] flex items-start gap-3 text-xs">
@@ -516,7 +519,7 @@ export default function SeoAnalyzerPluginPage() {
               </div>
             </>
           ) : (
-            <div className="text-center py-20 text-[var(--text-muted)]">Pilih artikel untuk melihat hasil audit SEO detail.</div>
+            <div className="text-center py-20 text-[var(--text-muted)]">{t('selectArticlePrompt')}</div>
           )}
         </div>
 

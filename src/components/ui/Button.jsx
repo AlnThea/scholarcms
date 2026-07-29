@@ -8,12 +8,14 @@ export default function Button({
   size = 'md', // 'sm' | 'md' | 'lg'
   icon: Icon,
   loading = false,
+  fullWidth = false,
   className = '',
   type = 'button',
   disabled,
   ...props
 }) {
   const baseStyle = 'inline-flex items-center justify-center font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed';
+  const widthStyle = fullWidth ? 'w-full' : '';
 
   const variants = {
     primary: 'bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 active:scale-[0.98]',
@@ -34,7 +36,7 @@ export default function Button({
     <button
       type={type}
       disabled={disabled || loading}
-      className={`${baseStyle} ${variants[variant] || variants.primary} ${sizes[size] || sizes.md} ${className}`}
+      className={`${baseStyle} ${widthStyle} ${variants[variant] || variants.primary} ${sizes[size] || sizes.md} ${className}`}
       {...props}
     >
       {loading ? (

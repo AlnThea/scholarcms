@@ -2,6 +2,22 @@
 
 Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 
+## [v2.1.0] - 2026-07-29
+
+### 🌐 Full Dashboard Multi-Language (i18n) Engine, 429 Quota Exceeded EN Fallback, & React DOM Attribute Warning Fix
+- **Cakupan 100% Multibahasa (i18n) 14 Modul Dashboard**:
+  - Peluncuran sistem terjemahan multibahasa Bahasa Inggris (`🇬🇧 EN` Default) dan Bahasa Indonesia (`🇮🇩 ID`) pada seluruh rute modul CMS: Overview (`/dashboard`), Kelola Post (`/dashboard/posts`), Editor Tiptap & Sidebar Meta, Modal AI Generator & Niche Research, Kategori (`/dashboard/categories`), Halaman Statis (`/dashboard/pages`), Menu (`/dashboard/menus`), Tema (`/dashboard/themes`), Plugin (`/dashboard/plugins`), SEO Analyzer (`/dashboard/seo-analyzer`), Profil Pengguna (`/dashboard/profile`), Hak Akses Users (`/dashboard/users`), Pengaturan Global (`/dashboard/settings`), dan Moderasi Komentar (`/dashboard/comments`).
+- **Sinkronisasi AI Generator & Fallback Kuota 429 English**:
+  - Pembaruan modal AI generator agar menginisialisasi target bahasa sesuai bahasa aplikasi aktif.
+  - Penyesuaian `normalizeParentNiche` di [aiService.js](file:///c:/web/scholarcms/src/services/aiService.js) untuk mengembalikan parent niche Bahasa Inggris (`Technology`, `Finance`, `Health`, `Business & Marketing`, `Renewable Energy`, `Self Improvement`) saat `lang === 'english'`.
+  - Penyiapan fallback pool `ALL_NICHES_POOL_EN` untuk mengembalikan data riset niche dan topik sampel 100% Bahasa Inggris saat terjadi error Gemini API HTTP 429 Rate Limit.
+- **Perbaikan Warning React Console (`fullWidth`)**:
+  - Melakukan destructuring prop `fullWidth` pada komponen [Button.jsx](file:///c:/web/scholarcms/src/components/ui/Button.jsx) sebelum di-spread ke tag HTML `<button>`, mengeliminasi warning *React does not recognize fullWidth prop on a DOM element*.
+- **Penyesuaian Placeholders Editor & Header Bar**:
+  - Menghubungkan placeholder judul utama artikel/halaman statis di top header bar ([layout.jsx](file:///c:/web/scholarcms/src/app/dashboard/layout.jsx)) dan canvas kosong Tiptap editor dengan kamus terjemahan [locales.js](file:///c:/web/scholarcms/src/constants/locales.js).
+
+---
+
 ## [v2.0.0] - 2026-07-28
 
 ### 🚀 Custom Canvas 10-Kolom Modular, Suite Chart Visual (Pie, Bar, Dual-Line, Gauge), RBAC Access Control & Single-Portal HUD Engine

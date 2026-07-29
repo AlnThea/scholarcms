@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 import { dbService } from '@/services/dbService';
 import { PLUGINS_REGISTRY } from '@/plugins';
 import {
@@ -9,6 +10,7 @@ import {
 import Link from 'next/link';
 
 export default function PluginsDashboardPage() {
+  const { t } = useLanguage();
   const [pluginStates, setPluginStates] = useState({});
   const [customPackages, setCustomPackages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -107,10 +109,10 @@ export default function PluginsDashboardPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Puzzle className="w-6 h-6" />
-            <h1 className="text-2xl font-black">Pengelola Plugin Blog</h1>
+            <h1 className="text-2xl font-black">{t('pluginsTitle')}</h1>
           </div>
           <p className="text-xs text-purple-100 max-w-xl">
-            Aktifkan atau matikan ekstensi plugin tambahan, tambahkan rute dashboard baru, atau impor paket plugin JSON langsung di Vercel.
+            {t('pluginsSubtitle')}
           </p>
         </div>
       </div>
@@ -131,7 +133,7 @@ export default function PluginsDashboardPage() {
               : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-surface)]'
           }`}
         >
-          <Layers className="w-4 h-4" /> Katalog Plugin ({allPluginCards.length})
+          <Layers className="w-4 h-4" /> {t('tabPluginCatalog')} ({allPluginCards.length})
         </button>
         <button
           onClick={() => setActiveTab('import')}
@@ -141,7 +143,7 @@ export default function PluginsDashboardPage() {
               : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-surface)]'
           }`}
         >
-          <Upload className="w-4 h-4" /> Upload Preset Plugin (.json)
+          <Upload className="w-4 h-4" /> {t('tabUploadPluginJson')}
         </button>
         <button
           onClick={() => setActiveTab('guide')}
@@ -151,7 +153,7 @@ export default function PluginsDashboardPage() {
               : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-surface)]'
           }`}
         >
-          <Code className="w-4 h-4" /> Panduan Developer
+          <Code className="w-4 h-4" /> {t('tabDevGuide')}
         </button>
       </div>
 
@@ -181,7 +183,7 @@ export default function PluginsDashboardPage() {
                       onClick={() => handleTogglePlugin(plugin.id, isEnabled)}
                       disabled={isBusy}
                       className="flex items-center gap-1.5 transition-transform active:scale-95 disabled:opacity-50"
-                      title={isEnabled ? 'Klik untuk mematikan plugin' : 'Klik untuk mengaktifkan plugin'}
+                      title={isEnabled ? 'ON' : 'OFF'}
                     >
                       {isEnabled ? (
                         <ToggleRight className="w-8 h-8 text-emerald-500" />
@@ -216,7 +218,7 @@ export default function PluginsDashboardPage() {
 
                 <div className="pt-3 border-t border-[var(--border-color)] flex items-center justify-between">
                   <span className="text-[11px] text-[var(--text-subtle)] font-medium">
-                    Oleh: {plugin.author}
+                    {t('byAuthor')} {plugin.author}
                   </span>
 
                   {isEnabled && plugin.routePath && (
@@ -224,7 +226,7 @@ export default function PluginsDashboardPage() {
                       href={`/dashboard/${plugin.routePath}`}
                       className="px-3.5 py-1.5 rounded-xl bg-purple-600 text-white text-xs font-bold shadow hover:bg-purple-700 transition-all flex items-center gap-1"
                     >
-                      Buka Page <ExternalLink className="w-3 h-3" />
+                      {t('openPluginPage')} <ExternalLink className="w-3 h-3" />
                     </Link>
                   )}
                 </div>
@@ -239,21 +241,21 @@ export default function PluginsDashboardPage() {
         <div className="p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] space-y-6 shadow-sm">
           <div>
             <h2 className="text-lg font-bold text-[var(--text-main)] mb-1 flex items-center gap-2">
-              <Upload className="w-5 h-5 text-purple-500" /> Upload Paket Plugin (.json)
+              <Upload className="w-5 h-5 text-purple-500" /> {t('uploadPluginTitle')}
             </h2>
             <p className="text-xs text-[var(--text-muted)]">
-              Impor paket plugin kustom (.json) buatan orang lain secara instan tanpa perlu rebuild di Vercel.
+              {t('uploadPluginHelp')}
             </p>
           </div>
 
           <div className="border-2 border-dashed border-purple-500/30 rounded-3xl p-10 text-center bg-purple-500/5 hover:bg-purple-500/10 transition-all">
             <Upload className="w-12 h-12 text-purple-500 mx-auto mb-4 animate-bounce" />
-            <h3 className="text-base font-bold text-[var(--text-main)] mb-1">Pilih File Paket Plugin (.json)</h3>
+            <h3 className="text-base font-bold text-[var(--text-main)] mb-1">{t('choosePluginJsonFile')}</h3>
             <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto mb-6">
-              Klik tombol di bawah ini untuk memilih file JSON plugin dari komputer Anda.
+              {t('choosePluginJsonHelp')}
             </p>
             <label className="px-6 py-3 rounded-xl bg-purple-600 text-white text-sm font-bold shadow-md hover:bg-purple-700 cursor-pointer inline-flex items-center gap-2 transition-all">
-              <Upload className="w-4 h-4" /> Upload File JSON Plugin
+              <Upload className="w-4 h-4" /> {t('uploadPluginJsonBtn')}
               <input type="file" accept=".json" onChange={handleJsonImport} className="hidden" />
             </label>
           </div>
@@ -265,27 +267,27 @@ export default function PluginsDashboardPage() {
         <div className="p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] space-y-6 shadow-sm font-sans">
           <div>
             <h2 className="text-lg font-bold text-[var(--text-main)] mb-1 flex items-center gap-2">
-              <Code className="w-5 h-5 text-purple-500" /> Panduan Developer: Cara Membuat Plugin Baru
+              <Code className="w-5 h-5 text-purple-500" /> {t('devPluginGuideTitle')}
             </h2>
             <p className="text-xs text-[var(--text-muted)]">
-              Instruksi teknis bagi pengembang yang ingin membuat struktur komponen React plugin baru di ScholarCMS.
+              {t('devPluginGuideHelp')}
             </p>
           </div>
 
           <div className="space-y-4 text-xs leading-relaxed text-[var(--text-muted)]">
-            <p>1. Buat folder plugin baru di <code className="px-2 py-1 rounded bg-[var(--bg-primary)] font-mono text-purple-500">src/plugins/[nama-plugin]/index.jsx</code>.</p>
-            <p>2. Buat komponen Halaman UI Plugin React:</p>
+            <p>{t('devPluginStep1')}</p>
+            <p>{t('devPluginStep2')}</p>
             <pre className="p-4 rounded-xl bg-slate-900 text-slate-200 font-mono text-[11px] overflow-x-auto">
 {`export default function MyCustomPluginPage() {
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Plugin Kustom Saya</h1>
+      <h1 className="text-2xl font-bold">My Custom Plugin</h1>
     </div>
   );
 }`}
             </pre>
-            <p>3. Daftarkan plugin Anda pada <code className="px-2 py-1 rounded bg-[var(--bg-primary)] font-mono text-purple-500">src/plugins/index.js</code> di dalam array <code className="font-mono text-purple-500">PLUGINS_REGISTRY</code>.</p>
-            <p>4. Rute halaman plugin Anda secara otomatis tersedia di <code className="px-2 py-1 rounded bg-[var(--bg-primary)] font-mono text-purple-500">/dashboard/[routePath]</code> melalui Dynamic Catch-All Plugin Router!</p>
+            <p>{t('devPluginStep3')}</p>
+            <p>{t('devPluginStep4')}</p>
           </div>
         </div>
       )}

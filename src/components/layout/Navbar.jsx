@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useLanguage } from '@/context/LanguageContext';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { Search, X, LayoutDashboard, Sun, Moon, Feather, LogIn, UserPlus, LogOut, User, ShieldCheck, PenTool, Settings, ChevronDown, ChevronRight } from 'lucide-react';
 import { useMetaSidebar } from '@/context/MetaSidebarContext';
 import { usePathname } from 'next/navigation';
@@ -51,6 +53,7 @@ function buildMenuTree(flatItems) {
 export default function Navbar({ onSearch, searchQuery }) {
   const { isDark, toggleTheme, mounted } = useTheme();
   const { user, role, logout } = useAuth();
+  const { t } = useLanguage();
   const [siteTitle, setSiteTitle] = useState('ScholarCMS');
   const [siteTagline, setSiteTagline] = useState('Modern Publishing Platform');
   const [allowRegistration, setAllowRegistration] = useState(true);
@@ -244,11 +247,14 @@ export default function Navbar({ onSearch, searchQuery }) {
 
         {/* Action Controls */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Language Switcher */}
+          <LanguageSwitcher />
+
           {/* Theme Switcher */}
           <button
             onClick={toggleTheme}
             className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
-            title={mounted ? (isDark ? "Beralih ke Light Mode" : "Beralih ke Dark Mode") : "Beralih Tema"}
+            title={mounted ? (isDark ? t('switchToLight') : t('switchToDark')) : t('switchToDark')}
           >
             {mounted && !isDark ? (
               <Moon className="w-4 h-4 text-indigo-600" />

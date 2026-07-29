@@ -7,6 +7,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useLanguage } from '@/context/LanguageContext';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import {
   LayoutDashboard, FileText, PlusCircle, FolderTree, MessageSquare,
   Settings, ExternalLink, Feather, Menu, X, Users, User, LogOut, Sun, Moon,
@@ -22,6 +24,7 @@ export default function DashboardLayout({ children }) {
   const router = useRouter();
   const { user, role, loading, logout } = useAuth();
   const { isDark, toggleTheme, mounted } = useTheme();
+  const { t } = useLanguage();
   const { openSidebar, title, setTitle, slug, setSlug } = useMetaSidebar();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -94,51 +97,51 @@ export default function DashboardLayout({ children }) {
   // Professional Navigation Groups & Sub-tree Items
   const navGroups = [
     {
-      groupLabel: 'Ikhtisar Utama',
+      groupLabel: t('groupOverview'),
       items: [
-        { label: 'Dashboard Overview', href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'writer'] }
+        { label: t('navDashboardOverview'), href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'writer'] }
       ]
     },
     {
-      groupLabel: 'Manajemen Konten & Media',
+      groupLabel: t('groupContentMedia'),
       items: [
         {
-          label: 'Manajemen Artikel',
+          label: t('navArticleManagement'),
           icon: FileText,
           roles: ['admin', 'writer'],
           children: [
-            { label: role === 'writer' ? 'Postingan Saya' : 'Semua Postingan', href: '/dashboard/posts', icon: FileText, roles: ['admin', 'writer'] },
-            { label: 'Tambah Post Baru', href: '/dashboard/posts/new', icon: PlusCircle, roles: ['admin', 'writer'] },
-            { label: 'Kategori & Tag SEO', href: '/dashboard/categories', icon: FolderTree, roles: ['admin'] }
+            { label: role === 'writer' ? t('navMyPosts') : t('navAllPosts'), href: '/dashboard/posts', icon: FileText, roles: ['admin', 'writer'] },
+            { label: t('navAddNewPost'), href: '/dashboard/posts/new', icon: PlusCircle, roles: ['admin', 'writer'] },
+            { label: t('navCategoriesTags'), href: '/dashboard/categories', icon: FolderTree, roles: ['admin'] }
           ]
         },
         {
-          label: 'Halaman Statis & Menu',
+          label: t('navStaticPagesMenu'),
           icon: Layers,
           roles: ['admin', 'writer'],
           children: [
-            { label: 'Semua Halaman', href: '/dashboard/pages', icon: Layers, roles: ['admin', 'writer'] },
-            { label: 'Buat Halaman Baru', href: '/dashboard/pages/new', icon: PlusCircle, roles: ['admin', 'writer'] },
-            { label: 'Navigasi & Menu Site', href: '/dashboard/menus', icon: ListTree, roles: ['admin'] }
+            { label: t('navAllPages'), href: '/dashboard/pages', icon: Layers, roles: ['admin', 'writer'] },
+            { label: t('navCreateNewPage'), href: '/dashboard/pages/new', icon: PlusCircle, roles: ['admin', 'writer'] },
+            { label: t('navSiteNavigation'), href: '/dashboard/menus', icon: ListTree, roles: ['admin'] }
           ]
         }
       ]
     },
     {
-      groupLabel: 'Interaksi Pembaca',
+      groupLabel: t('groupReaderInteraction'),
       items: [
-        { label: 'Moderasi Komentar', href: '/dashboard/comments', icon: MessageSquare, roles: ['admin', 'writer'] }
+        { label: t('navCommentModeration'), href: '/dashboard/comments', icon: MessageSquare, roles: ['admin', 'writer'] }
       ]
     },
     {
-      groupLabel: 'Ekstensi & Visual',
+      groupLabel: t('groupExtensionsVisual'),
       items: [
-        { label: 'Katalog Tema (Themes)', href: '/dashboard/themes', icon: Palette, roles: ['admin'] },
-        { label: 'Pengelola Plugin CMS', href: '/dashboard/plugins', icon: Puzzle, roles: ['admin'] },
+        { label: t('navThemeCatalog'), href: '/dashboard/themes', icon: Palette, roles: ['admin'] },
+        { label: t('navPluginManager'), href: '/dashboard/plugins', icon: Puzzle, roles: ['admin'] },
         ...(enabledPluginItems.length > 0
           ? [
               {
-                label: 'Fitur Plugin Aktif',
+                label: t('navActivePlugins'),
                 icon: Sparkles,
                 roles: ['admin', 'writer'],
                 children: enabledPluginItems
@@ -148,11 +151,11 @@ export default function DashboardLayout({ children }) {
       ]
     },
     {
-      groupLabel: 'Administrasi System',
+      groupLabel: t('groupSystemAdmin'),
       items: [
-        { label: 'Profil & Akun Saya', href: '/dashboard/profile', icon: User, roles: ['admin', 'writer', 'user'] },
-        { label: 'Kelola Pengguna & Role', href: '/dashboard/users', icon: Users, roles: ['admin'] },
-        { label: 'Pengaturan CMS Global', href: '/dashboard/settings', icon: Settings, roles: ['admin'] }
+        { label: t('navProfileAccount'), href: '/dashboard/profile', icon: User, roles: ['admin', 'writer', 'user'] },
+        { label: t('navUserRoleManagement'), href: '/dashboard/users', icon: Users, roles: ['admin'] },
+        { label: t('navGlobalSettings'), href: '/dashboard/settings', icon: Settings, roles: ['admin'] }
       ]
     }
   ];
@@ -209,7 +212,7 @@ export default function DashboardLayout({ children }) {
           <nav className="p-2 space-y-4 overflow-y-auto flex-1 no-scrollbar">
             {!isCollapsed && (
               <div className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-widest text-gray-500 flex items-center justify-between border-b border-gray-800/60 pb-2">
-                <span>Hak Akses Anda</span>
+                <span>{t('yourAccessRole')}</span>
                 <span className="text-blue-400 font-bold uppercase text-[9px] px-1.5 py-0.5 rounded bg-blue-500/20">
                   {role}
                 </span>
@@ -376,7 +379,7 @@ export default function DashboardLayout({ children }) {
               target="_blank"
               className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-semibold text-gray-200 transition-colors"
             >
-              <ExternalLink className="w-4 h-4 text-blue-400" /> Lihat Website Publik
+              <ExternalLink className="w-4 h-4 text-blue-400" /> {t('viewPublicSite')}
             </Link>
           )}
         </div>
@@ -407,7 +410,7 @@ export default function DashboardLayout({ children }) {
               <>
                 <input
                   type="text"
-                  placeholder={isPageEditor ? "Judul Halaman Statis..." : "Judul Artikel Blog..."}
+                  placeholder={isPageEditor ? t('editorPageTitlePlaceholder') : t('editorArticleTitlePlaceholder')}
                   value={title}
                   onChange={(e) => {
                     const val = e.target.value;
@@ -424,12 +427,13 @@ export default function DashboardLayout({ children }) {
             )}
           </div>
 
-          {/* Theme Switcher */}
-          <div className="flex items-center gap-3">
+          {/* Theme & Language Switcher */}
+          <div className="flex items-center gap-2.5">
+            <LanguageSwitcher />
             <button
               onClick={toggleTheme}
               className="p-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
-              title={mounted ? (isDark ? "Beralih ke Light Mode" : "Beralih ke Dark Mode") : "Beralih Tema"}
+              title={mounted ? (isDark ? t('switchToLight') : t('switchToDark')) : t('switchToDark')}
             >
               {mounted && !isDark ? (
                 <Moon className="w-4 h-4 text-indigo-600" />
@@ -448,7 +452,7 @@ export default function DashboardLayout({ children }) {
                 onClick={openSidebar}
                 title="Buka Pengaturan Meta Artikel"
               >
-                Meta Artikel
+                {t('metaArticles')}
               </Button>
             )}
           </div>

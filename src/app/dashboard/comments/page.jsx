@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 import { dbService } from '@/services/dbService';
 import PageHeader from '@/components/dashboard/PageHeader';
 import Badge from '@/components/ui/Badge';
@@ -8,6 +9,8 @@ import Button from '@/components/ui/Button';
 import { MessageSquare, Check, X, Trash2, RefreshCw, Clock } from 'lucide-react';
 
 export default function DashboardCommentsPage() {
+  const { t, language } = useLanguage();
+  const isEn = language === 'en';
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -29,7 +32,7 @@ export default function DashboardCommentsPage() {
   };
 
   const handleDelete = async (commentId) => {
-    if (confirm('Apakah Anda yakin ingin menghapus komentar ini?')) {
+    if (confirm(t('deleteCommentConfirm'))) {
       await dbService.deleteComment(commentId);
       loadComments();
     }
@@ -44,11 +47,11 @@ export default function DashboardCommentsPage() {
     <div className="space-y-6 animate-fade-in">
       
       <PageHeader
-        title="Moderasi Komentar Pengunjung"
-        subtitle="Setujui, tolak, atau hapus komentar yang dikirim oleh pembaca blog."
+        title={t('commentsTitle')}
+        subtitle={t('commentsSubtitle')}
       >
         <Button variant="secondary" icon={RefreshCw} onClick={loadComments}>
-          Muat Ulang
+          {t('reloadBtn')}
         </Button>
       </PageHeader>
 
@@ -60,7 +63,7 @@ export default function DashboardCommentsPage() {
             statusFilter === 'all' ? 'bg-blue-600 text-white shadow-sm' : 'bg-[var(--bg-primary)] text-[var(--text-muted)]'
           }`}
         >
-          Semua ({comments.length})
+          {t('filterAll')} ({comments.length})
         </button>
         <button
           onClick={() => setStatusFilter('approved')}
@@ -68,7 +71,7 @@ export default function DashboardCommentsPage() {
             statusFilter === 'approved' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-[var(--bg-primary)] text-[var(--text-muted)]'
           }`}
         >
-          Disetujui ({comments.filter(c => c.status === 'approved').length})
+          {t('tabFilterApproved')} ({comments.filter(c => c.status === 'approved').length})
         </button>
         <button
           onClick={() => setStatusFilter('rejected')}
@@ -76,21 +79,21 @@ export default function DashboardCommentsPage() {
             statusFilter === 'rejected' ? 'bg-rose-600 text-white shadow-sm' : 'bg-[var(--bg-primary)] text-[var(--text-muted)]'
           }`}
         >
-          Ditolak ({comments.filter(c => c.status === 'rejected').length})
+          {t('tabFilterRejected')} ({comments.filter(c => c.status === 'rejected').length})
         </button>
       </div>
 
       {/* Comments List */}
       <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4">
         {loading ? (
-          <div className="py-12 text-center text-xs text-[var(--text-subtle)]">Memuat daftar komentar...</div>
+          <div className="py-12 text-center text-xs text-[var(--text-subtle)]">{t('loadingComments')}</div>
         ) : filteredComments.length > 0 ? (
           <div className="divide-y divide-[var(--border-color)]">
             {filteredComments.map((comment) => (
               <div key={comment.id} className="py-4 flex flex-col sm:flex-row items-start justify-between gap-4">
                 <div className="space-y-1.5 flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-[var(--text-main)]">{comment.authorName || 'Pengunjung'}</span>
+                    <span className="text-sm font-bold text-[var(--text-main)]">{comment.authorName || t('visitorNameFallback')}</span>
                     {comment.authorEmail && (
                       <span className="text-xs text-[var(--text-subtle)]">({comment.authorEmail})</span>
                     )}
@@ -105,7 +108,7 @@ export default function DashboardCommentsPage() {
                   </p>
                   <div className="flex items-center gap-2 text-[10px] text-[var(--text-subtle)]">
                     <Clock className="w-3 h-3" />
-                    <span>{new Date(comment.createdAt || Date.now()).toLocaleString('id-ID')}</span>
+                    <span>{new Date(comment.createdAt || Date.now()).toLocaleString(isEn ? 'en-US' : 'id-ID')}</span>
                   </div>
                 </div>
 
@@ -116,7 +119,7 @@ export default function DashboardCommentsPage() {
                       onClick={() => handleUpdateStatus(comment.id, 'approved')}
                       className="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold flex items-center gap-1 shadow-sm hover:bg-emerald-700 transition-all"
                     >
-                      <Check className="w-3.5 h-3.5" /> Setujui
+                      <Check className="w-3.5 h-3.5" /> {t('approveBtn')}
                     </button>
                   )}
                   {comment.status !== 'rejected' && (
@@ -124,13 +127,13 @@ export default function DashboardCommentsPage() {
                       onClick={() => handleUpdateStatus(comment.id, 'rejected')}
                       className="px-3 py-1.5 rounded-xl bg-amber-600 text-white text-xs font-bold flex items-center gap-1 shadow-sm hover:bg-amber-700 transition-all"
                     >
-                      <X className="w-3.5 h-3.5" /> Tolak
+                      <X className="w-3.5 h-3.5" /> {t('rejectBtn')}
                     </button>
                   )}
                   <button
                     onClick={() => handleDelete(comment.id)}
                     className="p-1.5 rounded-xl text-rose-500 hover:bg-rose-500/10 transition-colors"
-                    title="Hapus Komentar"
+                    title="Delete Comment"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -139,7 +142,7 @@ export default function DashboardCommentsPage() {
             ))}
           </div>
         ) : (
-          <div className="py-12 text-center text-xs text-[var(--text-subtle)]">Tidak ada komentar ditemukan.</div>
+          <div className="py-12 text-center text-xs text-[var(--text-subtle)]">{t('noCommentsFound')}</div>
         )}
       </div>
 

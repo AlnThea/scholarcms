@@ -1,6 +1,7 @@
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { LanguageProvider } from '@/context/LanguageContext';
 import { MetaSidebarProvider } from '@/context/MetaSidebarContext';
 import RightMetaSidebar from '@/components/admin/RightMetaSidebar';
 import AdSenseScript from '@/components/blog/AdSenseScript';
@@ -19,15 +20,17 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] antialiased selection:bg-blue-500 selection:text-white">
-        <ThemeProvider>
-          <AuthProvider>
-            <MetaSidebarProvider>
-              <AdSenseScript />
-              {children}
-              <RightMetaSidebar />
-            </MetaSidebarProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <MetaSidebarProvider>
+                <AdSenseScript />
+                {children}
+                <RightMetaSidebar />
+              </MetaSidebarProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

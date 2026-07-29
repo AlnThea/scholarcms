@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 import { dbService } from '@/services/dbService';
 import PageHeader from '@/components/dashboard/PageHeader';
 import Badge from '@/components/ui/Badge';
@@ -11,6 +12,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Database, RefreshCw, CheckCircle, AlertTriangle, DollarSign, Save, ShieldCheck, Sparkles } from 'lucide-react';
 
 export default function DashboardSettingsPage() {
+  const { t } = useLanguage();
   const { role } = useAuth();
   const isFirebaseActive = dbService.isRealFirebase();
   const [resetMessage, setResetMessage] = useState(false);
@@ -90,7 +92,7 @@ export default function DashboardSettingsPage() {
   };
 
   const handleResetDemo = async () => {
-    if (confirm('Reset data ke kondisi default sampel?')) {
+    if (confirm(t('resetConfirm'))) {
       await dbService.resetDemoData();
       setResetMessage(true);
       setTimeout(() => {
@@ -103,8 +105,8 @@ export default function DashboardSettingsPage() {
     <div className="space-y-6 animate-fade-in max-w-4xl">
       
       <PageHeader
-        title="Pengaturan CMS & Monetisasi"
-        subtitle="Periksa status koneksi Firebase, konfigurasi Google AdSense global, dan kelola preferensi situs blog Anda."
+        title={t('settingsTitle')}
+        subtitle={t('settingsSubtitle')}
       />
 
       {/* ADMIN ONLY: GENERAL SITE & REGISTRATION SETTINGS */}
@@ -117,15 +119,15 @@ export default function DashboardSettingsPage() {
               </div>
               <div>
                 <h3 className="font-extrabold text-base text-[var(--text-main)] flex items-center gap-2">
-                  Pengaturan Identitas Situs & Pendaftaran 🌐
-                  <ShieldCheck className="w-4 h-4 text-blue-500" title="Khusus Role Admin" />
+                  {t('siteIdentityHeader')}
+                  <ShieldCheck className="w-4 h-4 text-blue-500" title={t('adminOnlyBadgeTitle')} />
                 </h3>
-                <p className="text-xs text-[var(--text-muted)]">Kustomisasi nama/brand website, tagline, dan sakelar izin pendaftaran baru (Khusus Admin)</p>
+                <p className="text-xs text-[var(--text-muted)]">{t('siteIdentityHelp')}</p>
               </div>
             </div>
 
             <Badge variant={generalSettings.allowRegistration ? 'published' : 'draft'}>
-              {generalSettings.allowRegistration ? 'Pendaftaran Terbuka (ON)' : 'Pendaftaran Ditutup (OFF)'}
+              {generalSettings.allowRegistration ? t('regOpenBadge') : t('regClosedBadge')}
             </Badge>
           </div>
 
@@ -135,27 +137,27 @@ export default function DashboardSettingsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                  Nama / Judul Situs (Site Title)
+                  {t('siteTitleLabel')}
                 </label>
                 <Input
                   type="text"
                   placeholder="ScholarCMS"
                   value={generalSettings.siteTitle || ''}
                   onChange={(e) => setGeneralSettings({ ...generalSettings, siteTitle: e.target.value })}
-                  helperText="Nama utama brand website Anda yang tampil pada Navbar, Footer, & Metadata."
+                  helperText={t('siteTitleHelp')}
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                  Tagline / Sub-Judul Situs (Site Tagline)
+                  {t('siteTaglineLabel')}
                 </label>
                 <Input
                   type="text"
                   placeholder="Modern Publishing Platform"
                   value={generalSettings.siteTagline || ''}
                   onChange={(e) => setGeneralSettings({ ...generalSettings, siteTagline: e.target.value })}
-                  helperText="Slogan atau deskripsi singkat yang tampil di bawah nama situs pada Navbar."
+                  helperText={t('siteTaglineHelp')}
                 />
               </div>
             </div>
@@ -163,8 +165,8 @@ export default function DashboardSettingsPage() {
             {/* Registration Switch */}
             <div className="p-4 rounded-2xl bg-[var(--bg-primary)]/60 border border-[var(--border-color)] flex items-center justify-between gap-4">
               <div>
-                <span className="block font-bold text-xs text-[var(--text-main)]">Izinkan Pendaftaran Akun Baru Publik</span>
-                <span className="block text-[11px] text-[var(--text-muted)]">Jika dimatikan (OFF), halaman /register akan menampilkan pemberitahuan bahwa pendaftaran ditutup.</span>
+                <span className="block font-bold text-xs text-[var(--text-main)]">{t('allowRegLabel')}</span>
+                <span className="block text-[11px] text-[var(--text-muted)]">{t('allowRegHelp')}</span>
               </div>
               <input
                 type="checkbox"
@@ -182,12 +184,12 @@ export default function DashboardSettingsPage() {
                 icon={Save}
                 loading={generalSaving}
               >
-                Simpan Identitas Situs & Pendaftaran
+                {t('saveSiteIdentityBtn')}
               </Button>
 
               {generalSavedMessage && (
                 <span className="text-xs font-bold text-emerald-500 flex items-center gap-1.5 animate-fade-in">
-                  <CheckCircle className="w-4 h-4 text-emerald-500" /> Identitas & pengaturan situs berhasil disimpan!
+                  <CheckCircle className="w-4 h-4 text-emerald-500" /> {t('siteIdentitySavedSuccess')}
                 </span>
               )}
             </div>
@@ -205,15 +207,15 @@ export default function DashboardSettingsPage() {
               </div>
               <div>
                 <h3 className="font-extrabold text-base text-[var(--text-main)] flex items-center gap-2">
-                  Pengaturan Global Google AdSense 💰
-                  <ShieldCheck className="w-4 h-4 text-blue-500" title="Khusus Role Admin" />
+                  {t('globalAdSenseHeader')}
+                  <ShieldCheck className="w-4 h-4 text-blue-500" title={t('adminOnlyBadgeTitle')} />
                 </h3>
-                <p className="text-xs text-[var(--text-muted)]">Kredensial resmi AdSense Publisher ID & Slot Iklan Otomatis (Khusus Admin)</p>
+                <p className="text-xs text-[var(--text-muted)]">{t('globalAdSenseHelp')}</p>
               </div>
             </div>
 
             <Badge variant={adSettings.globalEnableAds ? 'published' : 'draft'}>
-              {adSettings.globalEnableAds ? 'Iklan Global ON' : 'Iklan Global OFF'}
+              {adSettings.globalEnableAds ? t('globalAdsOn') : t('globalAdsOff')}
             </Badge>
           </div>
 
@@ -222,8 +224,8 @@ export default function DashboardSettingsPage() {
             {/* Global Ads Switch */}
             <div className="p-4 rounded-2xl bg-[var(--bg-primary)]/60 border border-[var(--border-color)] flex items-center justify-between gap-4">
               <div>
-                <span className="block font-bold text-xs text-[var(--text-main)]">Aktifkan Iklan Google AdSense di Seluruh Website</span>
-                <span className="block text-[11px] text-[var(--text-muted)]">Sakelar penayangan iklan global untuk seluruh halaman blog dan artikel publik.</span>
+                <span className="block font-bold text-xs text-[var(--text-main)]">{t('enableGlobalAdsLabel')}</span>
+                <span className="block text-[11px] text-[var(--text-muted)]">{t('enableGlobalAdsHelp')}</span>
               </div>
               <input
                 type="checkbox"
@@ -236,7 +238,7 @@ export default function DashboardSettingsPage() {
             {/* Google Publisher ID */}
             <div>
               <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                ID Publisher Google AdSense Resmi (Publisher ID)
+                {t('publisherIdLabel')}
               </label>
               <Input
                 type="text"
@@ -244,7 +246,7 @@ export default function DashboardSettingsPage() {
                 value={adSettings.adClient}
                 onChange={(e) => setAdSettings({ ...adSettings, adClient: e.target.value })}
                 icon={DollarSign}
-                helperText="ID Publisher dari akun Google AdSense resmi Anda (contoh: ca-pub-XXXXXXXXXXXXXXXX)."
+                helperText={t('publisherIdHelp')}
               />
             </div>
 
@@ -253,40 +255,40 @@ export default function DashboardSettingsPage() {
               
               <div>
                 <label className="block text-[11px] font-bold uppercase text-[var(--text-muted)] mb-1">
-                  Slot ID Iklan Atas (Header Ad)
+                  {t('headerAdSlotLabel')}
                 </label>
                 <Input
                   type="text"
                   placeholder="1234567890"
                   value={adSettings.headerAdSlot}
                   onChange={(e) => setAdSettings({ ...adSettings, headerAdSlot: e.target.value })}
-                  helperText="Unit Iklan Header Top Banner."
+                  helperText={t('headerAdSlotHelp')}
                 />
               </div>
 
               <div>
                 <label className="block text-[11px] font-bold uppercase text-[var(--text-muted)] mb-1">
-                  Slot ID Iklan Tengah (In-Article Ad)
+                  {t('inArticleAdSlotLabel')}
                 </label>
                 <Input
                   type="text"
                   placeholder="0987654321"
                   value={adSettings.inArticleAdSlot}
                   onChange={(e) => setAdSettings({ ...adSettings, inArticleAdSlot: e.target.value })}
-                  helperText="Unit Iklan Otomatis Tengah Artikel."
+                  helperText={t('inArticleAdSlotHelp')}
                 />
               </div>
 
               <div>
                 <label className="block text-[11px] font-bold uppercase text-[var(--text-muted)] mb-1">
-                  Slot ID Iklan Bawah (Footer Ad)
+                  {t('footerAdSlotLabel')}
                 </label>
                 <Input
                   type="text"
                   placeholder="1122334455"
                   value={adSettings.footerAdSlot}
                   onChange={(e) => setAdSettings({ ...adSettings, footerAdSlot: e.target.value })}
-                  helperText="Unit Iklan Footer Bottom Banner."
+                  helperText={t('footerAdSlotHelp')}
                 />
               </div>
 
@@ -301,12 +303,12 @@ export default function DashboardSettingsPage() {
                 icon={Save}
                 loading={adSaving}
               >
-                Simpan Pengaturan AdSense Global
+                {t('saveAdSenseBtn')}
               </Button>
 
               {adSavedMessage && (
                 <span className="text-xs font-bold text-emerald-500 flex items-center gap-1.5 animate-fade-in">
-                  <CheckCircle className="w-4 h-4 text-emerald-500" /> Kredensial AdSense berhasil disimpan!
+                  <CheckCircle className="w-4 h-4 text-emerald-500" /> {t('adSenseSavedSuccess')}
                 </span>
               )}
             </div>
@@ -325,22 +327,22 @@ export default function DashboardSettingsPage() {
               </div>
               <div>
                 <h3 className="font-extrabold text-base text-[var(--text-main)] flex items-center gap-2">
-                  Master Prompt AI Generator (AdSense Compliance) ✨
-                  <ShieldCheck className="w-4 h-4 text-blue-500" title="Khusus Role Admin" />
+                  {t('masterPromptHeader')}
+                  <ShieldCheck className="w-4 h-4 text-blue-500" title={t('adminOnlyBadgeTitle')} />
                 </h3>
-                <p className="text-xs text-[var(--text-muted)]">Kustomisasi sistem perintah AI untuk kelayakan penayangan iklan Google AdSense</p>
+                <p className="text-xs text-[var(--text-muted)]">{t('masterPromptSubtitle')}</p>
               </div>
             </div>
           </div>
 
           <div className="space-y-4">
             <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-              Master Prompt ini digunakan oleh generator AI saat penulis membuat artikel baru. Instruksi ini menjamin gaya bahasa manusia yang natural (Human-Like Tone) dan secara ketat menghindari pelanggaran Google AdSense <em>"Low value content"</em>.
+              {t('masterPromptDesc')}
             </p>
 
             <div>
               <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                Template Master Prompt AI
+                {t('masterPromptLabel')}
               </label>
               <textarea
                 rows={10}
@@ -358,12 +360,12 @@ export default function DashboardSettingsPage() {
                 icon={Save}
                 loading={promptSaving}
               >
-                Simpan Master Prompt AI
+                {t('saveMasterPromptBtn')}
               </Button>
 
               {promptSavedMessage && (
                 <span className="text-xs font-bold text-emerald-500 flex items-center gap-1.5 animate-fade-in">
-                  <CheckCircle className="w-4 h-4 text-emerald-500" /> Template Master Prompt berhasil disimpan!
+                  <CheckCircle className="w-4 h-4 text-emerald-500" /> {t('promptSavedSuccess')}
                 </span>
               )}
             </div>
@@ -379,8 +381,8 @@ export default function DashboardSettingsPage() {
               <Database className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-extrabold text-base text-[var(--text-main)]">Koneksi Database Firebase</h3>
-              <p className="text-xs text-[var(--text-muted)]">Firestore Cloud Database SDK Status</p>
+              <h3 className="font-extrabold text-base text-[var(--text-main)]">{t('dbConnectionHeader')}</h3>
+              <p className="text-xs text-[var(--text-muted)]">{t('dbStatusSub')}</p>
             </div>
           </div>
 
@@ -392,20 +394,20 @@ export default function DashboardSettingsPage() {
         <div className="space-y-4 text-xs text-[var(--text-muted)]">
           <p className="leading-relaxed">
             {isFirebaseActive
-              ? 'Selamat! Kredensial Firebase di file .env Anda telah dikonfigurasi secara lengkap. Aplikasi berjalan penuh pada cloud Firestore.'
-              : 'Saat ini aplikasi berjalan dalam Demo Local Storage Mode karena file .env masih berisi kredensial placeholder. Anda dapat langsung mencoba seluruh fitur blog dan dashboard tanpa error.'}
+              ? t('dbActiveText')
+              : t('dbDemoText')}
           </p>
 
           {!isFirebaseActive && (
             <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20 space-y-2">
               <h4 className="font-bold text-amber-500 text-xs flex items-center gap-1.5">
-                <AlertTriangle className="w-4 h-4" /> Cara Menghubungkan Firebase Asli:
+                <AlertTriangle className="w-4 h-4" /> {t('howToConnectFirebase')}
               </h4>
               <ol className="list-decimal list-inside space-y-1 text-xs text-[var(--text-muted)]">
-                <li>Buka konsol Firebase di <a href="https://console.firebase.google.com" target="_blank" className="text-blue-500 underline">console.firebase.google.com</a>.</li>
-                <li>Buat proyek baru dan tambahkan Web App.</li>
-                <li>Salin API Key, Auth Domain, Project ID, dan Storage Bucket ke file <code className="font-mono bg-[var(--bg-primary)] px-1 py-0.5 rounded">.env</code> di root folder proyek ini.</li>
-                <li>Restart dev server dengan <code className="font-mono bg-[var(--bg-primary)] px-1 py-0.5 rounded">npm run dev</code>.</li>
+                <li>{t('firebaseStep1')}</li>
+                <li>{t('firebaseStep2')}</li>
+                <li>{t('firebaseStep3')}</li>
+                <li>{t('firebaseStep4')}</li>
               </ol>
             </div>
           )}
@@ -413,9 +415,9 @@ export default function DashboardSettingsPage() {
       </div>
 
       <div className="p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4">
-        <h3 className="text-base font-bold text-[var(--text-main)]">Reset Data Sampel Demo</h3>
+        <h3 className="text-base font-bold text-[var(--text-main)]">{t('resetDemoTitle')}</h3>
         <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-          Jika Anda ingin mengembalikan artikel, kategori, dan komentar ke sampel data default awal saat mencoba demo lokal.
+          {t('resetDemoDesc')}
         </p>
 
         <div className="flex items-center gap-4 pt-2">
@@ -423,12 +425,12 @@ export default function DashboardSettingsPage() {
             onClick={handleResetDemo}
             className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
           >
-            <RefreshCw className="w-4 h-4" /> Reset Data Demo
+            <RefreshCw className="w-4 h-4" /> {t('resetDemoBtn')}
           </button>
 
           {resetMessage && (
             <span className="text-xs font-semibold text-emerald-500 flex items-center gap-1">
-              <CheckCircle className="w-4 h-4" /> Data berhasil di-reset! Memuat ulang...
+              <CheckCircle className="w-4 h-4" /> {t('resetDemoSuccess')}
             </span>
           )}
         </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { authService } from '@/services/authService';
 import PageHeader from '@/components/dashboard/PageHeader';
 import Input from '@/components/ui/Input';
@@ -23,6 +24,8 @@ const AVATAR_PRESETS = [
 ];
 
 export default function UserProfilePage() {
+  const { t, language } = useLanguage();
+  const isEn = language === 'en';
   const { user, role, refreshUser } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -37,10 +40,10 @@ export default function UserProfilePage() {
       setName(user.name || '');
       setEmail(user.email || '');
       setAvatar(user.avatar || AVATAR_PRESETS[0]);
-      setBio(user.bio || 'Kreator konten & penulis aktif ScholarCMS.');
+      setBio(user.bio || (isEn ? 'Content creator & active ScholarCMS writer.' : 'Kreator konten & penulis aktif ScholarCMS.'));
       setTitleRole(user.titleRole || (user.role === 'admin' ? 'Chief Software Architect' : user.role === 'writer' ? 'Senior Tech Writer' : 'Regular Contributor'));
     }
-  }, [user]);
+  }, [user, isEn]);
 
   const handleSaveProfile = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -77,15 +80,15 @@ export default function UserProfilePage() {
     <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
       
       <PageHeader
-        title="Profil Saya & Pengaturan Akun"
-        subtitle="Kelola identitas penulis, foto avatar, dan deskripsi publik profil Anda."
+        title={t('profileTitle')}
+        subtitle={t('profileSubtitle')}
       />
 
       {savedSuccess && (
         <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 text-xs font-bold flex items-center justify-between animate-fade-in">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5" />
-            <span>Profil Anda berhasil diperbarui! Perubahan nama &amp; avatar akan otomatis muncul di postingan baru Anda.</span>
+            <span>{t('profileSavedSuccess')}</span>
           </div>
         </div>
       )}
@@ -108,8 +111,8 @@ export default function UserProfilePage() {
             </div>
 
             <div>
-              <h3 className="text-lg font-extrabold text-[var(--text-main)]">{name || 'Pengguna'}</h3>
-              <p className="text-xs text-blue-500 font-semibold mt-0.5">{titleRole || 'Penulis'}</p>
+              <h3 className="text-lg font-extrabold text-[var(--text-main)]">{name || t('userFallbackName')}</h3>
+              <p className="text-xs text-blue-500 font-semibold mt-0.5">{titleRole || t('authorFallbackTitle')}</p>
               <p className="text-xs text-[var(--text-muted)] mt-1">{email}</p>
             </div>
 
@@ -124,7 +127,7 @@ export default function UserProfilePage() {
                 {role === 'admin' && <ShieldCheck className="w-3.5 h-3.5" />}
                 {role === 'writer' && <PenTool className="w-3.5 h-3.5" />}
                 {role === 'user' && <User className="w-3.5 h-3.5" />}
-                {role === 'admin' ? 'Administrator 👑' : role === 'writer' ? 'Writer / Penulis ✍️' : 'Pembaca 👤'}
+                {role === 'admin' ? t('roleAdminBadge') : role === 'writer' ? t('roleWriterBadge') : t('roleUserBadge')}
               </span>
             </div>
 
@@ -133,7 +136,7 @@ export default function UserProfilePage() {
           {/* Avatar Preset Selector */}
           <div className="p-5 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-3">
             <label className="block text-xs font-extrabold uppercase text-[var(--text-muted)]">
-              Pilih Preset Avatar
+              {t('selectAvatarPreset')}
             </label>
             <div className="grid grid-cols-3 gap-2.5">
               {AVATAR_PRESETS.map((url, idx) => (
@@ -156,9 +159,9 @@ export default function UserProfilePage() {
         <div className="md:col-span-8 p-6 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-6">
           <div className="border-b border-[var(--border-color)] pb-4">
             <h3 className="text-base font-extrabold text-[var(--text-main)] flex items-center gap-2">
-              <User className="w-5 h-5 text-blue-500" /> Informasi Identitas Penulis
+              <User className="w-5 h-5 text-blue-500" /> {t('authorIdentityHeader')}
             </h3>
-            <p className="text-xs text-[var(--text-subtle)] mt-0.5">Identitas ini otomatis disematkan sebagai Author pada artikel yang Anda buat.</p>
+            <p className="text-xs text-[var(--text-subtle)] mt-0.5">{t('authorIdentityHelp')}</p>
           </div>
 
           <form onSubmit={handleSaveProfile} className="space-y-5">
@@ -166,7 +169,7 @@ export default function UserProfilePage() {
             {/* Nama Lengkap */}
             <div>
               <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                Nama Lengkap Penulis *
+                {t('authorFullNameLabel')}
               </label>
               <Input
                 type="text"
@@ -174,42 +177,42 @@ export default function UserProfilePage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 icon={User}
-                placeholder="misal: Ernst Senior Dev"
+                placeholder={t('authorFullNamePlaceholder')}
               />
             </div>
 
             {/* Title / Jabatan Penulis */}
             <div>
               <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                Gelar / Jabatan Penulis (Title Role)
+                {t('authorTitleRoleLabel')}
               </label>
               <Input
                 type="text"
                 value={titleRole}
                 onChange={(e) => setTitleRole(e.target.value)}
                 icon={Feather}
-                placeholder="misal: Chief Software Architect / Senior Tech Writer"
+                placeholder={t('authorTitleRolePlaceholder')}
               />
             </div>
 
             {/* Email (Readonly) */}
             <div>
               <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                Alamat Email Akun
+                {t('accountEmailLabel')}
               </label>
               <Input
                 type="email"
                 value={email}
                 disabled
                 icon={Mail}
-                helperText="Email digunakan sebagai otentikasi login utama."
+                helperText={t('accountEmailHelper')}
               />
             </div>
 
             {/* URL Avatar Kustom */}
             <div>
               <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                URL Foto Profil Avatar Custom
+                {t('customAvatarUrlLabel')}
               </label>
               <Input
                 type="text"
@@ -223,13 +226,13 @@ export default function UserProfilePage() {
             {/* Bio Ringkas */}
             <div>
               <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                Bio / Biografi Singkat Penulis
+                {t('authorBioLabel')}
               </label>
               <Textarea
                 rows={3}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="Tuliskan ringkasan pengalaman atau keahlian Anda di sini..."
+                placeholder={t('authorBioPlaceholder')}
               />
             </div>
 
@@ -242,7 +245,7 @@ export default function UserProfilePage() {
                 icon={Save}
                 loading={saving}
               >
-                {saving ? 'Menyimpan Profile...' : 'Simpan Perubahan Profil'}
+                {saving ? t('savingProfile') : t('saveProfileBtn')}
               </Button>
             </div>
 

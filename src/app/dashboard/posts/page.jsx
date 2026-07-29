@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { dbService } from '@/services/dbService';
 import PageHeader from '@/components/dashboard/PageHeader';
 import Badge from '@/components/ui/Badge';
@@ -13,6 +14,7 @@ import { PlusCircle, Search, Trash2, Edit3, Eye } from 'lucide-react';
 
 export default function DashboardPostsList() {
   const { user, role } = useAuth();
+  const { t } = useLanguage();
   const [posts, setPosts] = useState([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -34,7 +36,7 @@ export default function DashboardPostsList() {
   }
 
   const handleDelete = async (id, title) => {
-    if (confirm(`Apakah Anda yakin ingin menghapus artikel "${title}"?`)) {
+    if (confirm(`Delete article "${title}"?`)) {
       await dbService.deletePost(id);
       loadPosts();
     }
@@ -50,11 +52,11 @@ export default function DashboardPostsList() {
     <div className="space-y-6 animate-fade-in">
       
       <PageHeader
-        title={role === 'writer' ? 'Postingan Penulis (Saya)' : 'Semua Postingan'}
-        subtitle={role === 'writer' ? 'Kelola draft dan postingan yang Anda tulis.' : 'Kelola seluruh artikel, draft, dan status publikasi blog.'}
+        title={role === 'writer' ? t('postsTitleWriter') : t('postsTitleAdmin')}
+        subtitle={role === 'writer' ? t('postsSubtitleWriter') : t('postsSubtitleAdmin')}
       >
         <Link href="/dashboard/posts/new">
-          <Button icon={PlusCircle}>Tulis Post Baru</Button>
+          <Button icon={PlusCircle}>{t('navAddNewPost')}</Button>
         </Link>
       </PageHeader>
 
@@ -67,7 +69,7 @@ export default function DashboardPostsList() {
               statusFilter === 'all' ? 'bg-blue-600 text-white' : 'bg-[var(--bg-primary)] text-[var(--text-muted)]'
             }`}
           >
-            Semua ({posts.length})
+            {t('filterAll')} ({posts.length})
           </button>
           <button
             onClick={() => setStatusFilter('published')}
@@ -75,7 +77,7 @@ export default function DashboardPostsList() {
               statusFilter === 'published' ? 'bg-emerald-600 text-white' : 'bg-[var(--bg-primary)] text-[var(--text-muted)]'
             }`}
           >
-            Terbit ({posts.filter(p => p.status === 'published').length})
+            {t('filterPublished')} ({posts.filter(p => p.status === 'published').length})
           </button>
           <button
             onClick={() => setStatusFilter('scheduled')}
@@ -83,7 +85,7 @@ export default function DashboardPostsList() {
               statusFilter === 'scheduled' ? 'bg-purple-600 text-white' : 'bg-[var(--bg-primary)] text-[var(--text-muted)]'
             }`}
           >
-            Terjadwal ({posts.filter(p => p.status === 'scheduled').length})
+            {t('filterScheduled')} ({posts.filter(p => p.status === 'scheduled').length})
           </button>
           <button
             onClick={() => setStatusFilter('draft')}
@@ -91,7 +93,7 @@ export default function DashboardPostsList() {
               statusFilter === 'draft' ? 'bg-amber-600 text-white' : 'bg-[var(--bg-primary)] text-[var(--text-muted)]'
             }`}
           >
-            Draft ({posts.filter(p => p.status === 'draft').length})
+            {t('filterDraft')} ({posts.filter(p => p.status === 'draft').length})
           </button>
         </div>
 
@@ -99,7 +101,7 @@ export default function DashboardPostsList() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-subtle)]" />
           <input
             type="text"
-            placeholder="Cari judul artikel..."
+            placeholder={t('searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-1.5 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-blue-500/50"
@@ -110,19 +112,19 @@ export default function DashboardPostsList() {
 
       <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm">
         {loading ? (
-          <div className="py-12 text-center text-xs text-[var(--text-subtle)]">Memuat postingan...</div>
+          <div className="py-12 text-center text-xs text-[var(--text-subtle)]">{t('loading')}</div>
         ) : filteredPosts.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-[var(--text-main)]">
               <thead className="bg-[var(--bg-primary)] text-xs uppercase text-[var(--text-muted)] font-semibold border-y border-[var(--border-color)]">
                 <tr>
-                  <th className="py-3 px-4">Judul</th>
-                  <th className="py-3 px-4">Kategori</th>
-                  <th className="py-3 px-4">Penulis</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Views</th>
-                  <th className="py-3 px-4">Tanggal Publikasi</th>
-                  <th className="py-3 px-4 text-right">Aksi</th>
+                  <th className="py-3 px-4">{t('thTitle')}</th>
+                  <th className="py-3 px-4">{t('thCategory')}</th>
+                  <th className="py-3 px-4">{t('thAuthor')}</th>
+                  <th className="py-3 px-4">{t('thStatus')}</th>
+                  <th className="py-3 px-4">{t('thViews')}</th>
+                  <th className="py-3 px-4">{t('thDate')}</th>
+                  <th className="py-3 px-4 text-right">{t('thActions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border-color)]">
@@ -149,18 +151,18 @@ export default function DashboardPostsList() {
                           ? 'bg-purple-500/10 text-purple-500 border-purple-500/20'
                           : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
                       }`}>
-                        {post.status === 'published' ? '🟢 Terbit' : post.status === 'scheduled' ? '⏰ Terjadwal' : '🟡 Konsep'}
+                        {post.status === 'published' ? `🟢 ${t('published')}` : post.status === 'scheduled' ? `⏰ ${t('filterScheduled')}` : `🟡 ${t('draft')}`}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-xs text-[var(--text-muted)]">{post.views || 0}</td>
                     <td className="py-3.5 px-4 text-xs text-[var(--text-subtle)] font-medium">
-                      {post.publishedAt ? new Date(post.publishedAt).toLocaleString('id-ID', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}
+                      {post.publishedAt ? new Date(post.publishedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}
                     </td>
                     <td className="py-3.5 px-4 text-right space-x-2">
                       <Link
                         href={`/dashboard/posts/edit/${post.id}`}
                         className="p-1.5 rounded-lg inline-block text-blue-500 hover:bg-blue-500/10 transition-colors"
-                        title="Edit Post"
+                        title={t('edit')}
                       >
                         <Edit3 className="w-4 h-4" />
                       </Link>
@@ -168,14 +170,14 @@ export default function DashboardPostsList() {
                         href={`/post/${post.slug}`}
                         target="_blank"
                         className="p-1.5 rounded-lg inline-block text-[var(--text-muted)] hover:bg-[var(--bg-primary)] transition-colors"
-                        title="Pratinjau"
+                        title={t('preview')}
                       >
                         <Eye className="w-4 h-4" />
                       </Link>
                       <button
                         onClick={() => handleDelete(post.id, post.title)}
                         className="p-1.5 rounded-lg inline-block text-rose-500 hover:bg-rose-500/10 transition-colors"
-                        title="Hapus Post"
+                        title={t('delete')}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -186,7 +188,7 @@ export default function DashboardPostsList() {
             </table>
           </div>
         ) : (
-          <div className="py-12 text-center text-xs text-[var(--text-subtle)]">Tidak ada artikel ditemukan.</div>
+          <div className="py-12 text-center text-xs text-[var(--text-subtle)]">{t('noData')}</div>
         )}
       </div>
 

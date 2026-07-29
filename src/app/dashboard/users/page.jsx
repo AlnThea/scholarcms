@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 import { authService } from '@/services/authService';
 import { useAuth } from '@/context/AuthContext';
 import PageHeader from '@/components/dashboard/PageHeader';
@@ -11,6 +12,8 @@ import Input from '@/components/ui/Input';
 import { Users, Search, ShieldCheck, PenTool, User, Check, RefreshCw } from 'lucide-react';
 
 export default function DashboardUsersPage() {
+  const { t, language } = useLanguage();
+  const isEn = language === 'en';
   const { role, refreshUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
@@ -44,25 +47,25 @@ export default function DashboardUsersPage() {
     <div className="space-y-6 animate-fade-in">
       
       <PageHeader
-        title="Kelola Pengguna & Role Hak Akses"
-        subtitle="Atur hak akses pengguna menjadi Admin 👑, Writer ✍️, atau User 👤."
+        title={t('usersTitle')}
+        subtitle={t('usersSubtitle')}
       >
         <Button variant="secondary" icon={RefreshCw} onClick={loadUsers}>
-          Muat Ulang Data
+          {t('reloadUsersBtn')}
         </Button>
       </PageHeader>
 
       {/* Filter & Search */}
       <div className="p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="text-xs text-[var(--text-muted)] font-semibold">
-          Total Pengguna Terdaftar: <span className="text-blue-500 font-extrabold">{users.length} Account</span>
+          {t('totalRegisteredUsers')} <span className="text-blue-500 font-extrabold">{users.length} {t('accountsUnit')}</span>
         </div>
 
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-subtle)]" />
           <input
             type="text"
-            placeholder="Cari nama atau email..."
+            placeholder={t('searchUserPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-1.5 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-blue-500/50"
@@ -73,17 +76,17 @@ export default function DashboardUsersPage() {
       {/* Users Table */}
       <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm">
         {loading ? (
-          <div className="py-12 text-center text-xs text-[var(--text-subtle)]">Memuat daftar pengguna...</div>
+          <div className="py-12 text-center text-xs text-[var(--text-subtle)]">{t('loadingUsers')}</div>
         ) : filteredUsers.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-[var(--text-main)]">
               <thead className="bg-[var(--bg-primary)] text-xs uppercase text-[var(--text-muted)] font-semibold border-y border-[var(--border-color)]">
                 <tr>
-                  <th className="py-3 px-4">Pengguna</th>
-                  <th className="py-3 px-4">Email</th>
-                  <th className="py-3 px-4">Peran Hak Akses (Role)</th>
-                  <th className="py-3 px-4">Tanggal Terdaftar</th>
-                  <th className="py-3 px-4 text-right">Ubah Role</th>
+                  <th className="py-3 px-4">{t('tableColUser')}</th>
+                  <th className="py-3 px-4">{t('tableColEmail')}</th>
+                  <th className="py-3 px-4">{t('tableColRole')}</th>
+                  <th className="py-3 px-4">{t('tableColDate')}</th>
+                  <th className="py-3 px-4 text-right">{t('tableColAction')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border-color)]">
@@ -109,17 +112,17 @@ export default function DashboardUsersPage() {
                         {u.role === 'admin' && <ShieldCheck className="w-3.5 h-3.5" />}
                         {u.role === 'writer' && <PenTool className="w-3.5 h-3.5" />}
                         {u.role === 'user' && <User className="w-3.5 h-3.5" />}
-                        {u.role === 'admin' ? 'Administrator' : u.role === 'writer' ? 'Writer / Penulis' : 'User / Pembaca'}
+                        {u.role === 'admin' ? t('roleAdminTable') : u.role === 'writer' ? t('roleWriterTable') : t('roleUserTable')}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-xs text-[var(--text-subtle)]">
-                      {new Date(u.createdAt || Date.now()).toLocaleDateString('id-ID', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {new Date(u.createdAt || Date.now()).toLocaleDateString(isEn ? 'en-US' : 'id-ID', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <div className="inline-flex items-center gap-2">
                         {savedId === u.id && (
                           <span className="text-xs font-semibold text-emerald-500 flex items-center gap-1">
-                            <Check className="w-3.5 h-3.5" /> Tersimpan!
+                            <Check className="w-3.5 h-3.5" /> {t('roleSavedBadge')}
                           </span>
                         )}
                         <select
@@ -139,7 +142,7 @@ export default function DashboardUsersPage() {
             </table>
           </div>
         ) : (
-          <div className="py-12 text-center text-xs text-[var(--text-subtle)]">Tidak ada pengguna ditemukan.</div>
+          <div className="py-12 text-center text-xs text-[var(--text-subtle)]">{t('noUsersFound')}</div>
         )}
       </div>
 

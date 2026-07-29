@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { aiService } from '@/services/aiService';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import Input from '@/components/ui/Input';
 import Textarea from '@/components/ui/Textarea';
 import Select from '@/components/ui/Select';
@@ -11,6 +12,7 @@ import { Sparkles, X, Globe, Tag, BookOpen, ShieldCheck, Feather, Cpu, Search, T
 
 export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) {
   const { user } = useAuth();
+  const { t, language: appLang } = useLanguage();
   const [inputMode, setInputMode] = useState('niche'); // 'niche' or 'prompt'
   const [topic, setTopic] = useState('');
   const [customPrompt, setCustomPrompt] = useState('');
@@ -31,15 +33,15 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
   useEffect(() => {
     if (isOpen) {
       const prefs = aiService.getPreferences();
-      if (prefs.niche) setNiche(aiService.normalizeParentNiche(prefs.niche));
-      const initLang = prefs.language || 'indonesia';
+      const initLang = appLang === 'en' ? 'english' : (prefs.language || 'indonesia');
       setLanguage(initLang);
+      if (prefs.niche) setNiche(aiService.normalizeParentNiche(prefs.niche, initLang));
       if (prefs.tone) setTone(prefs.tone);
       if (prefs.length) setLength(prefs.length);
       setIsFirstArticle(prefs.isFirstArticle);
       setRecommendedNiches([]);
     }
-  }, [isOpen]);
+  }, [isOpen, appLang]);
 
   if (!isOpen) return null;
 
@@ -59,6 +61,7 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
 
   const handleLanguageChange = (newLang) => {
     setLanguage(newLang);
+    setNiche(prev => aiService.normalizeParentNiche(prev, newLang));
     if (recommendedNiches.length > 0) {
       handleAnalyzeNiches(newLang);
     }
@@ -145,9 +148,9 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
             </div>
             <div>
               <h3 className="font-extrabold text-base text-[var(--text-main)] flex items-center gap-2">
-                Buat Artikel AI &amp; Riset Niche 💰
+                {t('aiModalTitle')}
               </h3>
-              <p className="text-xs text-[var(--text-subtle)]">Analisis tren niche populer &amp; generasi artikel lolos verifikasi Google AdSense</p>
+              <p className="text-xs text-[var(--text-subtle)]">{t('aiModalSubtitle')}</p>
             </div>
           </div>
 
@@ -165,14 +168,14 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
           {isFirstArticle ? (
             <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-600 dark:text-purple-400 text-xs flex items-center justify-between">
               <span className="font-bold flex items-center gap-1.5 text-[11px]">
-                🚀 <strong>Artikel Pertama Situs:</strong> Cari Niche Terbaik Dari Semua Sektor
+                {t('aiFirstArticleNotice')}
               </span>
-              <span className="text-[10px] bg-purple-500/20 px-2 py-0.5 rounded-md font-semibold">Penentuan Niche Website</span>
+              <span className="text-[10px] bg-purple-500/20 px-2 py-0.5 rounded-md font-semibold">{t('aiFirstArticleBadge')}</span>
             </div>
           ) : (
             <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-600 dark:text-blue-400 text-xs flex items-center justify-between">
               <span className="font-bold flex items-center gap-1.5 text-[11px]">
-                🔒 <strong>Niche Utama Situs Terkunci:</strong> {niche || 'Teknologi'}
+                {t('aiLockedNicheNotice')} {niche || 'Teknologi'}
               </span>
               <button
                 type="button"
@@ -181,9 +184,8 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
                   setIsFirstArticle(true);
                 }}
                 className="text-[10px] text-amber-500 underline hover:text-amber-400 font-semibold"
-                title="Reset Niche situs jika ingin ganti Niche utama"
               >
-                Ganti Niche Utama
+                {t('aiChangeNicheBtn')}
               </button>
             </div>
           )}
@@ -201,7 +203,7 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
                   : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
               }`}
             >
-              <TrendingUp className="w-4 h-4" /> 🔍 Mode Riset Topik Viral AI
+              <TrendingUp className="w-4 h-4" /> {t('aiModeNicheTab')}
             </button>
             <button
               type="button"
@@ -212,7 +214,7 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
                   : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
               }`}
             >
-              <MessageSquareCode className="w-4 h-4" /> ✍️ Mode Prompt Bebas User
+              <MessageSquareCode className="w-4 h-4" /> {t('aiModePromptTab')}
             </button>
           </div>
         </div>
@@ -228,7 +230,7 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
                 <div className="flex items-center gap-2.5">
                   <ShieldCheck className="w-5 h-5 shrink-0 text-emerald-500" />
                   <p className="text-[11px] leading-relaxed">
-                    <strong>Bebas Penolakan AdSense &quot;Low Value Content&quot;:</strong> AI menghasilkan konten terstruktur (&lt;h2&gt;, &lt;h3&gt;, &lt;ul&gt;, &lt;blockquote&gt;) gaya bahasa manusia natural.
+                    {t('aiAdsenseNotice')}
                   </p>
                 </div>
 
@@ -239,10 +241,9 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
                   icon={Search}
                   loading={analyzingNiches}
                   onClick={handleAnalyzeNiches}
-                  title={isFirstArticle ? "Cari & bandingkan Niche dari semua sektor" : `Cari topik viral khusus Niche ${niche}`}
                   className="shrink-0 bg-[var(--bg-surface)] hover:bg-blue-500/10 border-blue-500/30 text-blue-500 text-[11px]"
                 >
-                  {analyzingNiches ? 'Menganalisis...' : (isFirstArticle ? '🔍 Cari Niche (Semua Sektor)' : `🔍 Cari Topik Viral (${niche || 'Niche'})`)}
+                  {analyzingNiches ? t('aiAnalyzing') : (isFirstArticle ? t('aiFindNicheAll') : `${t('aiFindViralTopics')} (${niche || 'Niche'})`)}
                 </Button>
               </div>
 
@@ -251,9 +252,9 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
                 <div className="space-y-2 animate-fade-in">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-500 flex items-center gap-1">
-                      <TrendingUp className="w-3.5 h-3.5" /> {isFirstArticle ? 'Rekomendasi Niche Sektor Utama' : `Rekomendasi Topik Viral (${niche})`}
+                      <TrendingUp className="w-3.5 h-3.5" /> {isFirstArticle ? t('aiRecommendedNicheTitle') : `${t('aiRecommendedTopicsTitle')} (${niche})`}
                     </span>
-                    <span className="text-[10px] text-[var(--text-subtle)]">Klik kartu untuk memilih</span>
+                    <span className="text-[10px] text-[var(--text-subtle)]">{t('aiClickToSelect')}</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-56 overflow-y-auto pr-1">
@@ -292,16 +293,16 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
 
               <div>
                 <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                  Topik Utama / Judul Target Artikel *
+                  {t('aiTopicInputLabel')}
                 </label>
                 <Input
                   type="text"
                   required
-                  placeholder="Contoh: Panduan Belajar Next.js 14 &amp; Firestore untuk Pemula"
+                  placeholder={t('aiTopicInputPlaceholder')}
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
                   icon={BookOpen}
-                  helperText="Tulis topik spesifik atau klik tombol '🔍 Cari Topik Viral' jika ingin bantuan AI."
+                  helperText={t('aiTopicInputHelper')}
                 />
               </div>
             </div>
@@ -309,18 +310,17 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
             /* Mode 2: Prompt Bebas User */
             <div>
               <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1 flex items-center justify-between">
-                <span>Instruksi Khusus / Prompt Bebas Anda *</span>
-                <span className="text-[10px] text-purple-400 font-normal">Tulis detail instruksi artikel yang Anda inginkan</span>
+                <span>{t('aiCustomPromptLabel')}</span>
               </label>
               <Textarea
                 rows={3}
                 required
-                placeholder="Contoh: Buatkan tutorial pembuatan website dinamis menggunakan PHP 8 &amp; MySQL untuk pemula dari nol sampai online. Sertakan cara install XAMPP, struktur folder, kodingan index.php, &amp; database SQL."
+                placeholder={t('aiCustomPromptPlaceholder')}
                 value={customPrompt}
                 onChange={(e) => setCustomPrompt(e.target.value)}
               />
               <p className="text-[11px] text-[var(--text-muted)] mt-1">
-                💡 <strong>Tips Prompt:</strong> Semakin spesifik instruksi Anda (misal sebutkan bahasa PHP/Python/React, langkah install, atau poin bab), AI akan menghasilkan tutorial yang semakin akurat.
+                {t('aiCustomPromptTip')}
               </p>
             </div>
           )}
@@ -331,7 +331,7 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
             {/* Niche Target */}
             <div>
               <label className="block text-[11px] font-bold uppercase text-[var(--text-muted)] mb-1">
-                Niche Utama Situs
+                {t('aiNicheLabel')}
               </label>
               <Input
                 type="text"
@@ -345,13 +345,13 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
             {/* Sub-Kategori Spesifik */}
             <div>
               <label className="block text-[11px] font-bold uppercase text-[var(--text-muted)] mb-1">
-                Sub-Kategori Target
+                {t('aiSubCategoryLabel')}
               </label>
               <Select
                 value={subCategory}
                 onChange={(e) => setSubCategory(e.target.value)}
               >
-                <option value="">🤖 Otomatis (Ditentukan AI)</option>
+                <option value="">{t('aiSubCategoryAuto')}</option>
                 <option value="Artificial Intelligence">🤖 Artificial Intelligence</option>
                 <option value="Web Development">🌐 Web Development</option>
                 <option value="Cybersecurity & Privacy">🔒 Cybersecurity & Privacy</option>
@@ -366,7 +366,7 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
             {/* Bahasa Konten */}
             <div>
               <label className="block text-[11px] font-bold uppercase text-[var(--text-muted)] mb-1">
-                Bahasa Konten
+                {t('aiContentLangLabel')}
               </label>
               <Select
                 value={language}
@@ -385,33 +385,43 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
             {/* Tone of Voice */}
             <div>
               <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                Gaya Penulisan (Tone)
+                {t('aiToneLabel')}
               </label>
               <Select
                 value={tone}
                 onChange={(e) => setTone(e.target.value)}
               >
-                <option value="auto">🤖 Otomatis (Disesuaikan AI dengan Topik Judul)</option>
-                <option value="🎓 Kursus Tutorial Elearning Pemula (2000+ Kata)">🎓 Kursus Elearning Pemula dari Nol (2000+ Kata)</option>
-                <option value="Edukatif & Tutorial Step-by-Step">📚 Edukatif &amp; Step-by-Step</option>
-                <option value="Professional & Informatif">💼 Profesional &amp; Informatif</option>
-                <option value="Casual & Komunikatif">💬 Casual &amp; Komunikatif</option>
-                <option value="Analitis & Mendalam">📊 Analitis &amp; Mendalam</option>
+                <option value="auto">{t('aiToneAuto')}</option>
+                <option value="🎓 Kursus Tutorial Elearning Pemula (2000+ Kata)">
+                  {language === 'english' ? '🎓 Beginner Elearning Masterclass (2000+ Words)' : '🎓 Kursus Elearning Pemula dari Nol (2000+ Kata)'}
+                </option>
+                <option value="Edukatif & Tutorial Step-by-Step">
+                  {language === 'english' ? '📚 Educational & Step-by-Step Tutorial' : '📚 Edukatif & Step-by-Step'}
+                </option>
+                <option value="Professional & Informatif">
+                  {language === 'english' ? '💼 Professional & Informative' : '💼 Profesional & Informatif'}
+                </option>
+                <option value="Casual & Komunikatif">
+                  {language === 'english' ? '💬 Casual & Conversational' : '💬 Casual & Komunikatif'}
+                </option>
+                <option value="Analitis & Mendalam">
+                  {language === 'english' ? '📊 Analytical & Deep-Dive' : '📊 Analitis & Mendalam'}
+                </option>
               </Select>
             </div>
 
             {/* Target Length */}
             <div>
               <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                Kedalaman Konten
+                {t('aiLengthLabel')}
               </label>
               <Select
                 value={length}
                 onChange={(e) => setLength(e.target.value)}
               >
-                <option value="deep">⭐ Mendalam (1000+ Kata - Lolos AdSense)</option>
-                <option value="elearning">🚀 Kursus &amp; Tutorial Elearning (2000+ Kata)</option>
-                <option value="standard">📝 Standar (700+ Kata)</option>
+                <option value="deep">{t('aiLengthDeep')}</option>
+                <option value="elearning">{t('aiLengthElearning')}</option>
+                <option value="standard">{t('aiLengthStandard')}</option>
               </Select>
             </div>
 
@@ -421,14 +431,14 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
           <div className="p-3.5 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">
               <FileText className="w-4 h-4 text-emerald-500" />
-              <span>Estimasi Target Kata Artikel:</span>
+              <span>{t('aiEstimatedWordCount')}</span>
             </div>
             <span className="px-3 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30 font-mono font-extrabold text-xs text-emerald-600 dark:text-emerald-400">
               {tone.includes('2000') || length === 'elearning'
-                ? '📊 2.000 - 2.500+ Kata (Masterclass Elearning)'
+                ? (language === 'english' ? '📊 2,000 - 2,500+ Words (Elearning Masterclass)' : '📊 2.000 - 2.500+ Kata (Masterclass Elearning)')
                 : length === 'deep'
-                ? '📊 1.000 - 1.500+ Kata (Lolos AdSense)'
-                : '📊 700 - 1.000+ Kata'}
+                ? (language === 'english' ? '📊 1,000 - 1,500+ Words (AdSense Safe)' : '📊 1.000 - 1.500+ Kata (Lolos AdSense)')
+                : (language === 'english' ? '📊 700 - 1,000+ Words' : '📊 700 - 1.000+ Kata')}
             </span>
           </div>
 
@@ -441,7 +451,7 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
               onClick={onClose}
               disabled={loading}
             >
-              Batal
+              {t('cancel')}
             </Button>
 
             <Button
@@ -452,7 +462,7 @@ export default function AiGenerateModal({ isOpen, onClose, onGenerateSuccess }) 
               loading={loading}
               onClick={handleSubmit}
             >
-              {loading ? 'Generasi Artikel AI...' : '✨ Hasilkan Artikel Berkualitas'}
+              {loading ? t('aiGenerating') : t('aiGenerateBtn')}
             </Button>
           </div>
 

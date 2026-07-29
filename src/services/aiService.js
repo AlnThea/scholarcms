@@ -48,8 +48,9 @@ export const aiService = {
     }
   },
 
-  normalizeParentNiche(inputNiche) {
-    if (!inputNiche) return 'Teknologi';
+  normalizeParentNiche(inputNiche, lang = 'indonesia') {
+    const isEn = lang === 'english';
+    if (!inputNiche) return isEn ? 'Technology' : 'Teknologi';
     
     let cleanInput = String(inputNiche).trim();
     if (cleanInput.includes(':')) {
@@ -58,26 +59,26 @@ export const aiService = {
 
     const lower = cleanInput.toLowerCase();
     
-    if (lower.startsWith('teknologi') || lower.includes('tekno') || lower.includes('ai') || lower.includes('cloud') || lower.includes('cyber') || lower.includes('program') || lower.includes('coding') || lower.includes('software') || lower.includes('devops') || lower.includes('web') || lower.includes('komputer') || lower.includes('tech') || lower.includes('data') || lower.includes('gadget') || lower.includes('saas')) {
-      return 'Teknologi';
+    if (lower.startsWith('teknologi') || lower.startsWith('technology') || lower.includes('tekno') || lower.includes('ai') || lower.includes('cloud') || lower.includes('cyber') || lower.includes('program') || lower.includes('coding') || lower.includes('software') || lower.includes('devops') || lower.includes('web') || lower.includes('komputer') || lower.includes('tech') || lower.includes('data') || lower.includes('gadget') || lower.includes('saas')) {
+      return isEn ? 'Technology' : 'Teknologi';
     }
-    if (lower.startsWith('keuangan') || lower.includes('uang') || lower.includes('finan') || lower.includes('fintech') || lower.includes('invest') || lower.includes('saham') || lower.includes('bank') || lower.includes('kripto') || lower.includes('crypto')) {
-      return 'Keuangan';
+    if (lower.startsWith('keuangan') || lower.startsWith('finance') || lower.includes('uang') || lower.includes('finan') || lower.includes('fintech') || lower.includes('invest') || lower.includes('saham') || lower.includes('bank') || lower.includes('kripto') || lower.includes('crypto')) {
+      return isEn ? 'Finance' : 'Keuangan';
     }
-    if (lower.startsWith('kesehatan') || lower.includes('sehat') || lower.includes('bio') || lower.includes('longevity') || lower.includes('medis') || lower.includes('fit') || lower.includes('gaya hidup') || lower.includes('kesehatan')) {
-      return 'Kesehatan';
+    if (lower.startsWith('kesehatan') || lower.startsWith('health') || lower.includes('sehat') || lower.includes('bio') || lower.includes('longevity') || lower.includes('medis') || lower.includes('fit') || lower.includes('gaya hidup') || lower.includes('kesehatan')) {
+      return isEn ? 'Health' : 'Kesehatan';
     }
-    if (lower.startsWith('bisnis') || lower.includes('market') || lower.includes('seo') || lower.includes('commerce') || lower.includes('bisnis') || lower.includes('digital') || lower.includes('pemasaran')) {
-      return 'Bisnis & Marketing';
+    if (lower.startsWith('bisnis') || lower.startsWith('business') || lower.includes('market') || lower.includes('seo') || lower.includes('commerce') || lower.includes('bisnis') || lower.includes('digital') || lower.includes('pemasaran')) {
+      return isEn ? 'Business & Marketing' : 'Bisnis & Marketing';
     }
-    if (lower.startsWith('energi') || lower.includes('energi') || lower.includes('listrik') || lower.includes('surya') || lower.includes('green')) {
-      return 'Energi Terbarukan';
+    if (lower.startsWith('energi') || lower.startsWith('energy') || lower.includes('energi') || lower.includes('listrik') || lower.includes('surya') || lower.includes('green')) {
+      return isEn ? 'Renewable Energy' : 'Energi Terbarukan';
     }
-    if (lower.startsWith('pengembangan') || lower.includes('diri') || lower.includes('produk') || lower.includes('karir') || lower.includes('kerja')) {
-      return 'Pengembangan Diri';
+    if (lower.startsWith('pengembangan') || lower.startsWith('self') || lower.includes('diri') || lower.includes('produk') || lower.includes('karir') || lower.includes('kerja')) {
+      return isEn ? 'Self Improvement' : 'Pengembangan Diri';
     }
 
-    return cleanInput || 'Teknologi';
+    return cleanInput || (isEn ? 'Technology' : 'Teknologi');
   },
 
   getEstablishedNiche() {
@@ -415,7 +416,7 @@ PENTING: KELUARKAN HANYA OBJEK JSON VALID TANPA FORMAT MARKDOWN CODEBLOCK. FORMA
   async analyzeTrendingNiches(targetNiche, language = 'indonesia') {
     const establishedNiche = this.getEstablishedNiche();
     const rawNiche = targetNiche || establishedNiche || '';
-    const currentNiche = rawNiche ? this.normalizeParentNiche(rawNiche) : '';
+    const currentNiche = rawNiche ? this.normalizeParentNiche(rawNiche, language) : '';
     const isEn = language === 'english';
 
     const ALL_NICHES_POOL_ID = [
@@ -596,7 +597,23 @@ PENTING: KELUARKAN HANYA OBJEK JSON VALID TANPA FORMAT MARKDOWN CODEBLOCK. FORMA
         const timestamp = new Date().toISOString();
         let prompt = '';
         if (currentNiche) {
-          prompt = `Analisis dan berikan 6 rekomendasi Topik Artikel segar, variatif & viral KHUSUS DALAM PAYUNG NICHE UTAMA "${currentNiche}" pada waktu ${timestamp} dengan potensi AdSense CPC tinggi. Topik HARUS mencakup SELURUH SUB-CABANG LUAS NICHE TERSEBUT (misal jika Niche "${currentNiche}": berikan variasi sub-topik AI & Machine Learning, Cybersecurity, Web & Mobile Dev, Cloud Computing, DevOps, Gadget/Hardware) agar konten variatif namun tetap berada dalam 1 payung Niche Utama "${currentNiche}" yang konsisten bagi Google AdSense.
+          prompt = isEn ? `Analyze and provide 6 fresh, diverse & trending Article Topics SPECIFICALLY UNDER THE PRIMARY NICHE "${currentNiche}" at timestamp ${timestamp} with high AdSense CPC potential. Topics MUST cover ALL WIDE SUB-BRANCHES OF THE NICHE (e.g. for Niche "${currentNiche}": provide variations across AI & Machine Learning, Cybersecurity, Web & Mobile Dev, Cloud Computing, DevOps, Hardware) so the content is diverse while staying under the single primary Niche umbrella "${currentNiche}".
+
+${langPromptInstruction}
+
+Format MUST be pure JSON array without markdown codeblocks:
+[
+  {
+    "id": "unique_id_${Date.now()}_1",
+    "niche": "${currentNiche}",
+    "subBranch": "Sub-Category Name (e.g. AI & Machine Learning)",
+    "cpc": "$3.00 - $12.00 / click",
+    "trendScore": 95,
+    "sampleTopic": "Specific Article Title Example for this Sub-Branch",
+    "competition": "Medium",
+    "reason": "AdSense advantage reason for this sub-branch"
+  }
+]` : `Analisis dan berikan 6 rekomendasi Topik Artikel segar, variatif & viral KHUSUS DALAM PAYUNG NICHE UTAMA "${currentNiche}" pada waktu ${timestamp} dengan potensi AdSense CPC tinggi. Topik HARUS mencakup SELURUH SUB-CABANG LUAS NICHE TERSEBUT (misal jika Niche "${currentNiche}": berikan variasi sub-topik AI & Machine Learning, Cybersecurity, Web & Mobile Dev, Cloud Computing, DevOps, Gadget/Hardware) agar konten variatif namun tetap berada dalam 1 payung Niche Utama "${currentNiche}" yang konsisten bagi Google AdSense.
 
 ${langPromptInstruction}
 
@@ -614,7 +631,23 @@ Format HARUS JSON array murni tanpa markdown triple backtick:
   }
 ]`;
         } else {
-          prompt = `Analisis dan berikan 6 rekomendasi Niche Blog Utama terpopuler dari SEKTOR BERBEDA (misal: Teknologi, Keuangan, Kesehatan, Bisnis & Marketing, Energi Terbarukan, Pengembangan Diri) pada waktu ${timestamp} dengan potensi AdSense CPC tinggi agar pengguna bisa memilih Niche Utama situs barunya.
+          prompt = isEn ? `Analyze and provide 6 popular Primary Blog Niche recommendations from DIFFERENT SECTORS (e.g. Technology, Finance, Health, Business & Marketing, Renewable Energy, Self Improvement) at timestamp ${timestamp} with high AdSense CPC potential so the user can choose a Primary Niche for their new site.
+
+${langPromptInstruction}
+
+Format MUST be pure JSON array without markdown codeblocks:
+[
+  {
+    "id": "unique_id_${Date.now()}_1",
+    "niche": "Primary Sector Niche Name",
+    "subBranch": "Main Sub-Sector",
+    "cpc": "$3.00 - $12.00 / click",
+    "trendScore": 95,
+    "sampleTopic": "Top Article Title Example for this Sector",
+    "competition": "Medium",
+    "reason": "AdSense advantage reason"
+  }
+]` : `Analisis dan berikan 6 rekomendasi Niche Blog Utama terpopuler dari SEKTOR BERBEDA (misal: Teknologi, Keuangan, Kesehatan, Bisnis & Marketing, Energi Terbarukan, Pengembangan Diri) pada waktu ${timestamp} dengan potensi AdSense CPC tinggi agar pengguna bisa memilih Niche Utama situs barunya.
 
 ${langPromptInstruction}
 
@@ -636,18 +669,18 @@ Format HARUS JSON array murni tanpa markdown triple backtick:
         if (Array.isArray(parsed) && parsed.length > 0) {
           return parsed.map((item, idx) => {
             const rawNiche = item.niche || '';
-            const normalized = this.normalizeParentNiche(rawNiche);
+            const normalized = this.normalizeParentNiche(rawNiche, language);
             
             let sub = item.subBranch || '';
             if (!sub && rawNiche && rawNiche !== normalized) {
-              sub = rawNiche.replace(/^teknologi\s*/i, '').replace(/^keuangan\s*/i, '').replace(/^kesehatan\s*/i, '').replace(/^bisnis\s*/i, '').trim();
+              sub = rawNiche.replace(/^teknologi\s*/i, '').replace(/^technology\s*/i, '').replace(/^keuangan\s*/i, '').replace(/^finance\s*/i, '').replace(/^kesehatan\s*/i, '').replace(/^health\s*/i, '').trim();
             }
 
             return {
               ...item,
               id: item.id || `niche_rec_${Date.now()}_${idx}`,
               niche: currentNiche || normalized,
-              subBranch: sub || item.sampleTopic || 'Topik Pilihan'
+              subBranch: sub || item.sampleTopic || (isEn ? 'Featured Topic' : 'Topik Pilihan')
             };
           });
         }
@@ -658,7 +691,11 @@ Format HARUS JSON array murni tanpa markdown triple backtick:
 
     let filtered = ALL_NICHES_POOL;
     if (currentNiche) {
-      const matched = ALL_NICHES_POOL.filter(item => item.niche.toLowerCase() === currentNiche.toLowerCase() || item.niche.toLowerCase().includes(currentNiche.toLowerCase()) || currentNiche.toLowerCase().includes(item.niche.toLowerCase()));
+      const matched = ALL_NICHES_POOL.filter(item => {
+        const itemN = (item.niche || '').toLowerCase();
+        const currN = (currentNiche || '').toLowerCase();
+        return itemN === currN || itemN.includes(currN) || currN.includes(itemN) || (isEn && (currN.includes('tech') || currN.includes('tekno') || itemN.includes('tech')));
+      });
       if (matched.length > 0) filtered = matched;
     }
 

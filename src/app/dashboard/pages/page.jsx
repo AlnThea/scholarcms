@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { dbService } from '@/services/dbService';
 import PageHeader from '@/components/dashboard/PageHeader';
 import Button from '@/components/ui/Button';
@@ -10,6 +11,7 @@ import { PlusCircle, Search, Trash2, Edit3, Eye, Layers } from 'lucide-react';
 
 export default function DashboardPagesList() {
   const { user, role } = useAuth();
+  const { t } = useLanguage();
   const [pages, setPages] = useState([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -27,7 +29,7 @@ export default function DashboardPagesList() {
   }
 
   const handleDelete = async (id, title) => {
-    if (confirm(`Apakah Anda yakin ingin menghapus halaman statis "${title}"?`)) {
+    if (confirm(`Delete static page "${title}"?`)) {
       await dbService.deletePage(id);
       loadPages();
     }
@@ -43,11 +45,11 @@ export default function DashboardPagesList() {
     <div className="space-y-6 animate-fade-in">
       
       <PageHeader
-        title="Halaman Statis"
-        subtitle="Kelola halaman statis independen seperti Tentang Kami, Kebijakan Privasi, Kontak, dll."
+        title={t('pagesTitle')}
+        subtitle={t('pagesSubtitle')}
       >
         <Link href="/dashboard/pages/new">
-          <Button icon={PlusCircle}>Buat Page Statis Baru</Button>
+          <Button icon={PlusCircle}>{t('navCreateNewPage')}</Button>
         </Link>
       </PageHeader>
 

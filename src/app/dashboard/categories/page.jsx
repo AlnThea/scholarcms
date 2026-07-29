@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 import { dbService } from '@/services/dbService';
 import PageHeader from '@/components/dashboard/PageHeader';
 import Input from '@/components/ui/Input';
@@ -9,6 +10,7 @@ import Button from '@/components/ui/Button';
 import { Plus, Trash2 } from 'lucide-react';
 
 export default function DashboardCategories() {
+  const { t } = useLanguage();
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
@@ -44,7 +46,7 @@ export default function DashboardCategories() {
   };
 
   const handleDelete = async (id, name) => {
-    if (confirm(`Apakah Anda yakin ingin menghapus kategori "${name}"?`)) {
+    if (confirm(`Delete category "${name}"?`)) {
       await dbService.deleteCategory(id);
       loadCategories();
     }
@@ -53,33 +55,33 @@ export default function DashboardCategories() {
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
-        title="Kelola Kategori & Topik"
-        subtitle="Organisasikan postingan blog Anda berdasarkan taksonomi kategori."
+        title={t('categoriesTitle')}
+        subtitle={t('categoriesSubtitle')}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-5 p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4">
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-[var(--text-main)] border-b border-[var(--border-color)] pb-3 flex items-center gap-2">
-            <Plus className="w-4 h-4 text-blue-500" /> Tambah Kategori Baru
+            <Plus className="w-4 h-4 text-blue-500" /> {t('addCategoryHeader')}
           </h3>
           <form onSubmit={handleCreate} className="space-y-4">
             <Input
-              label="Nama Kategori *"
+              label={t('categoryNameLabel')}
               required
-              placeholder="misal: Cloud Computing"
+              placeholder={t('categoryNamePlaceholder')}
               value={name}
               onChange={handleNameChange}
             />
 
             <Input
-              label="Slug URL"
+              label={t('urlSlugLabel')}
               required
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
             />
 
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">Warna Aksen</label>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">{t('accentColorLabel')}</label>
               <div className="flex items-center gap-3">
                 <input
                   type="color"
@@ -92,9 +94,9 @@ export default function DashboardCategories() {
             </div>
 
             <Textarea
-              label="Deskripsi Ringkas"
+              label={t('shortDescLabel')}
               rows={2}
-              placeholder="Penjelasan singkat mengenai kategori ini..."
+              placeholder={t('shortDescPlaceholder')}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -104,13 +106,13 @@ export default function DashboardCategories() {
               loading={saving}
               className="w-full"
             >
-              Tambah Kategori
+              {t('addCategoryBtn')}
             </Button>
           </form>
         </div>
         <div className="lg:col-span-7 p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4">
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-[var(--text-main)] border-b border-[var(--border-color)] pb-3">
-            Daftar Kategori Aktif ({categories.length})
+            {t('activeCategoriesList')} ({categories.length})
           </h3>
           <div className="space-y-3">
             {categories.map((cat) => (
@@ -126,7 +128,7 @@ export default function DashboardCategories() {
                 <button
                   onClick={() => handleDelete(cat.id, cat.name)}
                   className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition-colors"
-                  title="Hapus Kategori"
+                  title={t('deleteCategory')}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

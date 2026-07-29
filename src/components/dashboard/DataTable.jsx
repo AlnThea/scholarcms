@@ -1,19 +1,24 @@
 'use client';
 
 import React from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function DataTable({
   headers = [],
   children,
   loading = false,
-  emptyMessage = 'Tidak ada data ditemukan.',
+  emptyMessage,
   className = '',
 }) {
+  const { t } = useLanguage();
+  const displayEmptyMsg = emptyMessage || t('noData');
+  const displayLoadingMsg = t('loading');
+
   return (
     <div className={`p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm ${className}`}>
       {loading ? (
         <div className="py-12 text-center text-xs font-semibold text-[var(--text-subtle)]">
-          Memuat data...
+          {displayLoadingMsg}
         </div>
       ) : children ? (
         <div className="overflow-x-auto">
@@ -39,7 +44,7 @@ export default function DataTable({
         </div>
       ) : (
         <div className="py-12 text-center text-xs font-semibold text-[var(--text-subtle)]">
-          {emptyMessage}
+          {displayEmptyMsg}
         </div>
       )}
     </div>

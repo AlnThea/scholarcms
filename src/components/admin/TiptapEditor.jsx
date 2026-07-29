@@ -42,6 +42,7 @@ import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
 import { dbService } from '@/services/dbService';
 import { useMetaSidebar } from '@/context/MetaSidebarContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 const FontSizeExtension = Extension.create({
   name: 'fontSize',
@@ -89,6 +90,7 @@ const FontSizeExtension = Extension.create({
 });
 
 export default function TiptapEditor({ initialPost, onSave, saving, backLink = '/dashboard/posts', isPage = false }) {
+  const { t } = useLanguage();
   const {
     title, setTitle, slug, setSlug,
     excerpt, setExcerpt,
@@ -224,8 +226,8 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
       }),
       Placeholder.configure({
         placeholder: isPage
-          ? 'Mulai ketik isi halaman statis Anda di sini atau seret blok dari Sidebar Palette...'
-          : 'Mulai ketik isi artikel blog Anda di sini atau seret blok dari Sidebar Palette...',
+          ? t('placeholderEditorPage')
+          : t('placeholderEditorPost'),
       }),
       ImageExtension.configure({
         inline: true,
@@ -850,14 +852,14 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
             <div className="p-2.5 flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <Link href={backLink}>
-                  <Button variant="ghost" size="sm" icon={ArrowLeft} title="Kembali ke Daftar">
-                    Kembali
+                  <Button variant="ghost" size="sm" icon={ArrowLeft} title={t('editorBack')}>
+                    {t('editorBack')}
                   </Button>
                 </Link>
                 {activeTab === 'preview' && (
                   <div className="flex items-center gap-2 text-xs font-bold text-[var(--text-main)] px-2 py-1">
                     <Eye className="w-4 h-4 text-blue-500" />
-                    <span>Pratinjau Tampilan {isPage ? 'Halaman Statis' : 'Artikel'}</span>
+                    <span>{t('editorPreviewView')}</span>
                     <span className="px-2.5 py-0.5 rounded-full text-[10px] bg-blue-500/10 text-blue-500 border border-blue-500/20">
                       Live View
                     </span>
@@ -874,10 +876,9 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     size="sm"
                     icon={Sparkles}
                     onClick={() => setIsAiModalOpen(true)}
-                    title="Buat artikel bernilai tinggi (High Value Content) otomatis dengan AI"
                     className="bg-gradient-to-r from-blue-600 to-purple-600 border-none shadow-md shadow-purple-500/20"
                   >
-                    Buat Artikel AI ✨
+                    {t('editorAiArticleBtn')}
                   </Button>
                 )}
 
@@ -887,9 +888,8 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                   size="sm"
                   icon={activeTab === 'preview' ? Edit3 : Eye}
                   onClick={() => setEditorViewMode(activeTab === 'editor' ? 'preview' : 'editor')}
-                  title="Beralih antara Mode Editor dan Pratinjau"
                 >
-                  {activeTab === 'editor' ? 'Pratinjau' : 'Mode Editor'}
+                  {activeTab === 'editor' ? t('editorPreviewMode') : t('editorEditMode')}
                 </Button>
 
                 <Button
@@ -899,9 +899,8 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                   icon={Save}
                   loading={saving}
                   onClick={() => handleSubmit(null, false)}
-                  title="Simpan tanpa keluar dari editor"
                 >
-                  Simpan
+                  {t('editorSaveDraft')}
                 </Button>
 
                 <Button
@@ -911,9 +910,8 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                   icon={Save}
                   loading={saving}
                   onClick={() => handleSubmit(null, true)}
-                  title="Simpan dan kembali ke daftar"
                 >
-                  Simpan &amp; Keluar
+                  {t('editorSaveExit')}
                 </Button>
               </div>
             </div>
@@ -949,7 +947,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={() => editor.chain().focus().setParagraph().run()}
                     className={`px-2 py-1 rounded-md text-xs font-semibold transition-colors flex items-center gap-1 ${editor.isActive('paragraph') ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
-                    title="Ubah ke Paragraf Teks"
+                    title={t('fmtParagraph')}
                   >
                     <Type className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">Paragraf</span>
@@ -958,7 +956,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
                     className={`px-2 py-1 rounded-md text-xs font-semibold transition-colors flex items-center gap-1 ${editor.isActive('heading', { level: 2 }) ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
-                    title="Ubah ke Judul H2"
+                    title={t('fmtH2')}
                   >
                     <Heading className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">H2</span>
@@ -967,7 +965,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={() => editor.chain().focus().toggleBlockquote().run()}
                     className={`px-2 py-1 rounded-md text-xs font-semibold transition-colors flex items-center gap-1 ${editor.isActive('blockquote') ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
-                    title="Ubah ke Kutipan"
+                    title={t('fmtQuote')}
                   >
                     <Quote className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">Kutipan</span>
@@ -976,7 +974,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={() => editor.chain().focus().toggleCodeBlock().run()}
                     className={`px-2 py-1 rounded-md text-xs font-semibold transition-colors flex items-center gap-1 ${editor.isActive('codeBlock') ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
-                    title="Ubah ke Kode Snippet"
+                    title={t('fmtCode')}
                   >
                     <Code className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">Kode</span>
@@ -996,7 +994,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                       }
                     }}
                     className="bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-color)] rounded-md text-[11px] font-medium py-1 px-1.5 focus:outline-none focus:border-blue-500 cursor-pointer shadow-2xs"
-                    title="Pilih Gaya Font (Font Family)"
+                    title={t('fmtFontFamily')}
                   >
                     <option value="default">Default</option>
                     <option value="'Plus Jakarta Sans', sans-serif">Sans-Serif</option>
@@ -1015,7 +1013,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                       }
                     }}
                     className="bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-color)] rounded-md text-[11px] font-medium py-1 px-1.5 focus:outline-none focus:border-blue-500 cursor-pointer shadow-2xs"
-                    title="Pilih Ukuran Font (Font Size)"
+                    title={t('fmtFontSize')}
                   >
                     <option value="default">Default</option>
                     <option value="12px">12px</option>
@@ -1032,7 +1030,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={() => editor.chain().focus().undo().run()}
                     className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] transition-colors"
-                    title="Undo (Urungkan)"
+                    title={t('fmtUndo')}
                   >
                     <Undo className="w-3.5 h-3.5" />
                   </button>
@@ -1040,7 +1038,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={() => editor.chain().focus().redo().run()}
                     className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] transition-colors"
-                    title="Redo (Ulangi)"
+                    title={t('fmtRedo')}
                   >
                     <Redo className="w-3.5 h-3.5" />
                   </button>
@@ -1052,7 +1050,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={() => editor.chain().focus().setTextAlign('left').run()}
                     className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive({ textAlign: 'left' }) ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
-                    title="Rata Kiri (Align Left)"
+                    title={t('fmtAlignLeft')}
                   >
                     <AlignLeft className="w-3.5 h-3.5" />
                   </button>
@@ -1060,7 +1058,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={() => editor.chain().focus().setTextAlign('center').run()}
                     className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive({ textAlign: 'center' }) ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
-                    title="Rata Tengah (Align Center)"
+                    title={t('fmtAlignCenter')}
                   >
                     <AlignCenter className="w-3.5 h-3.5" />
                   </button>
@@ -1068,7 +1066,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={() => editor.chain().focus().setTextAlign('right').run()}
                     className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive({ textAlign: 'right' }) ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
-                    title="Rata Kanan (Align Right)"
+                    title={t('fmtAlignRight')}
                   >
                     <AlignRight className="w-3.5 h-3.5" />
                   </button>
@@ -1076,7 +1074,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={() => editor.chain().focus().setTextAlign('justify').run()}
                     className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive({ textAlign: 'justify' }) ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
-                    title="Rata Kiri Kanan (Justify)"
+                    title={t('fmtAlignJustify')}
                   >
                     <AlignJustify className="w-3.5 h-3.5" />
                   </button>
@@ -1087,7 +1085,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={() => editor.chain().focus().toggleBold().run()}
                     className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive('bold') ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
-                    title="Bold (Tebal)"
+                    title={t('fmtBold')}
                   >
                     <Bold className="w-3.5 h-3.5" />
                   </button>
@@ -1095,7 +1093,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={() => editor.chain().focus().toggleItalic().run()}
                     className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive('italic') ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
-                    title="Italic (Miring)"
+                    title={t('fmtItalic')}
                   >
                     <Italic className="w-3.5 h-3.5" />
                   </button>
@@ -1103,7 +1101,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={() => editor.chain().focus().toggleUnderline().run()}
                     className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive('underline') ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
-                    title="Underline (Garis Bawah)"
+                    title={t('fmtUnderline')}
                   >
                     <Underline className="w-3.5 h-3.5" />
                   </button>
@@ -1111,7 +1109,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={() => editor.chain().focus().toggleStrike().run()}
                     className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive('strike') ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
-                    title="Strikethrough (Coret)"
+                    title={t('fmtStrike')}
                   >
                     <Strikethrough className="w-3.5 h-3.5" />
                   </button>
@@ -1119,7 +1117,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={() => editor.chain().focus().toggleCode().run()}
                     className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive('code') ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
-                    title="Inline Code (Kode Kata)"
+                    title={t('fmtInlineCode')}
                   >
                     <Code2 className="w-3.5 h-3.5" />
                   </button>
@@ -1130,7 +1128,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={handleToggleLink}
                     className={`p-1.5 rounded-md text-xs transition-all ${editor.isActive('link') ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
-                    title="Tambah / Edit Tautan Link"
+                    title={t('fmtAddLink')}
                   >
                     <Link2 className="w-3.5 h-3.5" />
                   </button>
@@ -1138,7 +1136,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                     type="button"
                     onClick={() => editor.chain().focus().unsetAllMarks().run()}
                     className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] transition-colors"
-                    title="Hapus Format Teks (Clear Format)"
+                    title={t('fmtClearFormat')}
                   >
                     <Eraser className="w-3.5 h-3.5" />
                   </button>

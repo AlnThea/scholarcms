@@ -7,6 +7,7 @@ import Select from '@/components/ui/Select';
 import Textarea from '@/components/ui/Textarea';
 import Button from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   X, Copy, Check, Sparkles, Calendar, Eye, Tag, Folder, Image as ImageIcon,
   FileText, User, Clock, Link as LinkIcon, RefreshCw, LayoutGrid, Save, ArrowLeft,
@@ -19,6 +20,7 @@ import { useState, useEffect } from 'react';
 export default function RightMetaSidebar() {
   const pathname = usePathname();
   const { role } = useAuth();
+  const { t } = useLanguage();
   const isPageEditor = pathname?.startsWith('/dashboard/pages/new') || pathname?.startsWith('/dashboard/pages/edit');
   const isPostEditor = pathname?.startsWith('/dashboard/posts/new') || pathname?.startsWith('/dashboard/posts/edit');
   const showMetaSidebar = isPostEditor || isPageEditor;
@@ -174,13 +176,13 @@ export default function RightMetaSidebar() {
   ];
 
   const TABS = [
-    { id: 'publish', label: 'Publikasi', icon: Calendar },
-    { id: 'seo', label: 'SEO Pro', icon: Search },
+    { id: 'publish', label: t('metaTabPublish'), icon: Calendar },
+    { id: 'seo', label: t('metaTabSeo'), icon: Search },
     { id: 'adsense', label: 'AdSense', icon: DollarSign },
-    { id: 'slug', label: 'URL', icon: LinkIcon },
-    { id: 'taxonomy', label: 'Kategori', icon: Folder },
-    { id: 'media', label: 'Cover', icon: ImageIcon },
-    { id: 'excerpt', label: 'Ringkasan', icon: FileText },
+    { id: 'slug', label: t('metaTabSlug'), icon: LinkIcon },
+    { id: 'taxonomy', label: t('metaTabTaxonomy'), icon: Folder },
+    { id: 'media', label: t('metaTabCover'), icon: ImageIcon },
+    { id: 'excerpt', label: t('metaTabExcerpt'), icon: FileText },
   ];
 
   return (
@@ -196,14 +198,14 @@ export default function RightMetaSidebar() {
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="font-bold text-sm text-[var(--text-main)]">Meta Artikel</h3>
-            <p className="text-[10px] text-[var(--text-subtle)]">Pengaturan & Informasi Publikasi</p>
+            <h3 className="font-bold text-sm text-[var(--text-main)]">{t('metaSidebarTitle')}</h3>
+            <p className="text-[10px] text-[var(--text-subtle)]">{t('metaSidebarSubtitle')}</p>
           </div>
         </div>
         <button
           onClick={closeSidebar}
           className="p-1.5 rounded-xl hover:bg-[var(--bg-primary)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
-          title="Tutup Meta Sidebar"
+          title={t('metaClose')}
         >
           <X className="w-5 h-5" />
         </button>
@@ -553,11 +555,11 @@ export default function RightMetaSidebar() {
               {/* Title */}
               <div>
                 <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">
-                  {isPageEditor ? 'Judul Utama Halaman' : 'Judul Utama Artikel'}
+                  {isPageEditor ? t('labelTitlePage') : t('labelTitlePost')}
                 </label>
                 <input
                   type="text"
-                  placeholder={isPageEditor ? "Masukkan judul halaman..." : "Masukkan judul artikel..."}
+                  placeholder={isPageEditor ? t('placeholderTitlePage') : t('placeholderTitlePost')}
                   value={title}
                   onChange={handleTitleChange}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-blue-500 transition-colors font-medium"

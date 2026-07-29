@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   Type, Heading1, Heading2, Heading3, Heading4, Heading5, Heading6, TextQuote,
   List, ListOrdered, ListTodo, Table, Quote, Code, Sparkles, CheckCircle2, AlertTriangle, AlertOctagon,
@@ -249,6 +250,7 @@ const MEDIA_INTERACTIVE_BLOCKS = [
 ];
 
 export default function BlockPaletteSidebar({ onInsertBlock }) {
+  const { t } = useLanguage();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [openSections, setOpenSections] = useState({
     text: true,
@@ -295,6 +297,36 @@ export default function BlockPaletteSidebar({ onInsertBlock }) {
     e.dataTransfer.effectAllowed = 'copy';
   };
 
+  const getBlockLabel = (block) => {
+    const keyMap = {
+      paragraph: 'blockParagraph',
+      leadParagraph: 'blockLeadParagraph',
+      heading1: 'blockHeading1',
+      heading2: 'blockHeading2',
+      heading3: 'blockHeading3',
+      heading4: 'blockHeading4',
+      heading5: 'blockHeading5',
+      heading6: 'blockHeading6',
+      bulletList: 'blockBulletList',
+      orderedList: 'blockOrderedList',
+      taskList: 'blockTaskList',
+      table: 'blockTable',
+      quote: 'blockQuote',
+      codeBlock: 'blockCodeBlock',
+      callout: 'blockCallout',
+      alertSuccess: 'blockAlertSuccess',
+      alertWarning: 'blockAlertWarning',
+      alertDanger: 'blockAlertDanger',
+      image: 'blockImage',
+      video: 'blockVideo',
+      button: 'blockButton',
+      details: 'blockDetails',
+      horizontalRule: 'blockHorizontalRule',
+    };
+    const key = keyMap[block.type];
+    return key ? t(key) : block.label;
+  };
+
   const renderGridSection = (key, title, blocks) => {
     const isOpen = openSections[key] ?? true;
 
@@ -321,6 +353,7 @@ export default function BlockPaletteSidebar({ onInsertBlock }) {
           <div className={isCollapsed ? 'grid grid-cols-1 gap-2' : 'grid grid-cols-2 gap-2.5'}>
             {blocks.map((block) => {
               const Icon = block.icon;
+              const displayLabel = getBlockLabel(block);
               return (
                 <div
                   key={block.type}
@@ -330,14 +363,14 @@ export default function BlockPaletteSidebar({ onInsertBlock }) {
                   className={`group flex flex-col items-center justify-center rounded-2xl hover:border-blue-500/60 hover:bg-blue-500/5 hover:shadow-md cursor-grab active:cursor-grabbing transition-all select-none text-center ${
                     isCollapsed ? 'p-2' : 'p-3'
                   }`}
-                  title={`Klik atau seret untuk menyisipkan ${block.label}`}
+                  title={displayLabel}
                 >
                   <div className={`p-2.5 rounded-xl ${block.color} group-hover:scale-110 transition-transform ${isCollapsed ? 'mb-0' : 'mb-2'}`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   {!isCollapsed && (
                     <span className="text-xs font-bold text-[var(--text-main)] group-hover:text-blue-500 transition-colors">
-                      {block.label}
+                      {displayLabel}
                     </span>
                   )}
                 </div>
@@ -358,7 +391,7 @@ export default function BlockPaletteSidebar({ onInsertBlock }) {
           <div className="flex items-center gap-2 overflow-hidden">
             <Layers className="w-4 h-4 text-blue-500 shrink-0" />
             {!isCollapsed && (
-              <h3 className="font-extrabold text-sm text-[var(--text-main)] tracking-tight whitespace-nowrap">Palet Komponen</h3>
+              <h3 className="font-extrabold text-sm text-[var(--text-main)] tracking-tight whitespace-nowrap">{t('blockPaletteTitle')}</h3>
             )}
           </div>
           <button
@@ -373,19 +406,19 @@ export default function BlockPaletteSidebar({ onInsertBlock }) {
         </div>
         {!isCollapsed && (
           <p className="text-[11px] text-[var(--text-muted)] mt-0.5 leading-snug">
-            Seret tombol atau klik untuk menyisipkan ke Canvas.
+            {t('blockPaletteSubtitle')}
           </p>
         )}
       </div>
 
       {/* Grid Sections Grouped */}
       <div className="space-y-5 overflow-y-auto flex-1 pr-1 custom-scrollbar">
-        {renderGridSection('text', '🔤 Teks & Headings', TEXT_BLOCKS)}
-        {renderGridSection('columns', '📐 Tata Letak & Kolom', LAYOUT_COLUMNS_BLOCKS)}
-        {renderGridSection('list', '📑 Daftar & Penataan', LIST_TABLE_BLOCKS)}
-        {renderGridSection('quote', '💬 Kutipan & Kode', QUOTE_CODE_BLOCKS)}
-        {renderGridSection('callout', '💡 Callout & Notifikasi', CALLOUT_BLOCKS)}
-        {renderGridSection('media', '🎨 Media & Interaktif', MEDIA_INTERACTIVE_BLOCKS)}
+        {renderGridSection('text', t('secTextHeadings'), TEXT_BLOCKS)}
+        {renderGridSection('columns', t('secLayoutColumns'), LAYOUT_COLUMNS_BLOCKS)}
+        {renderGridSection('list', t('secListTable'), LIST_TABLE_BLOCKS)}
+        {renderGridSection('quote', t('secQuoteCode'), QUOTE_CODE_BLOCKS)}
+        {renderGridSection('callout', t('secCalloutAlerts'), CALLOUT_BLOCKS)}
+        {renderGridSection('media', t('secMediaInteractive'), MEDIA_INTERACTIVE_BLOCKS)}
       </div>
 
     </aside>

@@ -17,8 +17,10 @@ import {
 
 import StatsCard from '@/components/dashboard/StatsCard';
 import Button from '@/components/ui/Button';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function DashboardOverview() {
+  const { t } = useLanguage();
   const [analytics, setAnalytics] = useState(null);
   const [recentPosts, setRecentPosts] = useState([]);
   const [subscribersCount, setSubscribersCount] = useState(0);
@@ -593,10 +595,10 @@ export default function DashboardOverview() {
                 </span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-sm">
-                Pusat Kontrol & Manajemen Strategis CMS
+                {t('welcomeTitle')}
               </h2>
               <p className="text-xs text-blue-100 max-w-2xl leading-relaxed font-medium">
-                Selamat datang di konsol administrasi ScholarCMS. Pantau dinamika pembaca, optimasi kesehatan SEO, moderasi interaksi komunitas, serta kustomisasi tata letak canvas dashboard modular Anda secara real-time.
+                {t('welcomeDesc')}
               </p>
             </div>
 
@@ -605,13 +607,13 @@ export default function DashboardOverview() {
                 href="/dashboard/posts/new"
                 className="px-5 py-2.5 rounded-2xl bg-white hover:bg-blue-50 text-blue-900 font-black text-xs transition-all shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95"
               >
-                <PlusCircle className="w-4 h-4 text-blue-600" /> Tulis Artikel Baru
+                <PlusCircle className="w-4 h-4 text-blue-600" /> {t('navAddNewPost')}
               </Link>
               <Link
                 href="/dashboard/settings"
                 className="px-5 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 border border-white/30 text-white font-extrabold text-xs transition-all backdrop-blur-md flex items-center gap-2 shadow-md hover:scale-105 active:scale-95"
               >
-                <Settings className="w-4 h-4 text-amber-300" /> Pengaturan Sistem
+                <Settings className="w-4 h-4 text-amber-300" /> {t('navGlobalSettings')}
               </Link>
             </div>
           </div>
@@ -620,9 +622,9 @@ export default function DashboardOverview() {
       case 'stat_posts':
         return (
           <StatsCard
-            title="Total Artikel"
+            title={t('widgetTotalPosts')}
             value={analytics?.totalPosts || 0}
-            subtitle={`${analytics?.publishedPosts || 0} Terbit • ${analytics?.draftPosts || 0} Draft`}
+            subtitle={`${analytics?.publishedPosts || 0} ${t('published')} • ${analytics?.draftPosts || 0} ${t('draft')}`}
             icon={FileText}
             color="blue"
           />
@@ -631,9 +633,9 @@ export default function DashboardOverview() {
       case 'stat_views':
         return (
           <StatsCard
-            title="Total Pembaca"
+            title={t('widgetTotalViews')}
             value={analytics?.totalViews || 0}
-            subtitle="Akumulasi pembaca artikel"
+            subtitle={t('widgetSubViews')}
             icon={Eye}
             color="emerald"
           />
@@ -642,9 +644,9 @@ export default function DashboardOverview() {
       case 'stat_comments':
         return (
           <StatsCard
-            title="Komentar"
+            title={t('widgetComments')}
             value={analytics?.totalComments || 0}
-            subtitle="Komentar pengunjung terdaftar"
+            subtitle={t('widgetSubComments')}
             icon={MessageSquare}
             color="purple"
           />
@@ -653,9 +655,9 @@ export default function DashboardOverview() {
       case 'stat_categories':
         return (
           <StatsCard
-            title="Kategori Topik"
+            title={t('widgetCategories')}
             value={analytics?.totalCategories || 0}
-            subtitle="Taksonomi topik artikel"
+            subtitle={t('widgetSubCategories')}
             icon={FolderTree}
             color="amber"
           />
@@ -665,9 +667,9 @@ export default function DashboardOverview() {
         const isNewsActive = pluginStates['newsletter'] !== false;
         return (
           <StatsCard
-            title="Pelanggan Newsletter"
-            value={isNewsActive ? subscribersCount : 'Nonaktif'}
-            subtitle={isNewsActive ? 'Email terdaftar newsletter' : 'Plugin nonaktif di Pengelola Plugin'}
+            title={t('widgetSubscribers')}
+            value={isNewsActive ? subscribersCount : t('inactive')}
+            subtitle={isNewsActive ? t('widgetSubSubscribers') : t('inactive')}
             icon={Mail}
             color={isNewsActive ? 'emerald' : 'amber'}
           />
@@ -677,9 +679,9 @@ export default function DashboardOverview() {
         const isWaActive = pluginStates['whatsapp-float'] !== false;
         return (
           <StatsCard
-            title="WhatsApp Support"
-            value={isWaActive ? 'Aktif' : 'Nonaktif'}
-            subtitle={isWaActive ? 'Widget melayang responsif' : 'Plugin nonaktif di Pengelola Plugin'}
+            title={t('widgetWaSupport')}
+            value={isWaActive ? t('active') : t('inactive')}
+            subtitle={isWaActive ? t('widgetSubWaSupport') : t('inactive')}
             icon={PhoneCall}
             color={isWaActive ? 'emerald' : 'amber'}
           />
@@ -688,9 +690,9 @@ export default function DashboardOverview() {
       case 'stat_users':
         return (
           <StatsCard
-            title="Pengguna & Role"
-            value="1 Pengguna"
-            subtitle="Super Admin terdaftar"
+            title={t('widgetUsersRole')}
+            value="1 User"
+            subtitle={t('widgetSubUsers')}
             icon={Users}
             color="purple"
           />
@@ -699,9 +701,9 @@ export default function DashboardOverview() {
       case 'stat_theme':
         return (
           <StatsCard
-            title="Tema Utama"
+            title={t('widgetActiveTheme')}
             value="Editorial"
-            subtitle="Oleh ScholarCMS Team"
+            subtitle="By ScholarCMS Team"
             icon={Palette}
             color="indigo"
           />
@@ -710,8 +712,8 @@ export default function DashboardOverview() {
       case 'stat_plugins':
         return (
           <StatsCard
-            title="Plugin Aktif"
-            value="3 Plugin"
+            title={t('widgetActivePlugins')}
+            value="3 Plugins"
             subtitle="SEO, Newsletter, WhatsApp"
             icon={Puzzle}
             color="amber"
@@ -721,9 +723,9 @@ export default function DashboardOverview() {
       case 'stat_pages':
         return (
           <StatsCard
-            title="Halaman Statis"
+            title={t('widgetPages')}
             value={pagesCount}
-            subtitle="Halaman publik aktif"
+            subtitle={t('widgetSubPages')}
             icon={Layers}
             color="rose"
           />
@@ -732,9 +734,9 @@ export default function DashboardOverview() {
       case 'stat_scheduled':
         return (
           <StatsCard
-            title="Artikel Terjadwal"
+            title={t('widgetScheduled')}
             value={scheduledCount}
-            subtitle="Antrean rilis otomatis"
+            subtitle={t('widgetSubScheduled')}
             icon={Clock}
             color="blue"
           />

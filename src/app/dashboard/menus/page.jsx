@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { dbService } from '@/services/dbService';
+import { useLanguage } from '@/context/LanguageContext';
 import PageHeader from '@/components/dashboard/PageHeader';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -11,6 +12,7 @@ import {
 } from 'lucide-react';
 
 export default function DashboardMenusPage() {
+  const { t } = useLanguage();
   const [activeLocation, setActiveLocation] = useState('header'); // 'header' | 'footer'
   const [menuItems, setMenuItems] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -183,8 +185,8 @@ export default function DashboardMenusPage() {
     <div className="space-y-6 animate-fade-in pb-12">
 
       <PageHeader
-        title="Pengelola Navigasi & Menu (Drag & Drop)"
-        subtitle="Atur struktur menu hirarki 3 level untuk Header Navbar dan Footer homepage Anda."
+        title={t('menusTitle')}
+        subtitle={t('menusSubtitle')}
       >
         <Button
           onClick={handleSaveMenu}
@@ -192,14 +194,14 @@ export default function DashboardMenusPage() {
           icon={saving ? RefreshCw : (successMsg ? Check : Save)}
           variant={successMsg ? 'emerald' : 'primary'}
         >
-          {saving ? 'Menyimpan...' : (successMsg ? 'Tersimpan!' : 'Simpan Perubahan Menu')}
+          {saving ? t('savingMenu') : (successMsg ? t('savedMenu') : t('saveMenuBtn'))}
         </Button>
       </PageHeader>
 
       {/* Target Location Selector */}
       <div className="p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <span className="text-xs font-extrabold uppercase tracking-wider text-[var(--text-muted)]">Pilih Lokasi Menu:</span>
+          <span className="text-xs font-extrabold uppercase tracking-wider text-[var(--text-muted)]">{t('selectMenuLocation')}</span>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveLocation('header')}
@@ -209,7 +211,7 @@ export default function DashboardMenusPage() {
                   : 'bg-[var(--bg-primary)] text-[var(--text-muted)] hover:text-[var(--text-main)]'
               }`}
             >
-              🌐 Header Navbar Utama
+              {t('headerNavbar')}
             </button>
             <button
               onClick={() => setActiveLocation('footer')}
@@ -219,14 +221,14 @@ export default function DashboardMenusPage() {
                   : 'bg-[var(--bg-primary)] text-[var(--text-muted)] hover:text-[var(--text-main)]'
               }`}
             >
-              🦶 Footer Link Bar
+              {t('footerLinks')}
             </button>
           </div>
         </div>
 
         {successMsg && (
           <span className="text-xs font-semibold text-emerald-500 flex items-center gap-1">
-            <Check className="w-4 h-4" /> Menu {activeLocation} berhasil diperbarui!
+            <Check className="w-4 h-4" /> Menu {activeLocation} {t('menuUpdatedSuccess')}
           </span>
         )}
       </div>
@@ -239,7 +241,7 @@ export default function DashboardMenusPage() {
           {/* SOURCE 1: CATEGORIES */}
           <div className="p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] space-y-4">
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--text-main)] flex items-center gap-2">
-              <FolderTree className="w-4 h-4 text-blue-500" /> Kategori Blog
+              <FolderTree className="w-4 h-4 text-blue-500" /> {t('menuCategories')}
             </h3>
             <div className="max-h-48 overflow-y-auto space-y-2 pr-1">
               {categories.map((cat) => (
@@ -266,14 +268,14 @@ export default function DashboardMenusPage() {
               onClick={handleAddCategories}
               disabled={selectedCatIds.length === 0}
             >
-              Tambah Kategori Terpilih
+              {t('addSelectedCategories')}
             </Button>
           </div>
 
           {/* SOURCE 2: STATIC PAGES */}
           <div className="p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] space-y-4">
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--text-main)] flex items-center gap-2">
-              <Layers className="w-4 h-4 text-indigo-500" /> Halaman Statis
+              <Layers className="w-4 h-4 text-indigo-500" /> {t('menuStaticPages')}
             </h3>
             <div className="max-h-48 overflow-y-auto space-y-2 pr-1">
               {pages.map((p) => (
@@ -300,30 +302,30 @@ export default function DashboardMenusPage() {
               onClick={handleAddPages}
               disabled={selectedPageIds.length === 0}
             >
-              Tambah Halaman Terpilih
+              {t('addSelectedPages')}
             </Button>
           </div>
 
           {/* SOURCE 3: CUSTOM URL */}
           <form onSubmit={handleAddCustomUrl} className="p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] space-y-4">
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--text-main)] flex items-center gap-2">
-              <LinkIcon className="w-4 h-4 text-emerald-500" /> Custom URL
+              <LinkIcon className="w-4 h-4 text-emerald-500" /> {t('customUrlTitle')}
             </h3>
             <div>
-              <label className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">Teks Tampilan (Label)</label>
+              <label className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">{t('displayLabel')}</label>
               <input
                 type="text"
-                placeholder="misal: Beranda / Portfolio"
+                placeholder={t('customLabelPlaceholder')}
                 value={customLabel}
                 onChange={(e) => setCustomLabel(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">URL Tujuan</label>
+              <label className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">{t('targetUrl')}</label>
               <input
                 type="text"
-                placeholder="misal: / atau https://example.com"
+                placeholder={t('customUrlPlaceholder')}
                 value={customUrl}
                 onChange={(e) => setCustomUrl(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none"
@@ -337,7 +339,7 @@ export default function DashboardMenusPage() {
               icon={Plus}
               disabled={!customLabel || !customUrl}
             >
-              Tambah Custom URL
+              {t('addCustomUrl')}
             </Button>
           </form>
 
@@ -349,16 +351,16 @@ export default function DashboardMenusPage() {
           <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
             <div>
               <h2 className="text-base font-extrabold text-[var(--text-main)] flex items-center gap-2">
-                <ListTree className="w-5 h-5 text-blue-500" /> Stuktur Menu ({menuItems.length} Item)
+                <ListTree className="w-5 h-5 text-blue-500" /> {t('menuStructureTitle')} ({menuItems.length} Item)
               </h2>
               <p className="text-xs text-[var(--text-muted)] mt-1">
-                Gunakan drag-handle 🖐️ atau tombol panah untuk mengatur urutan. Gunakan tombol 👈 👉 untuk membuat sub-menu hingga 3 level.
+                {t('menuStructureHelp')}
               </p>
             </div>
           </div>
 
           {loading ? (
-            <div className="py-12 text-center text-xs text-[var(--text-subtle)]">Memuat struktur menu...</div>
+            <div className="py-12 text-center text-xs text-[var(--text-subtle)]">{t('loadingMenu')}</div>
           ) : menuItems.length > 0 ? (
             <div className="space-y-3">
               {menuItems.map((item, index) => {
@@ -390,7 +392,7 @@ export default function DashboardMenusPage() {
                               ? 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20'
                               : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
                           }`}>
-                            {item.type === 'category' ? '📂 Kategori' : item.type === 'page' ? '📄 Page' : '🔗 URL'}
+                            {item.type === 'category' ? `📂 ${t('labelCategory')}` : item.type === 'page' ? `📄 ${t('labelPage')}` : `🔗 ${t('labelUrl')}`}
                           </span>
                           <span className="text-[10px] font-semibold text-[var(--text-subtle)] bg-[var(--bg-surface)] px-2 py-0.5 rounded-lg border border-[var(--border-color)]">
                             Level {item.level || 1}
@@ -409,7 +411,7 @@ export default function DashboardMenusPage() {
                         onClick={() => handleOutdent(index)}
                         disabled={item.level <= 1}
                         className="p-1.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-blue-500 disabled:opacity-30 transition-colors"
-                        title="Geser Kiri (Outdent / Kurangi Level)"
+                        title={t('outdentTooltip')}
                       >
                         <ChevronLeft className="w-4 h-4" />
                       </button>
@@ -418,7 +420,7 @@ export default function DashboardMenusPage() {
                         onClick={() => handleIndent(index)}
                         disabled={item.level >= 3 || index === 0}
                         className="p-1.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-blue-500 disabled:opacity-30 transition-colors"
-                        title="Geser Kanan (Indent / Tambah Sub-level)"
+                        title={t('indentTooltip')}
                       >
                         <ChevronRight className="w-4 h-4" />
                       </button>
@@ -428,7 +430,7 @@ export default function DashboardMenusPage() {
                         onClick={() => handleMoveUp(index)}
                         disabled={index === 0}
                         className="p-1.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-blue-500 disabled:opacity-30 transition-colors"
-                        title="Naikkan Urutan"
+                        title={t('moveUpTooltip')}
                       >
                         <ArrowUp className="w-4 h-4" />
                       </button>
@@ -437,7 +439,7 @@ export default function DashboardMenusPage() {
                         onClick={() => handleMoveDown(index)}
                         disabled={index === menuItems.length - 1}
                         className="p-1.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-blue-500 disabled:opacity-30 transition-colors"
-                        title="Turunkan Urutan"
+                        title={t('moveDownTooltip')}
                       >
                         <ArrowDown className="w-4 h-4" />
                       </button>
@@ -446,7 +448,7 @@ export default function DashboardMenusPage() {
                         type="button"
                         onClick={() => handleRemoveItem(index)}
                         className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition-colors"
-                        title="Hapus dari Menu"
+                        title={t('removeItemTooltip')}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -458,7 +460,7 @@ export default function DashboardMenusPage() {
             </div>
           ) : (
             <div className="py-12 text-center text-xs text-[var(--text-subtle)] border-2 border-dashed border-[var(--border-color)] rounded-2xl">
-              Belum ada item di menu ini. Pilih item dari panel kiri untuk menambahkan.
+              {t('noMenuItems')}
             </div>
           )}
 
