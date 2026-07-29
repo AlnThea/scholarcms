@@ -252,7 +252,7 @@ GAYA PENULISAN: ${tone || 'Profesional & Informatif'}
 SUB-KATEGORI: ${detectedSubCat} (Niche Induk: ${parentNiche})
 ${lengthInstruction}${customInstruction}
 
-TOPIK UTAMA / JUDUL ARTIKEL: "${activeTopic}"
+TOPIK / SUBJEK / INSTRUKSI UTAMA: "${activeTopic}"
 
 ATURAN KOMPONEN BLOK PALET SCHOLARCMS (WAJIB INTEGRASI KE KANVAS EDITOR):
 1. WAJIB GUNAKAN BLOK LAYOUT MULTI-KOLOM:
@@ -268,7 +268,7 @@ ATURAN KOMPONEN BLOK PALET SCHOLARCMS (WAJIB INTEGRASI KE KANVAS EDITOR):
 
 PENTING: KELUARKAN HANYA OBJEK JSON VALID TANPA FORMAT MARKDOWN CODEBLOCK. FORMAT JSON WAJIB:
 {
-  "title": "${activeTopic}",
+  "title": "${language === 'english' ? 'Catchy Professional Article Title (6-10 Words)' : 'Judul Artikel Menarik & Profesional (6-10 Kata)'}",
   "slug": "judul-artikel-singkat-relevan",
   "excerpt": "Ringkasan artikel 2 kalimat...",
   "seoTitle": "Judul SEO Google",
@@ -286,7 +286,10 @@ PENTING: KELUARKAN HANYA OBJEK JSON VALID TANPA FORMAT MARKDOWN CODEBLOCK. FORMA
         if (parsed && parsed.contentHtml && typeof parsed.contentHtml === 'string' && !parsed.contentHtml.trim().startsWith('{')) {
           parsed.category = parsed.category || detectedSubCat;
           await dbService.ensureCategoryExists(parsed.category, parentNiche);
-          parsed.title = this.fitSeoTitle(parsed.title || activeTopic);
+          let rawTitle = parsed.title || activeTopic;
+          rawTitle = rawTitle.replace(/^(buatkan|tuliskan|tulis|create|write|generate)\s+(artikel|tutorial|panduan|guide|post)?\s+(tentang|mengenai|about|for)?\s*/i, '');
+          rawTitle = rawTitle.charAt(0).toUpperCase() + rawTitle.slice(1);
+          parsed.title = this.fitSeoTitle(rawTitle);
           parsed.seoTitle = this.fitSeoTitle(parsed.seoTitle || parsed.title);
           parsed.excerpt = this.fitSeoExcerpt(parsed.excerpt || activeTopic, activeTopic);
           parsed.seoDescription = this.fitSeoExcerpt(parsed.seoDescription || parsed.excerpt, activeTopic);
