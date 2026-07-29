@@ -54,7 +54,7 @@ function buildMenuTree(flatItems) {
 export default function Navbar({ onSearch, searchQuery }) {
   const { isDark, toggleTheme, mounted } = useTheme();
   const { user, role, logout } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [siteTitle, setSiteTitle] = useState('ScholarCMS');
   const [siteTagline, setSiteTagline] = useState('Modern Publishing Platform');
   const [allowRegistration, setAllowRegistration] = useState(true);
