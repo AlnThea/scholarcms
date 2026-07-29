@@ -4,11 +4,15 @@ import { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { dbService } from '@/services/dbService';
+import { useLanguage } from '@/context/LanguageContext';
+import { translateLabel } from '@/utils/menuTranslator';
 import { Clock, Eye, ArrowLeft, Share2, Check, Layers } from 'lucide-react';
 import Link from 'next/link';
 
 export default function StaticPageDetail({ params }) {
   const { slug } = params;
+  const { t, language } = useLanguage();
+  const isEn = language === 'en';
   const [page, setPage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -24,13 +28,14 @@ export default function StaticPageDetail({ params }) {
         setPage(fetchedPage);
         const siteTitle = genSettings?.siteTitle || '';
         if (typeof document !== 'undefined') {
-          document.title = siteTitle ? `${fetchedPage.title} - ${siteTitle}` : fetchedPage.title;
+          const displayTitle = translateLabel(fetchedPage.title, language);
+          document.title = siteTitle ? `${displayTitle} - ${siteTitle}` : displayTitle;
         }
       }
       setLoading(false);
     }
     loadPageData();
-  }, [slug]);
+  }, [slug, language]);
 
   const handleCopyLink = () => {
     if (typeof window !== 'undefined') {
@@ -59,10 +64,10 @@ export default function StaticPageDetail({ params }) {
       <div className="min-h-screen bg-[var(--bg-primary)] flex flex-col">
         <Navbar />
         <div className="max-w-xl mx-auto px-4 py-32 text-center">
-          <h1 className="text-3xl font-extrabold text-[var(--text-main)] mb-4">Halaman Tidak Ditemukan</h1>
-          <p className="text-[var(--text-muted)] mb-8">Maaf, halaman statis yang Anda cari mungkin telah dihapus atau URL-nya salah.</p>
+          <h1 className="text-3xl font-extrabold text-[var(--text-main)] mb-4">{t('pageNotFoundTitle') || 'Page Not Found'}</h1>
+          <p className="text-[var(--text-muted)] mb-8">{t('pageNotFoundSub') || 'Sorry, the page you are looking for does not exist.'}</p>
           <Link href="/" className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-500/25">
-            Kembali ke Beranda
+            {t('backToHome') || 'Back to Home'}
           </Link>
         </div>
         <Footer />
@@ -98,21 +103,21 @@ export default function StaticPageDetail({ params }) {
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-10">
         
         <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--text-muted)] hover:text-blue-500 mb-8 transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Kembali ke Beranda
+          <ArrowLeft className="w-4 h-4" /> {t('backToHome') || 'Back to Home'}
         </Link>
 
         <header className="mb-10">
           <div className="flex items-center gap-3 mb-4">
             <span className="px-3.5 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5" /> Halaman Statis
+              <Layers className="w-3.5 h-3.5" /> {isEn ? 'Static Page' : 'Halaman Statis'}
             </span>
             <span className="text-xs text-[var(--text-subtle)] flex items-center gap-1">
-              <Eye className="w-3.5 h-3.5 text-blue-400" /> {page.views || 0} pembaca
+              <Eye className="w-3.5 h-3.5 text-blue-400" /> {page.views || 0} {t('readersCount')}
             </span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-extrabold text-[var(--text-main)] tracking-tight mb-6 leading-tight">
-            {page.title}
+            {translateLabel(page.title, language)}
           </h1>
 
           {page.excerpt && (

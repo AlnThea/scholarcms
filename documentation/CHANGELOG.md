@@ -18,6 +18,9 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 - **Sinkronisasi Judul Tab Browser Dinamis dari Database**:
   - Menghubungkan `siteTitle` dan `siteTagline` secara dinamis dari database (`dbService.getGeneralSettings()`) pada seluruh halaman publik ([Navbar.jsx](file:///c:/web/scholarcms/src/components/layout/Navbar.jsx), [Footer.jsx](file:///c:/web/scholarcms/src/components/layout/Footer.jsx)), halaman detail artikel (`/post/[slug]`), halaman statis (`/page/[slug]`), dan dashboard admin ([layout.jsx](file:///c:/web/scholarcms/src/app/dashboard/layout.jsx)).
   - Mengubah judul tab browser (`document.title`) secara instan dan otomatis mengikuti nama baru yang disimpan pengguna dari aplikasi di database.
+- **Penerjemahan Otomatis Homepage Publik & Menu Halaman Statis**:
+  - Pembuatan utilitas pengalih bahasa menu & halaman statis ([menuTranslator.js](file:///c:/web/scholarcms/src/utils/menuTranslator.js)) untuk menerjemahkan label menu database (seperti *Beranda* ➔ *Home*, *Tentang Kami* ➔ *About Us*, *Kebijakan Privasi* ➔ *Privacy Policy*, *Syarat & Ketentuan* ➔ *Terms & Conditions*, dll.) saat Bahasa Inggris aktif (`EN`).
+  - Menerjemahkan deskripsi footer, header navigasi utama, placeholder bar pencarian, badge artikel utama, widget topik kategori, widget tag tren, serta detail halaman statis (`/page/[slug]`).
 
 ---
 

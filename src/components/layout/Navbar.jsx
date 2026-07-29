@@ -6,6 +6,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { Search, X, LayoutDashboard, Sun, Moon, Feather, LogIn, UserPlus, LogOut, User, ShieldCheck, PenTool, Settings, ChevronDown, ChevronRight } from 'lucide-react';
 import { useMetaSidebar } from '@/context/MetaSidebarContext';
+import { translateLabel } from '@/utils/menuTranslator';
 import { usePathname } from 'next/navigation';
 import { dbService } from '@/services/dbService';
 
@@ -166,7 +167,7 @@ export default function Navbar({ onSearch, searchQuery }) {
                   href={l1Item.href}
                   className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-main)] hover:text-blue-500 hover:bg-[var(--bg-surface)] transition-all"
                 >
-                  {l1Item.label}
+                  {translateLabel(l1Item.label, language)}
                   {hasL2 && <ChevronDown className="w-3.5 h-3.5 text-[var(--text-subtle)] group-hover:rotate-180 transition-transform" />}
                 </Link>
 
@@ -185,7 +186,7 @@ export default function Navbar({ onSearch, searchQuery }) {
                             href={l2Item.href}
                             className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-[var(--text-main)] hover:bg-blue-600 hover:text-white transition-colors"
                           >
-                            <span>{l2Item.label}</span>
+                            <span>{translateLabel(l2Item.label, language)}</span>
                             {hasL3 && <ChevronRight className="w-3.5 h-3.5" />}
                           </Link>
 
@@ -198,7 +199,7 @@ export default function Navbar({ onSearch, searchQuery }) {
                                   href={l3Item.href}
                                   className="block px-3 py-2 rounded-xl text-xs font-medium text-[var(--text-main)] hover:bg-indigo-600 hover:text-white transition-colors"
                                 >
-                                  {l3Item.label}
+                                  {translateLabel(l3Item.label, language)}
                                 </Link>
                               ))}
                             </div>
@@ -219,10 +220,10 @@ export default function Navbar({ onSearch, searchQuery }) {
             <button
               onClick={handleToggleSearch}
               className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] hover:border-blue-500/50 shadow-sm transition-all duration-300 animate-fade-in group cursor-pointer"
-              title="Buka Pencarian Artikel"
+              title={t('searchArticlesTitle')}
             >
               <Search className="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform" />
-              <span className="hidden sm:inline">Cari Artikel...</span>
+              <span className="hidden sm:inline">{t('searchArticlesPlaceholder')}</span>
             </button>
           ) : (
             <div className="relative flex items-center w-full max-w-xs sm:max-w-sm md:max-w-md transition-all duration-300 ease-out animate-fade-in">
@@ -230,7 +231,7 @@ export default function Navbar({ onSearch, searchQuery }) {
               <input
                 ref={inputRef}
                 type="text"
-                placeholder="Cari artikel, topik, atau kata kunci..."
+                placeholder={t('searchFullPlaceholder')}
                 value={searchQuery || ''}
                 onChange={(e) => onSearch && onSearch(e.target.value)}
                 onKeyDown={(e) => {

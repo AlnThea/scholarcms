@@ -4,8 +4,11 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Feather, Heart, Database, ShieldCheck } from 'lucide-react';
 import { dbService } from '@/services/dbService';
+import { useLanguage } from '@/context/LanguageContext';
+import { translateLabel } from '@/utils/menuTranslator';
 
 export default function Footer() {
+  const { t, language } = useLanguage();
   const [siteTitle, setSiteTitle] = useState('ScholarCMS');
   const [footerLinks, setFooterLinks] = useState([]);
 
@@ -51,12 +54,12 @@ export default function Footer() {
               <span className="font-extrabold text-lg tracking-tight">{renderBrandTitle(siteTitle)}</span>
             </div>
             <p className="text-sm text-[var(--text-muted)] max-w-md leading-relaxed">
-              Platform Website Blog Modern & Portal Publikasi Edukasi Berkecepatan Tinggi dengan Pengalaman Membaca Terbaik.
+              {t('footerSiteDescription')}
             </p>
           </div>
 
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-4">Navigasi Utama</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-4">{t('quickNavHeader')}</h4>
             <ul className="space-y-2.5 text-sm">
               {footerLinks.length > 0 ? (
                 footerLinks.map((link) => {
@@ -69,17 +72,17 @@ export default function Footer() {
                   return (
                     <li key={link.id}>
                       <Link href={href} className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">
-                        {link.label}
+                        {translateLabel(link.label, language)}
                       </Link>
                     </li>
                   );
                 })
               ) : (
                 <>
-                  <li><Link href="/" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Beranda Blog</Link></li>
-                  <li><Link href="/dashboard" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Dashboard</Link></li>
-                  <li><Link href="/dashboard/posts/new" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Tulis Artikel Baru</Link></li>
-                  <li><Link href="/dashboard/categories" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">Kelola Kategori</Link></li>
+                  <li><Link href="/" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">{t('home') || 'Home'}</Link></li>
+                  <li><Link href="/dashboard" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">{t('navDashboard') || 'Dashboard'}</Link></li>
+                  <li><Link href="/dashboard/posts/new" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">{translateLabel('Tulis Artikel Baru', language)}</Link></li>
+                  <li><Link href="/dashboard/categories" className="text-[var(--text-muted)] hover:text-blue-500 transition-colors">{translateLabel('Kelola Kategori', language)}</Link></li>
                 </>
               )}
             </ul>
@@ -90,7 +93,7 @@ export default function Footer() {
         <div className="pt-8 border-t border-[var(--border-color)] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--text-muted)]">
           <p>© {new Date().getFullYear()} {siteTitle || 'ByteLab'}. All rights reserved.</p>
           <p className="flex items-center gap-1">
-            Dibuat dengan <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" /> untuk memberikan pengalaman membaca blog terbaik.
+            {t('footerMadeWithLove')}
           </p>
         </div>
       </div>

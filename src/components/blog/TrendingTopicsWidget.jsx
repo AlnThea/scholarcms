@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { Hash, FolderOpen } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
+import { translateLabel } from '@/utils/menuTranslator';
 
 export function CategoryTopicsWidget({
   categories = [],
@@ -9,6 +11,8 @@ export function CategoryTopicsWidget({
   selectedCategory = 'All',
   onSelectCategory
 }) {
+  const { t, language } = useLanguage();
+
   // Count articles per category
   const categoryCounts = categories.map((cat) => {
     const count = posts.filter((p) => {
@@ -29,8 +33,8 @@ export function CategoryTopicsWidget({
             <FolderOpen className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-[var(--text-main)]">Topik Kategori Blog</h3>
-            <p className="text-[11px] text-[var(--text-muted)]">Eksplorasi artikel berdasarkan kategori favorit</p>
+            <h3 className="text-base font-bold text-[var(--text-main)]">{t('categoryTopicsTitle')}</h3>
+            <p className="text-[11px] text-[var(--text-muted)]">{t('categoryTopicsSubtitle')}</p>
           </div>
         </div>
       </div>
@@ -54,14 +58,14 @@ export function CategoryTopicsWidget({
                   className="w-2.5 h-2.5 rounded-full"
                   style={{ backgroundColor: cat.color || '#2563eb' }}
                 />
-                <span>{cat.name}</span>
+                <span>{translateLabel(cat.name, language)}</span>
               </div>
               <span
                 className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                   isActive ? 'bg-white/20 text-white' : 'bg-[var(--bg-surface)] text-[var(--text-subtle)]'
                 }`}
               >
-                {cat.count} Artikel
+                {cat.count} {t('articlesSuffix')}
               </span>
             </button>
           );
@@ -75,6 +79,8 @@ export function TrendingTagsWidget({
   posts = [],
   onSelectTag
 }) {
+  const { t } = useLanguage();
+
   // Extract real tags ONLY from published posts
   const allTagsMap = {};
   posts.forEach((p) => {
@@ -100,8 +106,8 @@ export function TrendingTagsWidget({
             <Hash className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-[var(--text-main)]">Tag Tren Artikel</h3>
-            <p className="text-[11px] text-[var(--text-muted)]">Kata kunci asli dari artikel yang terbit</p>
+            <h3 className="text-base font-bold text-[var(--text-main)]">{t('trendingTagsTitle')}</h3>
+            <p className="text-[11px] text-[var(--text-muted)]">{t('trendingTagsSubtitle')}</p>
           </div>
         </div>
       </div>
@@ -114,7 +120,7 @@ export function TrendingTagsWidget({
               key={tagName}
               onClick={() => onSelectTag && onSelectTag(tagName)}
               className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-purple-500 hover:border-purple-500/40 hover:bg-purple-500/5 transition-all flex items-center gap-1 group"
-              title={`${count} artikel berkaitan`}
+              title={`${count} ${t('articlesSuffix')}`}
             >
               <span className="text-purple-500 group-hover:scale-110 transition-transform">#</span>
               <span>{tagName}</span>
@@ -122,7 +128,7 @@ export function TrendingTagsWidget({
           ))}
         </div>
       ) : (
-        <p className="text-xs text-[var(--text-subtle)] pt-1">Belum ada tag artikel yang diterbitkan.</p>
+        <p className="text-xs text-[var(--text-subtle)] pt-1">{t('noTagsPublished')}</p>
       )}
     </div>
   );

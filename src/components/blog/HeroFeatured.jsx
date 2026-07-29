@@ -1,7 +1,12 @@
 import Link from 'next/link';
 import { ArrowRight, Clock, Sparkles } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
+import { translateLabel } from '@/utils/menuTranslator';
 
 export default function HeroFeatured({ post }) {
+  const { t, language } = useLanguage();
+  const isEn = language === 'en';
+
   if (!post) return null;
 
   const categoryList = Array.isArray(post.categories) && post.categories.length > 0
@@ -18,11 +23,11 @@ export default function HeroFeatured({ post }) {
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-6">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/20">
-                <Sparkles className="w-3.5 h-3.5" /> Artikel Utama
+                <Sparkles className="w-3.5 h-3.5" /> {t('featuredArticle')}
               </span>
               {categoryList.map((cat, idx) => (
                 <span key={idx} className="px-3 py-1 rounded-full text-xs font-medium bg-[var(--bg-primary)] text-[var(--text-muted)] border border-[var(--border-color)]">
-                  {cat}
+                  {translateLabel(cat, language)}
                 </span>
               ))}
             </div>
@@ -48,7 +53,7 @@ export default function HeroFeatured({ post }) {
               <div>
                 <p className="text-sm font-bold text-[var(--text-main)]">{post.author?.name || 'Ernst Dev'}</p>
                 <p className="text-xs text-[var(--text-subtle)] flex items-center gap-2">
-                  <span>{new Date(post.publishedAt).toLocaleDateString('id-ID', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  <span>{new Date(post.publishedAt || Date.now()).toLocaleDateString(isEn ? 'en-US' : 'id-ID', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                   <span>•</span>
                   <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {post.readTime}</span>
                 </p>
@@ -59,7 +64,7 @@ export default function HeroFeatured({ post }) {
               href={`/post/${post.slug}`}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-lg shadow-blue-500/25 transition-all group-hover:translate-x-1"
             >
-              Baca Artikel <ArrowRight className="w-4 h-4" />
+              {t('readArticle')} <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
