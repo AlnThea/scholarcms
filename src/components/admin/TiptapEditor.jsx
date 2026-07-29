@@ -137,7 +137,8 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
     if (data.excerpt) setExcerpt(data.excerpt);
     if (data.seoTitle && setSeoTitle) setSeoTitle(data.seoTitle);
     if (data.seoDescription && setSeoDescription) setSeoDescription(data.seoDescription);
-    if (data.focusKeyword && setFocusKeyword) setFocusKeyword(data.focusKeyword);
+    const targetKw = data.focusKeyword || data.focus_keyword || data.topic || data.title || '';
+    if (setFocusKeyword) setFocusKeyword(targetKw);
     if (data.featuredImage) setFeaturedImage(data.featuredImage);
 
     if (data.tags && setTags) {

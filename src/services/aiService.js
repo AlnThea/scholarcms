@@ -290,6 +290,7 @@ PENTING: KELUARKAN HANYA OBJEK JSON VALID TANPA FORMAT MARKDOWN CODEBLOCK. FORMA
           parsed.seoTitle = this.fitSeoTitle(parsed.seoTitle || parsed.title);
           parsed.excerpt = this.fitSeoExcerpt(parsed.excerpt || activeTopic, activeTopic);
           parsed.seoDescription = this.fitSeoExcerpt(parsed.seoDescription || parsed.excerpt, activeTopic);
+          parsed.focusKeyword = (parsed.focusKeyword || parsed.focus_keyword || activeTopic || '').toLowerCase();
           parsed.contentHtml = this.cleanHtmlContent(parsed.contentHtml);
           if (author) parsed.author = author;
           return parsed;

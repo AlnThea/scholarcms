@@ -29,6 +29,9 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
   - Halaman statis yang dihapus pengguna (termasuk halaman dummy bawaan) kini terhapus secara permanen dan tidak akan muncul kembali saat halaman di-refresh.
 - **Penyelarasan Informasi Penulis & Schema Publisher Halaman Statis**:
   - Mengganti teks statis pada header halaman statis (`/page/[slug]`) dengan data penulis dan peran profil dinamis (`page.author?.name` & `page.author?.role`), menyinkronkan format tanggal lokal (EN/ID), serta menyambungkan nama penerbit Schema.org (`JSON-LD`) ke nama situs dinamis dari database.
+- **Auto-Fill Focus Keyword AI & Multibahasa (i18n) Sidebar Meta Artikel**:
+  - Otomatisasi pengisian kata kunci target (`focusKeyword`) pada AI Article Generator ([aiService.js](file:///c:/web/scholarcms/src/services/aiService.js) & [TiptapEditor.jsx](file:///c:/web/scholarcms/src/components/admin/TiptapEditor.jsx)) serta garansi penyimpanan permanen ke Firestore/LocalStorage ([dbService.js](file:///c:/web/scholarcms/src/services/dbService.js)).
+  - Penerjemahan multibahasa Bahasa Inggris (`EN`) dan Indonesia (`ID`) pada seluruh 7 tab Sidebar Meta Artikel ([RightMetaSidebar.jsx](file:///c:/web/scholarcms/src/components/admin/RightMetaSidebar.jsx)), mencakup label bidang *Focus Keyword*, *Meta Title*, *Meta Description*, *Canonical URL*, *Search Engine Indexing*, *AdSense Placement*, *Excerpt*, *Cover Image URL*, dan *Status Publikasi*.
 
 ---
 

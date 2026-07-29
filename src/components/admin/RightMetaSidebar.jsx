@@ -20,7 +20,8 @@ import { useState, useEffect } from 'react';
 export default function RightMetaSidebar() {
   const pathname = usePathname();
   const { role } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isEn = language === 'en';
   const isPageEditor = pathname?.startsWith('/dashboard/pages/new') || pathname?.startsWith('/dashboard/pages/edit');
   const isPostEditor = pathname?.startsWith('/dashboard/posts/new') || pathname?.startsWith('/dashboard/posts/edit');
   const showMetaSidebar = isPostEditor || isPageEditor;
@@ -251,8 +252,8 @@ export default function RightMetaSidebar() {
                 onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'; }}
               />
               <div className="min-w-0 flex-1">
-                <span className="block text-[9px] font-bold uppercase tracking-wider text-blue-500">Pengarang Artikel (Author):</span>
-                <span className="block font-extrabold text-xs text-[var(--text-main)] truncate">{author?.name || user?.name || 'Penulis ScholarCMS'}</span>
+                <span className="block text-[9px] font-bold uppercase tracking-wider text-blue-500">{isEn ? 'Article Author:' : 'Pengarang Artikel (Author):'}</span>
+                <span className="block font-extrabold text-xs text-[var(--text-main)] truncate">{author?.name || user?.name || (isEn ? 'ScholarCMS Author' : 'Penulis ScholarCMS')}</span>
                 <span className="block text-[10px] text-[var(--text-subtle)] truncate">{author?.role || user?.titleRole || user?.role || 'Author'}</span>
               </div>
             </div>
@@ -260,26 +261,26 @@ export default function RightMetaSidebar() {
             <div className="p-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)]/50 space-y-4">
               <h4 className="font-extrabold text-xs text-[var(--text-main)] flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-blue-500" />
-                Status & Jadwal Publikasi
+                {isEn ? 'Publishing Status & Schedule' : 'Status & Jadwal Publikasi'}
               </h4>
 
               {/* Status */}
               <div>
-                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">Status Posting</label>
+                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{isEn ? 'Posting Status' : 'Status Posting'}</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs font-bold text-[var(--text-main)] focus:outline-none focus:border-blue-500 transition-colors"
                 >
-                  <option value="published">🟢 Terbit Instan (Published)</option>
-                  <option value="scheduled">⏰ Terjadwal (Scheduled)</option>
-                  <option value="draft">🟡 Konsep (Draft)</option>
+                  <option value="published">{isEn ? '🟢 Instant Publish (Published)' : '🟢 Terbit Instan (Published)'}</option>
+                  <option value="scheduled">{isEn ? '⏰ Scheduled' : '⏰ Terjadwal (Scheduled)'}</option>
+                  <option value="draft">{isEn ? '🟡 Draft' : '🟡 Konsep (Draft)'}</option>
                 </select>
               </div>
 
               {/* Published At Date-Time */}
               <div>
-                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">Tanggal & Waktu Publikasi / Rilis</label>
+                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{isEn ? 'Publication / Release Date & Time' : 'Tanggal & Waktu Publikasi / Rilis'}</label>
                 <input
                   type="datetime-local"
                   value={publishedAt || ''}
@@ -301,10 +302,10 @@ export default function RightMetaSidebar() {
                 <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 text-[11px] leading-relaxed space-y-1">
                   <div className="flex items-center gap-1.5 font-bold">
                     <Clock className="w-3.5 h-3.5 text-purple-500" />
-                    <span>Penjadwalan Otomatis (Tanpa Cron)</span>
+                    <span>{isEn ? 'Auto Scheduling (Just-In-Time)' : 'Penjadwalan Otomatis (Tanpa Cron)'}</span>
                   </div>
                   <p className="text-[10px] text-[var(--text-muted)]">
-                    Artikel ini akan otomatis dapat diakses publik begitu waktu rilis tercapai (Just-In-Time evaluation).
+                    {isEn ? 'This post will become publicly visible automatically when release time is reached.' : 'Artikel ini akan otomatis dapat diakses publik begitu waktu rilis tercapai (Just-In-Time evaluation).'}
                   </p>
                 </div>
               )}
@@ -314,7 +315,7 @@ export default function RightMetaSidebar() {
                 <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] flex items-center gap-2.5">
                   <Eye className="w-4 h-4 text-blue-500 shrink-0" />
                   <div>
-                    <span className="block text-[9px] font-bold uppercase text-[var(--text-subtle)]">Total Pembaca</span>
+                    <span className="block text-[9px] font-bold uppercase text-[var(--text-subtle)]">{isEn ? 'Total Readers' : 'Total Pembaca'}</span>
                     <span className="font-extrabold text-xs text-[var(--text-main)]">{views || 0} views</span>
                   </div>
                 </div>
@@ -322,7 +323,7 @@ export default function RightMetaSidebar() {
                 <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] flex items-center gap-2.5">
                   <Clock className="w-4 h-4 text-amber-500 shrink-0" />
                   <div className="w-full">
-                    <span className="block text-[9px] font-bold uppercase text-[var(--text-subtle)]">Durasi Baca</span>
+                    <span className="block text-[9px] font-bold uppercase text-[var(--text-subtle)]">{isEn ? 'Read Time' : 'Durasi Baca'}</span>
                     <input
                       type="text"
                       value={readTime}
@@ -345,7 +346,7 @@ export default function RightMetaSidebar() {
             <div className="p-4 rounded-2xl border border-blue-500/20 bg-blue-500/5 space-y-2">
               <div className="flex items-center justify-between border-b border-blue-500/10 pb-2">
                 <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-500 flex items-center gap-1.5">
-                  <Search className="w-3.5 h-3.5" /> Pratinjau Google Snippet
+                  <Search className="w-3.5 h-3.5" /> {isEn ? 'Google Snippet Preview' : 'Pratinjau Google Snippet'}
                 </span>
                 <span className="text-[9px] px-2 py-0.5 rounded-full bg-blue-500/10 font-bold text-blue-400">
                   Google Search Live
@@ -354,13 +355,13 @@ export default function RightMetaSidebar() {
               <div className="space-y-1 pt-1">
                 <div className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 truncate flex items-center gap-1">
                   <Globe className="w-3 h-3 text-emerald-500" />
-                  <span>https://scholarcms.com › post › {slug || 'judul-artikel'}</span>
+                  <span>https://bytelab.web.id › post › {slug || 'article-slug'}</span>
                 </div>
                 <h4 className="text-sm font-extrabold text-blue-600 dark:text-blue-400 hover:underline leading-snug cursor-pointer">
-                  {seoTitle || title || 'Judul Artikel Meta SEO - Google Snippet'}
+                  {seoTitle || title || (isEn ? 'Article Meta SEO Title - Google Snippet' : 'Judul Artikel Meta SEO - Google Snippet')}
                 </h4>
                 <p className="text-[11px] text-[var(--text-muted)] line-clamp-2 leading-relaxed">
-                  {seoDescription || excerpt || 'Tulis ringkasan penjelas meta deskripsi di sini agar calon pembaca di Google tertarik mengklik artikel Anda.'}
+                  {seoDescription || excerpt || (isEn ? 'Write a concise meta description summary here so search readers on Google are compelled to click.' : 'Tulis ringkasan penjelas meta deskripsi di sini agar calon pembaca di Google tertarik mengklik artikel Anda.')}
                 </p>
               </div>
             </div>
@@ -370,60 +371,60 @@ export default function RightMetaSidebar() {
               {/* Judul SEO (Meta Title) */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-[10px] font-bold uppercase text-[var(--text-muted)]">Judul SEO (Meta Title)</label>
+                  <label className="text-[10px] font-bold uppercase text-[var(--text-muted)]">{isEn ? 'SEO Title (Meta Title)' : 'Judul SEO (Meta Title)'}</label>
                   <span className={`text-[10px] font-bold ${(seoTitle || title).length > 60 ? 'text-amber-500' : 'text-emerald-500'}`}>
-                    {(seoTitle || title).length}/60 karakter
+                    {(seoTitle || title).length}/60 {isEn ? 'chars' : 'karakter'}
                   </span>
                 </div>
                 <Input
                   type="text"
-                  placeholder={title || "Judul khusus mesin pencari..."}
+                  placeholder={title || (isEn ? "Title for search engines..." : "Judul khusus mesin pencari...")}
                   value={seoTitle}
                   onChange={(e) => setSeoTitle(e.target.value)}
-                  helperText="Kosongkan jika ingin sama persis dengan judul artikel utama."
+                  helperText={isEn ? "Leave empty to match main article title." : "Kosongkan jika ingin sama persis dengan judul artikel utama."}
                 />
               </div>
 
               {/* Meta Description */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-[10px] font-bold uppercase text-[var(--text-muted)]">Deskripsi Meta (Google Snippet)</label>
+                  <label className="text-[10px] font-bold uppercase text-[var(--text-muted)]">{isEn ? 'Meta Description (Google Snippet)' : 'Deskripsi Meta (Google Snippet)'}</label>
                   <span className={`text-[10px] font-bold ${(seoDescription || excerpt).length > 160 ? 'text-amber-500' : 'text-emerald-500'}`}>
-                    {(seoDescription || excerpt).length}/160 karakter
+                    {(seoDescription || excerpt).length}/160 {isEn ? 'chars' : 'karakter'}
                   </span>
                 </div>
                 <Textarea
-                  placeholder="Ringkasan khusus untuk snippet hasil pencarian Google..."
+                  placeholder={isEn ? "Short summary for Google search snippet..." : "Ringkasan khusus untuk snippet hasil pencarian Google..."}
                   value={seoDescription}
                   onChange={(e) => setSeoDescription(e.target.value)}
                   rows={3}
-                  helperText="Rekomendasi 120 - 160 karakter untuk tingkat CTR pencarian tertinggi."
+                  helperText={isEn ? "Recommended 120 - 160 characters for highest search CTR." : "Rekomendasi 120 - 160 karakter untuk tingkat CTR pencarian tertinggi."}
                 />
               </div>
 
               {/* Focus Keyword */}
               <div>
-                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">Kata Kunci Utama (Focus Keyword)</label>
+                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{isEn ? 'Focus Keyword' : 'Kata Kunci Utama (Focus Keyword)'}</label>
                 <Input
                   type="text"
-                  placeholder="Contoh: Next.js CMS, Tutorial React"
+                  placeholder={isEn ? "e.g. Next.js CMS, React Tutorial" : "Contoh: Next.js CMS, Tutorial React"}
                   value={focusKeyword}
                   onChange={(e) => setFocusKeyword(e.target.value)}
                   icon={Tag}
-                  helperText="Kata kunci target utama yang dioptimalkan untuk SEO artikel ini."
+                  helperText={isEn ? "Target primary keyword optimized for this article." : "Kata kunci target utama yang dioptimalkan untuk SEO artikel ini."}
                 />
               </div>
 
               {/* Canonical URL */}
               <div>
-                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">URL Canonical Kustom</label>
+                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{isEn ? 'Custom Canonical URL' : 'URL Canonical Kustom'}</label>
                 <Input
                   type="url"
-                  placeholder="https://domain-utama.com/post/original"
+                  placeholder="https://main-domain.com/post/original"
                   value={canonicalUrl}
                   onChange={(e) => setCanonicalUrl(e.target.value)}
                   icon={LinkIcon}
-                  helperText="Gunakan jika artikel ini disadur dari sumber asli lain."
+                  helperText={isEn ? "Use if this article is republished from another source." : "Gunakan jika artikel ini disadur dari sumber asli lain."}
                 />
               </div>
 
@@ -432,8 +433,8 @@ export default function RightMetaSidebar() {
                 <div className="flex items-center gap-2">
                   <ShieldAlert className="w-4 h-4 text-amber-500 shrink-0" />
                   <div>
-                    <span className="block font-bold text-xs text-[var(--text-main)]">Pengindeksan Search Engine</span>
-                    <span className="block text-[10px] text-[var(--text-muted)]">Sembunyikan dari pencarian Google (noindex)</span>
+                    <span className="block font-bold text-xs text-[var(--text-main)]">{isEn ? 'Search Engine Indexing' : 'Pengindeksan Search Engine'}</span>
+                    <span className="block text-[10px] text-[var(--text-muted)]">{isEn ? 'Hide from Google Search (noindex)' : 'Sembunyikan dari pencarian Google (noindex)'}</span>
                   </div>
                 </div>
                 <input
@@ -456,23 +457,23 @@ export default function RightMetaSidebar() {
             <div className="p-3.5 rounded-2xl border border-blue-500/20 bg-blue-500/5 space-y-2">
               <div className="flex items-center justify-between border-b border-blue-500/10 pb-2">
                 <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-500 flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-blue-500" /> Kredensial AdSense Situs
+                  <ShieldCheck className="w-3.5 h-3.5 text-blue-500" /> {isEn ? 'Site AdSense Credentials' : 'Kredensial AdSense Situs'}
                 </span>
                 {role === 'admin' && (
                   <Link href="/dashboard/settings" className="text-[9px] font-bold text-blue-500 hover:underline flex items-center gap-1">
-                    <SettingsIcon className="w-3 h-3" /> Kelola (Admin)
+                    <SettingsIcon className="w-3 h-3" /> {isEn ? 'Manage (Admin)' : 'Kelola (Admin)'}
                   </Link>
                 )}
               </div>
               <div className="text-[11px] text-[var(--text-muted)] space-y-1">
                 <div className="flex items-center justify-between">
-                  <span>ID Publisher Global:</span>
+                  <span>{isEn ? 'Global Publisher ID:' : 'ID Publisher Global:'}</span>
                   <span className="font-mono font-bold text-[var(--text-main)]">
                     {globalAdSettings?.adClient || adClient || 'ca-pub-9999999999999999'}
                   </span>
                 </div>
                 <p className="text-[10px] opacity-75">
-                  Iklan disunting dan dikelola secara otomatis terpusat dari Halaman Pengaturan CMS.
+                  {isEn ? 'Ads are managed and automatically served centrally from CMS Settings.' : 'Iklan disunting dan dikelola secara otomatis terpusat dari Halaman Pengaturan CMS.'}
                 </p>
               </div>
             </div>
@@ -491,10 +492,10 @@ export default function RightMetaSidebar() {
                 </div>
                 <div>
                   <h4 className="font-extrabold text-xs">
-                    {enableAds ? 'Monetisasi Artikel Aktif 💰' : 'Iklan Artikel Dinonaktifkan'}
+                    {enableAds ? (isEn ? 'Article Monetization Active 💰' : 'Monetisasi Artikel Aktif 💰') : (isEn ? 'Article Ads Disabled' : 'Iklan Artikel Dinonaktifkan')}
                   </h4>
                   <p className="text-[10px] opacity-80">
-                    {enableAds ? 'Iklan banner otomatis tayang di artikel ini' : 'Artikel ini bersih dari tayangan iklan'}
+                    {enableAds ? (isEn ? 'Auto banner ads will show on this article' : 'Iklan banner otomatis tayang di artikel ini') : (isEn ? 'This article is clean from ad banners' : 'Artikel ini bersih dari tayangan iklan')}
                   </p>
                 </div>
               </div>
@@ -511,23 +512,23 @@ export default function RightMetaSidebar() {
                 
                 {/* Posisi Penempatan Iklan */}
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">Posisi Penempatan Iklan Artikel</label>
+                  <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{isEn ? 'Article Ad Placement Position' : 'Posisi Penempatan Iklan Artikel'}</label>
                   <Select
                     value={adPlacement}
                     onChange={(e) => setAdPlacement(e.target.value)}
                   >
-                    <option value="all">🌟 Seluruh Posisi (Header, Tengah &amp; Footer)</option>
-                    <option value="top">⬆️ Atas Artikel (Header Ad)</option>
-                    <option value="in_article">↔️ Tengah Artikel (In-Article Auto Ad)</option>
-                    <option value="bottom">⬇️ Bawah Artikel (Footer Ad)</option>
+                    <option value="all">{isEn ? '🌟 All Positions (Header, In-Article & Footer)' : '🌟 Seluruh Posisi (Header, Tengah & Footer)'}</option>
+                    <option value="top">{isEn ? '⬆️ Top of Article (Header Ad)' : '⬆️ Atas Artikel (Header Ad)'}</option>
+                    <option value="in_article">{isEn ? '↔️ Middle of Article (In-Article Auto Ad)' : '↔️ Tengah Artikel (In-Article Auto Ad)'}</option>
+                    <option value="bottom">{isEn ? '⬇️ Bottom of Article (Footer Ad)' : '⬇️ Bawah Artikel (Footer Ad)'}</option>
                   </Select>
                 </div>
 
                 {/* Sponsored Post Partnership Badge */}
                 <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] flex items-center justify-between gap-3">
                   <div>
-                    <span className="block font-bold text-xs text-[var(--text-main)]">Artikel Bersponsor (Paid Partnership)</span>
-                    <span className="block text-[10px] text-[var(--text-muted)]">Tampilkan lencana sponsor resmi di atas artikel</span>
+                    <span className="block font-bold text-xs text-[var(--text-main)]">{isEn ? 'Sponsored Article (Paid Partnership)' : 'Artikel Bersponsor (Paid Partnership)'}</span>
+                    <span className="block text-[10px] text-[var(--text-muted)]">{isEn ? 'Display official sponsor badge above article' : 'Tampilkan lencana sponsor resmi di atas artikel'}</span>
                   </div>
                   <input
                     type="checkbox"
@@ -549,7 +550,7 @@ export default function RightMetaSidebar() {
             <div className="p-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)]/50 space-y-4">
               <h4 className="font-extrabold text-xs text-[var(--text-main)] flex items-center gap-2">
                 <LinkIcon className="w-4 h-4 text-emerald-500" />
-                Judul & Permalink Slug
+                {isEn ? 'Title & Permalink Slug' : 'Judul & Permalink Slug'}
               </h4>
 
               {/* Title */}
@@ -569,7 +570,7 @@ export default function RightMetaSidebar() {
               {/* Slug with Regenerate */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)]">Slug Permalink</label>
+                  <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)]">{isEn ? 'Slug Permalink' : 'Slug Permalink'}</label>
                   <button
                     type="button"
                     onClick={handleGenerateSlug}
@@ -588,10 +589,10 @@ export default function RightMetaSidebar() {
 
               {/* URL Preview & Copy */}
               <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] space-y-2">
-                <span className="block text-[9px] font-bold uppercase text-[var(--text-subtle)]">URL Pratinjau Publik:</span>
+                <span className="block text-[9px] font-bold uppercase text-[var(--text-subtle)]">{isEn ? 'Public Preview URL:' : 'URL Pratinjau Publik:'}</span>
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-mono text-[11px] text-[var(--text-muted)] truncate">
-                    /post/<strong className="text-blue-500">{slug || 'judul-artikel'}</strong>
+                    /post/<strong className="text-blue-500">{slug || (isEn ? 'article-slug' : 'judul-artikel')}</strong>
                   </span>
                   <button
                     type="button"
@@ -599,7 +600,7 @@ export default function RightMetaSidebar() {
                     className="px-2.5 py-1.5 rounded-xl bg-[var(--bg-primary)] hover:bg-blue-600 hover:text-white transition-all text-[10px] font-bold flex items-center gap-1 shrink-0 shadow-sm"
                   >
                     {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                    {copied ? 'Tersalin' : 'Salin URL'}
+                    {copied ? (isEn ? 'Copied' : 'Tersalin') : (isEn ? 'Copy URL' : 'Salin URL')}
                   </button>
                 </div>
               </div>
@@ -614,12 +615,12 @@ export default function RightMetaSidebar() {
             <div className="p-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)]/50 space-y-4">
               <h4 className="font-extrabold text-xs text-[var(--text-main)] flex items-center gap-2">
                 <Folder className="w-4 h-4 text-purple-500" />
-                Kategori & Tag Taksonomi
+                {isEn ? 'Taxonomy Categories & Tags' : 'Kategori & Tag Taksonomi'}
               </h4>
 
               {/* Category Dropdown from DB */}
               <div>
-                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">Pilih Kategori Dari Database</label>
+                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{isEn ? 'Select Category From Database' : 'Pilih Kategori Dari Database'}</label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
@@ -644,10 +645,10 @@ export default function RightMetaSidebar() {
 
               {/* Custom Category Input Option */}
               <div>
-                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">Atau Kategori Kustom</label>
+                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{isEn ? 'Or Custom Category' : 'Atau Kategori Kustom'}</label>
                 <input
                   type="text"
-                  placeholder="Ketik nama kategori baru..."
+                  placeholder={isEn ? "Type new category name..." : "Ketik nama kategori baru..."}
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-blue-500 transition-colors"
@@ -656,11 +657,11 @@ export default function RightMetaSidebar() {
 
               {/* Tags Input & Chips */}
               <div className="pt-2 border-t border-[var(--border-color)]/50">
-                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1.5">Tag Artikel (Chips)</label>
+                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1.5">{isEn ? 'Article Tags (Chips)' : 'Tag Artikel (Chips)'}</label>
                 <div className="flex gap-2 mb-3">
                   <input
                     type="text"
-                    placeholder="Tambah tag (Tekan Enter)..."
+                    placeholder={isEn ? "Add tag (Press Enter)..." : "Tambah tag (Tekan Enter)..."}
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={handleTagKeyDown}
@@ -671,7 +672,7 @@ export default function RightMetaSidebar() {
                     onClick={() => handleAddTag(tagInput)}
                     className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs transition-colors shadow-sm"
                   >
-                    Tambah
+                    {isEn ? 'Add' : 'Tambah'}
                   </button>
                 </div>
 
@@ -695,7 +696,7 @@ export default function RightMetaSidebar() {
                       </span>
                     ))
                   ) : (
-                    <span className="text-[10px] text-[var(--text-subtle)] italic">Belum ada tag ditambahkan</span>
+                    <span className="text-[10px] text-[var(--text-subtle)] italic">{isEn ? 'No tags added yet' : 'Belum ada tag ditambahkan'}</span>
                   )}
                 </div>
               </div>
@@ -710,7 +711,7 @@ export default function RightMetaSidebar() {
             <div className="p-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)]/50 space-y-4">
               <h4 className="font-extrabold text-xs text-[var(--text-main)] flex items-center gap-2">
                 <ImageIcon className="w-4 h-4 text-pink-500" />
-                Gambar Unggulan (Cover Image)
+                {isEn ? 'Featured Cover Image' : 'Gambar Unggulan (Cover Image)'}
               </h4>
 
               {/* Live Preview Card */}
@@ -728,19 +729,19 @@ export default function RightMetaSidebar() {
                       onClick={() => setFeaturedImage('')}
                       className="px-3.5 py-2 bg-red-600 text-white rounded-xl text-xs font-bold shadow-lg hover:bg-red-700 transition-colors"
                     >
-                      Hapus Gambar
+                      {isEn ? 'Remove Image' : 'Hapus Gambar'}
                     </button>
                   </div>
                 </div>
               ) : (
                 <div className="p-6 rounded-2xl border-2 border-dashed border-[var(--border-color)] text-center text-[var(--text-subtle)] text-[11px]">
-                  Belum ada URL gambar dipilih
+                  {isEn ? 'No cover image URL selected yet' : 'Belum ada URL gambar dipilih'}
                 </div>
               )}
 
               {/* URL Input */}
               <div>
-                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">URL Gambar Cover</label>
+                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{isEn ? 'Cover Image URL' : 'URL Gambar Cover'}</label>
                 <input
                   type="url"
                   placeholder="https://images.unsplash.com/..."
@@ -752,7 +753,7 @@ export default function RightMetaSidebar() {
 
               {/* Preset Sample Images */}
               <div>
-                <span className="block text-[10px] font-bold uppercase text-[var(--text-subtle)] mb-2">Sampel Gambar Unsplash:</span>
+                <span className="block text-[10px] font-bold uppercase text-[var(--text-subtle)] mb-2">{isEn ? 'Unsplash Image Samples:' : 'Sampel Gambar Unsplash:'}</span>
                 <div className="grid grid-cols-4 gap-2">
                   {PRESET_IMAGES.map((img, i) => (
                     <button
@@ -780,22 +781,22 @@ export default function RightMetaSidebar() {
               <h4 className="font-extrabold text-xs text-[var(--text-main)] flex items-center justify-between">
                 <span className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-amber-500" />
-                  Ringkasan Excerpt
+                  {isEn ? 'Excerpt & Summary' : 'Ringkasan Excerpt'}
                 </span>
                 <span className="text-[10px] text-[var(--text-subtle)] font-mono">
-                  {excerpt ? excerpt.length : 0} karakter
+                  {excerpt ? excerpt.length : 0} {isEn ? 'chars' : 'karakter'}
                 </span>
               </h4>
 
               <textarea
                 rows={5}
-                placeholder="Tulis ringkasan singkat artikel untuk kartu pratinjau..."
+                placeholder={isEn ? "Write a short article summary for preview cards..." : "Tulis ringkasan singkat artikel untuk kartu pratinjau..."}
                 value={excerpt}
                 onChange={(e) => setExcerpt(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-amber-500 transition-colors leading-relaxed"
               />
               <p className="text-[10px] text-[var(--text-subtle)] italic">
-                💡 Ringkasan ini akan tampil pada kartu artikel di halaman depan dan hasil pencarian.
+                {isEn ? '💡 This summary will appear on article cards on the homepage and search results.' : '💡 Ringkasan ini akan tampil pada kartu artikel di halaman depan dan hasil pencarian.'}
               </p>
             </div>
           </div>
