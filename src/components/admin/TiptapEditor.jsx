@@ -765,18 +765,25 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
       tagList = tags.split(',').map(t => t.trim()).filter(Boolean);
     }
 
+    const extractNodeText = (nodes) => {
+      if (!Array.isArray(nodes)) return '';
+      return nodes.map(n => {
+        if (n.text) return n.text;
+        if (n.content) return extractNodeText(n.content);
+        return '';
+      }).filter(Boolean).join(' ');
+    };
+
     let blocks = [];
     if (jsonContent && jsonContent.content) {
       blocks = jsonContent.content.map((node, index) => {
-        let textContent = '';
-        if (node.content) {
-          textContent = node.content.map(c => c.text || '').join('');
-        }
+        const textContent = extractNodeText(node.content);
 
         let type = 'paragraph';
         if (node.type === 'heading') type = 'heading';
         if (node.type === 'blockquote') type = 'quote';
         if (node.type === 'codeBlock') type = 'code';
+        if (node.type === 'bulletList' || node.type === 'orderedList') type = 'list';
 
         return {
           id: `block-${index + 1}`,

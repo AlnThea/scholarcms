@@ -681,6 +681,7 @@ export const dbService = {
       author: pageData.author || { name: 'Ernst Senior Dev', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80', role: 'CMS Administrator' },
       seoTitle: pageData.seoTitle || pageData.title || '',
       seoDescription: pageData.seoDescription || pageData.excerpt || '',
+      content: pageData.content || '',
       blocks: pageData.blocks || [],
       updatedAt: now
     };

@@ -21,6 +21,9 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 - **Penerjemahan Otomatis Homepage Publik & Menu Halaman Statis**:
   - Pembuatan utilitas pengalih bahasa menu & halaman statis ([menuTranslator.js](file:///c:/web/scholarcms/src/utils/menuTranslator.js)) untuk menerjemahkan label menu database (seperti *Beranda* ➔ *Home*, *Tentang Kami* ➔ *About Us*, *Kebijakan Privasi* ➔ *Privacy Policy*, *Syarat & Ketentuan* ➔ *Terms & Conditions*, dll.) saat Bahasa Inggris aktif (`EN`).
   - Menerjemahkan deskripsi footer, header navigasi utama, placeholder bar pencarian, badge artikel utama, widget topik kategori, widget tag tren, serta detail halaman statis (`/page/[slug]`).
+- **Perbaikan Penyimpanan Konten Format Kaya Halaman Statis**:
+  - Menambahkan properti `content` pada payload `savePage` di [dbService.js](file:///c:/web/scholarcms/src/services/dbService.js) serta ekstraksi rekursif `extractNodeText` di [TiptapEditor.jsx](file:///c:/web/scholarcms/src/components/admin/TiptapEditor.jsx).
+  - Memastikan elemen Blockquote, Bullet List, Ordered List, Tabel, dan format HTML kaya pada Halaman Statis tersimpan 100% utuh di Firestore dan LocalStorage.
 
 ---
 
