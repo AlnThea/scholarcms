@@ -24,6 +24,9 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 - **Perbaikan Penyimpanan Konten Format Kaya Halaman Statis**:
   - Menambahkan properti `content` pada payload `savePage` di [dbService.js](file:///c:/web/scholarcms/src/services/dbService.js) serta ekstraksi rekursif `extractNodeText` di [TiptapEditor.jsx](file:///c:/web/scholarcms/src/components/admin/TiptapEditor.jsx).
   - Memastikan elemen Blockquote, Bullet List, Ordered List, Tabel, dan format HTML kaya pada Halaman Statis tersimpan 100% utuh di Firestore dan LocalStorage.
+- **Perbaikan Penghapusan Permanen Halaman Statis**:
+  - Menghapus background re-seeding loop pada `dbService.getPages()` dan `getPageBySlug()`, serta menyinkronkan pembersihan cache LocalStorage pada `deletePage()`.
+  - Halaman statis yang dihapus pengguna (termasuk halaman dummy bawaan) kini terhapus secara permanen dan tidak akan muncul kembali saat halaman di-refresh.
 
 ---
 

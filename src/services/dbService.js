@@ -591,52 +591,32 @@ export const dbService = {
       try {
         let snap = await getDocs(collection(db, 'pages'));
         
-        // Auto-seed default legal pages if database collection is empty or missing initial pages
+        // Auto-seed default legal pages ONLY ONCE if database collection is completely empty
         if (snap.empty) {
-          await this.seedDefaultPagesToFirestore();
-          snap = await getDocs(collection(db, 'pages'));
+          const seeded = getLocal('pages_firestore_seeded', false);
+          if (!seeded) {
+            await this.seedDefaultPagesToFirestore();
+            setLocal('pages_firestore_seeded', true);
+            snap = await getDocs(collection(db, 'pages'));
+          }
         }
 
         if (!snap.empty) {
-          const firestorePages = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          
-          // Check if any default legal page is missing and seed it in background
-          const existingSlugs = new Set(firestorePages.map(p => p.slug));
-          const missingPages = INITIAL_PAGES.filter(p => !existingSlugs.has(p.slug));
-          if (missingPages.length > 0) {
-            for (const page of missingPages) {
-              try {
-                await setDoc(doc(db, 'pages', page.id), page, { merge: true });
-                firestorePages.push(page);
-              } catch(e) {}
-            }
-          }
-
-          return firestorePages;
+          return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         }
+        return [];
       } catch (e) {
         console.warn('Firestore getPages error:', e);
       }
     }
-    return INITIAL_PAGES;
+    return getLocal('pages', INITIAL_PAGES);
   },
 
   async getPageBySlug(slug) {
     if (isFirebaseConfigured()) {
       try {
         const q = query(collection(db, 'pages'), where('slug', '==', slug));
-        let snap = await getDocs(q);
-
-        // If page is not in Firestore yet, check if it's a default legal page and seed it
-        if (snap.empty) {
-          const mockPage = INITIAL_PAGES.find(p => p.slug === slug);
-          if (mockPage) {
-            try {
-              await setDoc(doc(db, 'pages', mockPage.id), mockPage, { merge: true });
-              snap = await getDocs(q);
-            } catch(e) {}
-          }
-        }
+        const snap = await getDocs(q);
 
         if (!snap.empty) {
           const docSnap = snap.docs[0];
@@ -650,7 +630,7 @@ export const dbService = {
         console.warn('Firestore getPageBySlug error:', e);
       }
     }
-    const pages = INITIAL_PAGES;
+    const pages = getLocal('pages', INITIAL_PAGES);
     const p = pages.find(page => page.slug === slug);
     if (p) {
       p.views = (p.views || 0) + 1;
@@ -720,7 +700,6 @@ export const dbService = {
     if (isFirebaseConfigured()) {
       try {
         await deleteDoc(doc(db, 'pages', id));
-        return true;
       } catch (e) {
         console.warn('Firestore deletePage error:', e);
       }
