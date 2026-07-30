@@ -2,6 +2,27 @@
 
 Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 
+## [v2.2.0] - 2026-07-30
+
+### 🎨 Homepage UX, Dynamic Navbar Hover Bridge, 2-Column Single Post Sidebar Layout, & AdSense Slot Control
+- **Penyaringan Kategori & Tag Berpengisi (> 0 Artikel)**:
+  - Menyaring baris kategori pada seluruh tema ([Modern](file:///c:/web/scholarcms/src/themes/modern/index.jsx), [Editorial](file:///c:/web/scholarcms/src/themes/editorial/index.jsx), [Minimalist](file:///c:/web/scholarcms/src/themes/minimalist/index.jsx)) agar kategori tanpa artikel terpublikasi disembunyikan.
+  - Menyamakan tombol tab pertama ke "Semua" (ID) / "All" (EN) via [locales.js](file:///c:/web/scholarcms/src/constants/locales.js) serta menyembunyikan scrollbar (`no-scrollbar`).
+- **Komponen Widget Kategori, Tag, & Random Articles ([TrendingTopicsWidget.jsx](file:///c:/web/scholarcms/src/components/blog/TrendingTopicsWidget.jsx))**:
+  - `CategoryTopicsWidget`: Hanya merender kategori yang memiliki artikel dalam tampilan *tag pills* (`flex flex-wrap gap-1.5`) teracak dan terbatas.
+  - `TrendingTagsWidget`: Menyaring tag artikel terbit, mengacak urutannya, dan menyempurnakan tampilan badge pill (tanpa sudut `rounded-xl` kaku).
+  - `RandomArticlesWidget`: Menambahkan widget artikel acak (*Random Articles*) baru yang dilengkapi tombol acak ulang (*shuffle*).
+- **Perbaikan Hover Sensitivitas Navbar Header ([Navbar.jsx](file:///c:/web/scholarcms/src/components/layout/Navbar.jsx))**:
+  - Menambahkan jembatan hover (`before:` pseudo-element) dan buffer timeout delay (200ms) pada `onMouseLeave` untuk mencegah menu dropdown level 2 & 3 tertutup saat kursor digerakkan.
+  - Memperbaiki deklarasi state `activeL1` dan `activeL2` untuk menyelesaikan `ReferenceError`.
+- **Halaman Post Detail Single 2-Kolom (`/post/[slug]`) ([page.jsx](file:///c:/web/scholarcms/src/app/post/[slug]/page.jsx))**:
+  - **Grid Layout 2-Kolom**: Membagi halaman menjadi 8 kolom di kiri (konten artikel utama) dan 4 kolom di kanan (Sidebar Rekomendasi).
+  - **Breadcrumb Navigation & Schema.org**: Menambahkan Breadcrumb (`Beranda > Kategori > Judul Artikel`) dan JSON-LD `BreadcrumbList` untuk SEO Google/AdSense.
+  - **Tag Display & Post Navigation**: Menampilkan tag postingan secara *wrap* (`flex-wrap gap-2`) serta kartu navigasi *Artikel Sebelumnya* / *Artikel Selanjutnya*.
+  - **Sidebar Rekomendasi (Samping Kanan)**: Menyusun widget *Artikel Terkait*, *Artikel Populer*, *Artikel Acak*, dan *Topik Kategori & Tag Tren* di samping kanan artikel.
+- **Pengendalian Slot AdSense ([AdSenseBanner.jsx](file:///c:/web/scholarcms/src/components/blog/AdSenseBanner.jsx))**:
+  - Bila sakelar AdSense di Admin Settings berstatus non-aktif (`isEnabled === false`), slot banner tidak lagi menampilkan kotak placeholder di blog (`return null`).
+
 ## [v2.1.0] - 2026-07-29
 
 ### 🌐 Full Dashboard Multi-Language (i18n) Engine, 429 Quota Exceeded EN Fallback, & React DOM Attribute Warning Fix

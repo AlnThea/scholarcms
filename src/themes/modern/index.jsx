@@ -51,13 +51,22 @@ export default function ModernGlassTheme({
   const gridPosts = searchQuery || selectedCategory !== 'All' ? filteredPosts : filteredPosts.slice(1);
   const popularPosts = [...posts].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 3);
 
+  const activeCategories = categories.filter((cat) => {
+    return posts.some((p) => {
+      const pCats = Array.isArray(p.categories) && p.categories.length > 0
+        ? p.categories
+        : (typeof p.category === 'string' && p.category ? p.category.split(',').map(s => s.trim()) : [p.category]);
+      return pCats.includes(cat.name) || p.category === cat.name;
+    });
+  });
+
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-main)] transition-colors">
       <Navbar onSearch={onSearch} searchQuery={searchQuery} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Categories Bar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar">
+        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <button
             onClick={() => onSelectCategory('All')}
             className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all shrink-0 ${
@@ -66,9 +75,9 @@ export default function ModernGlassTheme({
                 : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-main)] border border-[var(--border-color)]'
             }`}
           >
-            {t('tabAll') || 'All'}
+            {t('tabAll') || 'Semua'}
           </button>
-          {categories.map((cat) => (
+          {activeCategories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => onSelectCategory(cat.name)}

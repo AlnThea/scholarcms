@@ -62,6 +62,21 @@ export default function Navbar({ onSearch, searchQuery }) {
   const [menuTree, setMenuTree] = useState([]);
   const [activeL1, setActiveL1] = useState(null);
   const [activeL2, setActiveL2] = useState(null);
+  const leaveTimeoutRef = useRef(null);
+
+  const handleMenuEnter = (l1Id) => {
+    if (leaveTimeoutRef.current) {
+      clearTimeout(leaveTimeoutRef.current);
+    }
+    setActiveL1(l1Id);
+  };
+
+  const handleMenuLeave = () => {
+    leaveTimeoutRef.current = setTimeout(() => {
+      setActiveL1(null);
+      setActiveL2(null);
+    }, 200);
+  };
   const { openSidebar } = useMetaSidebar();
 
   // Sliding / Expandable Search States
@@ -160,8 +175,8 @@ export default function Navbar({ onSearch, searchQuery }) {
               <div
                 key={l1Item.id}
                 className="relative group"
-                onMouseEnter={() => setActiveL1(l1Item.id)}
-                onMouseLeave={() => { setActiveL1(null); setActiveL2(null); }}
+                onMouseEnter={() => handleMenuEnter(l1Item.id)}
+                onMouseLeave={handleMenuLeave}
               >
                 <Link
                   href={l1Item.href}
@@ -173,40 +188,47 @@ export default function Navbar({ onSearch, searchQuery }) {
 
                 {/* Level 2 Dropdown */}
                 {hasL2 && activeL1 === l1Item.id && (
-                  <div className="absolute left-0 mt-1 w-56 rounded-2xl glass-panel shadow-2xl p-2 z-50 space-y-1 animate-fade-in border border-[var(--border-color)]">
-                    {l1Item.children.map((l2Item) => {
-                      const hasL3 = l2Item.children && l2Item.children.length > 0;
-                      return (
-                        <div
-                          key={l2Item.id}
-                          className="relative"
-                          onMouseEnter={() => setActiveL2(l2Item.id)}
-                        >
-                          <Link
-                            href={l2Item.href}
-                            className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-[var(--text-main)] hover:bg-blue-600 hover:text-white transition-colors"
+                  <div className="absolute left-0 top-full pt-1.5 w-56 z-50 animate-fade-in before:content-[''] before:absolute before:-top-3 before:left-0 before:w-full before:h-4">
+                    <div className="rounded-2xl glass-panel shadow-2xl p-2 space-y-1 border border-[var(--border-color)]">
+                      {l1Item.children.map((l2Item) => {
+                        const hasL3 = l2Item.children && l2Item.children.length > 0;
+                        return (
+                          <div
+                            key={l2Item.id}
+                            className="relative"
+                            onMouseEnter={() => {
+                              if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current);
+                              setActiveL2(l2Item.id);
+                            }}
                           >
-                            <span>{translateLabel(l2Item.label, language)}</span>
-                            {hasL3 && <ChevronRight className="w-3.5 h-3.5" />}
-                          </Link>
+                            <Link
+                              href={l2Item.href}
+                              className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-[var(--text-main)] hover:bg-blue-600 hover:text-white transition-colors"
+                            >
+                              <span>{translateLabel(l2Item.label, language)}</span>
+                              {hasL3 && <ChevronRight className="w-3.5 h-3.5" />}
+                            </Link>
 
-                          {/* Level 3 Sub-Dropdown */}
-                          {hasL3 && activeL2 === l2Item.id && (
-                            <div className="absolute left-full top-0 ml-1 w-52 rounded-2xl glass-panel shadow-2xl p-2 z-50 space-y-1 animate-fade-in border border-[var(--border-color)]">
-                              {l2Item.children.map((l3Item) => (
-                                <Link
-                                  key={l3Item.id}
-                                  href={l3Item.href}
-                                  className="block px-3 py-2 rounded-xl text-xs font-medium text-[var(--text-main)] hover:bg-indigo-600 hover:text-white transition-colors"
-                                >
-                                  {translateLabel(l3Item.label, language)}
-                                </Link>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                            {/* Level 3 Sub-Dropdown */}
+                            {hasL3 && activeL2 === l2Item.id && (
+                              <div className="absolute left-full top-0 pl-1.5 w-52 z-50 animate-fade-in before:content-[''] before:absolute before:top-0 before:-left-3 before:w-4 before:h-full">
+                                <div className="rounded-2xl glass-panel shadow-2xl p-2 space-y-1 border border-[var(--border-color)]">
+                                  {l2Item.children.map((l3Item) => (
+                                    <Link
+                                      key={l3Item.id}
+                                      href={l3Item.href}
+                                      className="block px-3 py-2 rounded-xl text-xs font-medium text-[var(--text-main)] hover:bg-indigo-600 hover:text-white transition-colors"
+                                    >
+                                      {translateLabel(l3Item.label, language)}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>

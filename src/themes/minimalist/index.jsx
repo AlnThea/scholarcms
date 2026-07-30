@@ -68,7 +68,10 @@ export default function MinimalistTechTheme({
           >
             Semua
           </button>
-          {categories.map((cat) => (
+          {categories.filter(cat => posts.some(p => {
+            const pCats = Array.isArray(p.categories) && p.categories.length > 0 ? p.categories : (typeof p.category === 'string' && p.category ? p.category.split(',').map(s => s.trim()) : [p.category]);
+            return pCats.includes(cat.name) || p.category === cat.name;
+          })).map((cat) => (
             <button
               key={cat.id}
               onClick={() => onSelectCategory(cat.name)}

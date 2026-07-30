@@ -83,7 +83,7 @@ export default function EditorialNewsTheme({
         </div>
 
         {/* Categories Bar (Editorial Style) */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-8 border-b border-slate-300 dark:border-slate-800 font-sans text-xs uppercase font-bold tracking-wider">
+        <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-8 border-b border-slate-300 dark:border-slate-800 font-sans text-xs uppercase font-bold tracking-wider no-scrollbar scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <button
             onClick={() => onSelectCategory('All')}
             className={`px-3 py-1.5 rounded transition-all ${
@@ -94,11 +94,14 @@ export default function EditorialNewsTheme({
           >
             Semua Berita
           </button>
-          {categories.map((cat) => (
+          {categories.filter(cat => posts.some(p => {
+            const pCats = Array.isArray(p.categories) && p.categories.length > 0 ? p.categories : (typeof p.category === 'string' && p.category ? p.category.split(',').map(s => s.trim()) : [p.category]);
+            return pCats.includes(cat.name) || p.category === cat.name;
+          })).map((cat) => (
             <button
               key={cat.id}
               onClick={() => onSelectCategory(cat.name)}
-              className={`px-3 py-1.5 rounded transition-all ${
+              className={`px-3 py-1.5 rounded transition-all whitespace-nowrap ${
                 selectedCategory === cat.name
                   ? 'bg-rose-700 text-white'
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
