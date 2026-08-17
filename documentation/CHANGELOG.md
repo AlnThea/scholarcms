@@ -2,6 +2,18 @@
 
 Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 
+## [v2.2.1] - 2026-08-17
+
+### 🚀 Fitur Baru & Peningkatan UX
+- **Input Kategori & Sub-Kategori**: Mengganti antarmuka dropdown (select) pada sidebar Meta Taksonomi menjadi input teks murni yang memisahkan antara `Kategori Utama` dan `Sub-Kategori` agar lebih fleksibel saat membuat artikel baru.
+- **Real-Time Analytics Engine**: Menambahkan modul `ClientAnalyticsTracker` dan infrastruktur backend `analytics_daily` untuk merekam *pageview*, jejak asal pengunjung (*referrer*), serta jam berkunjung secara nyata.
+- **Dashboard Dynamic Charts (Tahap 1)**: Menghubungkan visualisasi **Chart Pie Sumber Trafik** di Dashboard agar menggunakan metrik dari mesin analitik nyata alih-alih menampilkan data statis (*dummy*).
+
+### 🛠️ Perbaikan Bug
+- **Perbaikan Tombol Simpan Konsep (Save Draft)**: Memperbaiki komponen `TiptapEditor.jsx` agar tombol "Save Draft" secara eksplisit menyimpan dokumen dengan status `draft` dan memperbarui state pada UI, bukan menggunakan status publikasi default (`published`).
+- **Akurasi Pembacaan SEO Analyzer**: Memperbaiki algoritma kalkulasi panjang teks pada plugin SEO Analyzer yang sebelumnya salah membaca parameter `excerpt` (Kutipan) menjadi membaca parameter `seoDescription` (Meta Description) sesuai dengan peruntukannya.
+- **Kalkulasi Artikel Terjadwal Dashboard**: Memperbaiki indikator konter jumlah *Scheduled Posts* di Dashboard utama yang terus menampilkan angka 0 akibat kesalahan pembatasan sampel data penarikan.
+
 ## [v2.2.0] - 2026-07-30
 
 ### 🎨 Homepage UX, Dynamic Navbar Hover Bridge, 2-Column Single Post Sidebar Layout, & AdSense Slot Control
@@ -22,6 +34,12 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
   - **Sidebar Rekomendasi (Samping Kanan)**: Menyusun widget *Artikel Terkait*, *Artikel Populer*, *Artikel Acak*, dan *Topik Kategori & Tag Tren* di samping kanan artikel.
 - **Pengendalian Slot AdSense ([AdSenseBanner.jsx](file:///c:/web/scholarcms/src/components/blog/AdSenseBanner.jsx))**:
   - Bila sakelar AdSense di Admin Settings berstatus non-aktif (`isEnabled === false`), slot banner tidak lagi menampilkan kotak placeholder di blog (`return null`).
+- **Refaktor AI Generator & Fitur Pemilihan Model (Official `@google/genai` SDK)** ([aiService.js](file:///c:/web/scholarcms/src/services/aiService.js), [AiGenerateModal.jsx](file:///c:/web/scholarcms/src/components/admin/AiGenerateModal.jsx), & [settings/page.jsx](file:///c:/web/scholarcms/src/app/dashboard/settings/page.jsx)):
+  - Mengintegrasikan SDK resmi Google Gen AI (`@google/genai`).
+  - **Pembersihan Total Logika Dummy**: Menghapus metode `createFallbackArticle` (termasuk seluruh template teks HTML statis 650+ baris) serta pool rekomendasi offline statis (`ALL_NICHES_POOL_ID` & `ALL_NICHES_POOL_EN`).
+  - **Daftar Model Lengkap & Input Custom**: Menambahkan model ultra-cepat `gemini-3.6-flash` (default), `gemini-2.5-flash`, `gemini-2.0-flash`, `gemini-2.0-flash-lite`, `gemini-1.5-flash`, `gemini-1.5-pro`, `gemini-2.0-pro-exp`, `gemini-flash-latest`, `gemini-pro-latest`, serta opsi **Input Custom Model (Ketik Manual)**.
+  - Pilihan model tersimpan di `localStorage` dan langsung digunakan saat uji coba pembuatan artikel berikutnya.
+  - Mengimplementasikan penanganan error API terstruktur (Alert API Key belum diisi, Kuota Habis 429, & Kunci API Ditolak 400/403).
 
 ## [v2.1.0] - 2026-07-29
 

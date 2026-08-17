@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/genai": "^2.14.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@tiptap/extension-bubble-menu": "^3.28.0",
     "@tiptap/extension-font-family": "^3.28.0",

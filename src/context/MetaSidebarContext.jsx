@@ -17,6 +17,7 @@ export function MetaSidebarProvider({ children }) {
   const [slug, setSlug] = useState('');
   const [excerpt, setExcerpt] = useState('');
   const [category, setCategory] = useState('Web Development');
+  const [subCategory, setSubCategory] = useState('');
   const [tags, setTags] = useState('');
   const [featuredImage, setFeaturedImage] = useState('');
   const [status, setStatus] = useState('published');
@@ -81,6 +82,7 @@ export function MetaSidebarProvider({ children }) {
     setSlug('');
     setExcerpt('');
     setCategory('Web Development');
+    setSubCategory('');
     setTags('');
     setFeaturedImage('https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80');
     setStatus('published');
@@ -109,6 +111,7 @@ export function MetaSidebarProvider({ children }) {
     setSlug(post.slug || '');
     setExcerpt(post.excerpt || '');
     setCategory(post.category || 'Web Development');
+    setSubCategory(post.subCategory || '');
     setTags(Array.isArray(post.tags) ? post.tags.join(', ') : (post.tags || ''));
     setFeaturedImage(post.featuredImage || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80');
     setStatus(post.status || 'published');
@@ -141,6 +144,8 @@ export function MetaSidebarProvider({ children }) {
         setExcerpt,
         category,
         setCategory,
+        subCategory,
+        setSubCategory,
         tags,
         setTags,
         featuredImage,

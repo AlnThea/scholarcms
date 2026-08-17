@@ -37,6 +37,8 @@ export default function RightMetaSidebar() {
     setExcerpt,
     category,
     setCategory,
+    subCategory,
+    setSubCategory,
     tags,
     setTags,
     featuredImage,
@@ -618,40 +620,27 @@ export default function RightMetaSidebar() {
                 {isEn ? 'Taxonomy Categories & Tags' : 'Kategori & Tag Taksonomi'}
               </h4>
 
-              {/* Category Dropdown from DB */}
+              {/* Category Input */}
               <div>
-                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{isEn ? 'Select Category From Database' : 'Pilih Kategori Dari Database'}</label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs font-bold text-[var(--text-main)] focus:outline-none focus:border-blue-500 transition-colors"
-                >
-                  {categoriesList.length > 0 ? (
-                    categoriesList.map(c => (
-                      <option key={c.id || c.slug} value={c.name}>
-                        {c.name}
-                      </option>
-                    ))
-                  ) : (
-                    <>
-                      <option value="Web Development">Web Development</option>
-                      <option value="Firebase & Cloud">Firebase & Cloud</option>
-                      <option value="UI & UX Design">UI & UX Design</option>
-                      <option value="AI & Machine Learning">AI & Machine Learning</option>
-                    </>
-                  )}
-                </select>
-              </div>
-
-              {/* Custom Category Input Option */}
-              <div>
-                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{isEn ? 'Or Custom Category' : 'Atau Kategori Kustom'}</label>
+                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{isEn ? 'Main Category' : 'Kategori Utama'}</label>
                 <input
                   type="text"
-                  placeholder={isEn ? "Type new category name..." : "Ketik nama kategori baru..."}
+                  placeholder={isEn ? "e.g. Technology, Lifestyle..." : "Misal: Teknologi, Gaya Hidup..."}
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-blue-500 transition-colors"
+                />
+              </div>
+
+              {/* Sub-Category Input Option */}
+              <div>
+                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{isEn ? 'Sub-Category' : 'Sub-Kategori'}</label>
+                <input
+                  type="text"
+                  placeholder={isEn ? "e.g. Next.js, React, Tailwind..." : "Misal: Next.js, React, Tailwind..."}
+                  value={subCategory}
+                  onChange={(e) => setSubCategory(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-purple-500 transition-colors"
                 />
               </div>
 

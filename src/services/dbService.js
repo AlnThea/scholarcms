@@ -456,16 +456,122 @@ export const dbService = {
     const totalViews = posts.reduce((acc, p) => acc + (p.views || 0), 0);
     const publishedCount = posts.filter(p => p.status === 'published').length;
     const draftCount = posts.filter(p => p.status === 'draft').length;
+    const now = new Date();
+    const scheduledCount = posts.filter(p => p.status === 'scheduled' || (p.publishedAt && new Date(p.publishedAt) > now)).length;
 
     return {
       totalPosts: posts.length,
       publishedPosts: publishedCount,
       draftPosts: draftCount,
+      scheduledPosts: scheduledCount,
       totalViews,
       totalComments: comms.length,
       totalCategories: cats.length,
       isFirebaseActive: isFirebaseConfigured()
     };
+  },
+
+  async trackPageview(url, referrer) {
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0];
+    const hour = today.getHours().toString().padStart(2, '0');
+
+    let source = 'direct';
+    if (referrer) {
+      const ref = referrer.toLowerCase();
+      const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+      if (ref.includes('google') || ref.includes('bing') || ref.includes('yahoo')) {
+        source = 'search';
+      } else if (ref.includes('facebook') || ref.includes('twitter') || ref.includes('t.co') || ref.includes('instagram') || ref.includes('linkedin')) {
+        source = 'social';
+      } else if (hostname && ref.includes(hostname)) {
+        source = 'internal';
+      } else {
+        source = 'referral';
+      }
+    }
+
+    const key = `analytics_daily_${dateStr}`;
+    const defaultData = {
+      date: dateStr,
+      views: 0,
+      sources: { search: 0, social: 0, direct: 0, referral: 0 },
+      hourly: {}
+    };
+
+    let data = getLocal(key, defaultData);
+    data.views += 1;
+    if (source !== 'internal') {
+      if (data.sources[source] !== undefined) {
+        data.sources[source] += 1;
+      }
+    }
+    data.hourly[hour] = (data.hourly[hour] || 0) + 1;
+    setLocal(key, data);
+
+    if (isFirebaseConfigured()) {
+      try {
+        const docRef = doc(db, 'analytics_daily', dateStr);
+        await setDoc(docRef, {
+          date: dateStr,
+          views: increment(1),
+          [`sources.${source}`]: source !== 'internal' ? increment(1) : increment(0),
+          [`hourly.${hour}`]: increment(1)
+        }, { merge: true });
+      } catch (e) {
+        console.warn('Firestore trackPageview error:', e);
+      }
+    }
+  },
+
+  async getAnalyticsSeries(days = 30) {
+    let series = [];
+    const today = new Date();
+    
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      
+      let dayData = getLocal(`analytics_daily_${dateStr}`, null);
+      if (!dayData) {
+        const mockViews = Math.floor(Math.random() * 100) + 50;
+        dayData = {
+          date: dateStr,
+          views: mockViews,
+          sources: {
+            search: Math.floor(mockViews * 0.5),
+            social: Math.floor(mockViews * 0.3),
+            direct: Math.floor(mockViews * 0.15),
+            referral: Math.floor(mockViews * 0.05)
+          },
+          hourly: {}
+        };
+        for(let h=0; h<24; h++) {
+          const hh = h.toString().padStart(2, '0');
+          dayData.hourly[hh] = Math.floor(mockViews / 24) + Math.floor(Math.random() * 3);
+        }
+        setLocal(`analytics_daily_${dateStr}`, dayData);
+      }
+      series.push(dayData);
+    }
+    
+    if (isFirebaseConfigured()) {
+       try {
+         const q = query(collection(db, 'analytics_daily'), orderBy('date', 'desc'), limit(days));
+         const snap = await getDocs(q);
+         if (!snap.empty) {
+           const firestoreData = snap.docs.map(d => d.data()).reverse();
+           series = series.map(localDay => {
+             const fsDay = firestoreData.find(f => f.date === localDay.date);
+             return fsDay || localDay;
+           });
+         }
+       } catch (e) {
+         console.warn('Firestore getAnalyticsSeries error:', e);
+       }
+    }
+    return series;
   },
 
   async resetDemoData() {

@@ -5,6 +5,7 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import { MetaSidebarProvider } from '@/context/MetaSidebarContext';
 import RightMetaSidebar from '@/components/admin/RightMetaSidebar';
 import AdSenseScript from '@/components/blog/AdSenseScript';
+import ClientAnalyticsTracker from '@/components/analytics/ClientAnalyticsTracker';
 
 export const metadata = {
   title: 'ScholarCMS - Modern Publishing Platform',
@@ -24,6 +25,7 @@ export default function RootLayout({ children }) {
           <ThemeProvider>
             <AuthProvider>
               <MetaSidebarProvider>
+                <ClientAnalyticsTracker />
                 <AdSenseScript />
                 {children}
                 <RightMetaSidebar />

@@ -95,6 +95,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
     title, setTitle, slug, setSlug,
     excerpt, setExcerpt,
     category, setCategory,
+    subCategory, setSubCategory,
     tags, setTags,
     featuredImage, setFeaturedImage,
     status, setStatus,
@@ -752,9 +753,13 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
     }
   };
 
-  const handleSubmit = (e, shouldExit = true) => {
+  const handleSubmit = (e, shouldExit = true, overrideStatus = null) => {
     if (e && e.preventDefault) e.preventDefault();
     if (!editor) return;
+
+    if (overrideStatus && setStatus) {
+      setStatus(overrideStatus);
+    }
 
     const htmlContent = editor.getHTML();
     const jsonContent = editor.getJSON();
@@ -800,9 +805,10 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
       slug: slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
       excerpt,
       category: category || 'Web Development',
+      subCategory: subCategory || '',
       tags: tagList,
       featuredImage: featuredImage || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
-      status: status || 'published',
+      status: overrideStatus || status || 'published',
       readTime: readTime || '5 min read',
       publishedAt: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
       views: views || 0,
@@ -841,7 +847,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
 
   useEffect(() => {
     registerSaveAction((shouldExit = true) => handleSubmit(null, shouldExit));
-  }, [editor, title, slug, excerpt, category, tags, featuredImage, status, readTime, publishedAt, views, author, seoTitle, seoDescription, focusKeyword, canonicalUrl, noIndex, enableAds, adPlacement, adClient, adSlot, isSponsored]);
+  }, [editor, title, slug, excerpt, category, subCategory, tags, featuredImage, status, readTime, publishedAt, views, author, seoTitle, seoDescription, focusKeyword, canonicalUrl, noIndex, enableAds, adPlacement, adClient, adSlot, isSponsored]);
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row gap-0 items-start w-full animate-fade-in bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-xl shadow-md">
@@ -906,7 +912,7 @@ export default function TiptapEditor({ initialPost, onSave, saving, backLink = '
                   size="sm"
                   icon={Save}
                   loading={saving}
-                  onClick={() => handleSubmit(null, false)}
+                  onClick={() => handleSubmit(null, false, 'draft')}
                 >
                   {t('editorSaveDraft')}
                 </Button>

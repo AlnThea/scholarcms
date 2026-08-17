@@ -22,6 +22,7 @@ import { useLanguage } from '@/context/LanguageContext';
 export default function DashboardOverview() {
   const { t } = useLanguage();
   const [analytics, setAnalytics] = useState(null);
+  const [analyticsSeries, setAnalyticsSeries] = useState([]);
   const [recentPosts, setRecentPosts] = useState([]);
   const [subscribersCount, setSubscribersCount] = useState(0);
   const [scheduledCount, setScheduledCount] = useState(0);
@@ -219,8 +220,9 @@ export default function DashboardOverview() {
   async function loadData() {
     setLoading(true);
     try {
-      const [analyticsData, postsData, savedConfig, subs, comments, pages, pStates, currentUser] = await Promise.all([
+      const [analyticsData, seriesData, postsData, savedConfig, subs, comments, pages, pStates, currentUser] = await Promise.all([
         dbService.getAnalytics(),
+        dbService.getAnalyticsSeries(30),
         dbService.getPosts({ limit: 5 }),
         dbService.getDashboardWidgetLayout(),
         dbService.getSubscribers(),
@@ -231,6 +233,7 @@ export default function DashboardOverview() {
       ]);
 
       setAnalytics(analyticsData);
+      setAnalyticsSeries(seriesData || []);
       setRecentPosts(postsData || []);
       setSubscribersCount((subs || []).length);
       setRecentComments(comments || []);
@@ -243,9 +246,7 @@ export default function DashboardOverview() {
       }
 
       // Calculate scheduled posts count
-      const now = new Date();
-      const sched = (postsData || []).filter(p => p.status === 'scheduled' || (p.publishedAt && new Date(p.publishedAt) > now));
-      setScheduledCount(sched.length);
+      setScheduledCount(analyticsData?.scheduledPosts || 0);
 
       if (savedConfig) {
         if (Array.isArray(savedConfig.order) && savedConfig.order.length > 0) {
@@ -744,6 +745,33 @@ export default function DashboardOverview() {
 
       // CLASSIC FULL PIE CHART (TRAFFIC SOURCES)
       case 'chart_traffic_source_pie':
+        const totalSearch = analyticsSeries.reduce((acc, d) => acc + (d.sources?.search || 0), 0);
+        const totalSocial = analyticsSeries.reduce((acc, d) => acc + (d.sources?.social || 0), 0);
+        const totalDirect = analyticsSeries.reduce((acc, d) => acc + (d.sources?.direct || 0), 0);
+        const totalReferral = analyticsSeries.reduce((acc, d) => acc + (d.sources?.referral || 0), 0);
+        const totalTraffic = totalSearch + totalSocial + totalDirect + totalReferral || 1;
+
+        const pctSearch = Math.round((totalSearch / totalTraffic) * 100) || 0;
+        const pctSocial = Math.round((totalSocial / totalTraffic) * 100) || 0;
+        const pctDirect = Math.round((totalDirect / totalTraffic) * 100) || 0;
+        const pctReferral = Math.round((totalReferral / totalTraffic) * 100) || 0;
+
+        const highestSource = [
+          { name: 'Pencarian Organik', pct: pctSearch },
+          { name: 'Media Sosial', pct: pctSocial },
+          { name: 'Kunjungan Langsung', pct: pctDirect },
+          { name: 'Trafik Rujukan', pct: pctReferral }
+        ].sort((a,b) => b.pct - a.pct)[0];
+
+        const dashSearch = pctSearch;
+        const dashSocial = pctSocial;
+        const dashDirect = pctDirect;
+        const dashReferral = pctReferral;
+        
+        const offsetSocial = -(dashSearch);
+        const offsetDirect = -(dashSearch + dashSocial);
+        const offsetReferral = -(dashSearch + dashSocial + dashDirect);
+
         return (
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
@@ -752,7 +780,7 @@ export default function DashboardOverview() {
                   <PieChart className="w-5 h-5 text-blue-500" /> Chart Pie Sumber Trafik Pembaca
                 </h3>
                 <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-blue-500/10 text-blue-400">
-                  Google (45%)
+                  {highestSource.name} ({highestSource.pct}%)
                 </span>
               </div>
 
@@ -760,30 +788,30 @@ export default function DashboardOverview() {
                 {/* SVG Full Conical Pie Chart */}
                 <div className="relative w-24 h-24 shrink-0">
                   <svg className="w-full h-full transform -rotate-90" viewBox="0 0 32 32">
-                    <circle r="16" cx="16" cy="16" fill="#3b82f6" strokeDasharray="45 100" strokeWidth="32" />
-                    <circle r="16" cx="16" cy="16" fill="#10b981" strokeDasharray="30 100" strokeDashoffset="-45" strokeWidth="32" />
-                    <circle r="16" cx="16" cy="16" fill="#8b5cf6" strokeDasharray="15 100" strokeDashoffset="-75" strokeWidth="32" />
-                    <circle r="16" cx="16" cy="16" fill="#f59e0b" strokeDasharray="10 100" strokeDashoffset="-90" strokeWidth="32" />
+                    {dashSearch > 0 && <circle r="16" cx="16" cy="16" fill="#3b82f6" strokeDasharray={`${dashSearch} 100`} strokeWidth="32" />}
+                    {dashSocial > 0 && <circle r="16" cx="16" cy="16" fill="#10b981" strokeDasharray={`${dashSocial} 100`} strokeDashoffset={offsetSocial} strokeWidth="32" />}
+                    {dashDirect > 0 && <circle r="16" cx="16" cy="16" fill="#8b5cf6" strokeDasharray={`${dashDirect} 100`} strokeDashoffset={offsetDirect} strokeWidth="32" />}
+                    {dashReferral > 0 && <circle r="16" cx="16" cy="16" fill="#f59e0b" strokeDasharray={`${dashReferral} 100`} strokeDashoffset={offsetReferral} strokeWidth="32" />}
                   </svg>
                 </div>
 
                 <div className="space-y-1.5 text-xs">
                   <div className="flex items-center gap-2 font-bold text-[var(--text-main)]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> Google Search (45%)
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> Google Search ({pctSearch}%)
                   </div>
                   <div className="flex items-center gap-2 font-bold text-[var(--text-main)]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Sosmed & Share (30%)
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Sosmed & Share ({pctSocial}%)
                   </div>
                   <div className="flex items-center gap-2 font-bold text-[var(--text-main)]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Direct (15%)
+                    <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Direct ({pctDirect}%)
                   </div>
                   <div className="flex items-center gap-2 font-bold text-[var(--text-subtle)]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Referral Email (10%)
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Referral Email ({pctReferral}%)
                   </div>
                 </div>
               </div>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)]">Mesin pencari Google menyumbang trafik terbesar ke blog.</p>
+            <p className="text-[10px] text-[var(--text-subtle)]">{highestSource.name} menyumbang trafik terbesar ke blog secara keseluruhan.</p>
           </div>
         );
 

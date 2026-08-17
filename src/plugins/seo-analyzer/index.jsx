@@ -52,14 +52,15 @@ export default function SeoAnalyzerPluginPage() {
       items.push({ type: 'warn', text: isEn ? `Article Title Length Suboptimal (${titleLen} characters, recommended 30–70)` : `Judul Artikel Kurang Ideal (${titleLen} karakter, disarankan 30–70)` });
     }
 
-    // Excerpt / Meta Description Check (50-160 chars)
-    const excerptLen = post.excerpt ? post.excerpt.length : 0;
-    if (excerptLen >= 50 && excerptLen <= 160) {
+    // Meta Description Check (50-160 chars)
+    const metaDesc = post.seoDescription || post.excerpt || '';
+    const metaDescLen = metaDesc.length;
+    if (metaDescLen >= 50 && metaDescLen <= 160) {
       score += 25;
-      items.push({ type: 'pass', text: isEn ? `Meta Description / Excerpt is Perfect (${excerptLen} characters)` : `Meta Description / Excerpt Sempurna (${excerptLen} karakter)` });
+      items.push({ type: 'pass', text: isEn ? `Meta Description is Perfect (${metaDescLen} characters)` : `Meta Description Sempurna (${metaDescLen} karakter)` });
     } else {
       score += 10;
-      items.push({ type: 'warn', text: isEn ? `Meta Description recommended 50–160 characters (${excerptLen} chars currently)` : `Meta Description disarankan 50–160 karakter (${excerptLen} karakter saat ini)` });
+      items.push({ type: 'warn', text: isEn ? `Meta Description recommended 50–160 characters (${metaDescLen} chars currently)` : `Meta Description disarankan 50–160 karakter (${metaDescLen} karakter saat ini)` });
     }
 
     // Featured Image Check
@@ -126,7 +127,7 @@ export default function SeoAnalyzerPluginPage() {
 
   // Criteria Health percentages
   const titlePassPct = Math.round((posts.filter(p => (p.title?.length || 0) >= 30 && (p.title?.length || 0) <= 70).length / totalPosts) * 100);
-  const excerptPassPct = Math.round((posts.filter(p => (p.excerpt?.length || 0) >= 50 && (p.excerpt?.length || 0) <= 160).length / totalPosts) * 100);
+  const metaDescPassPct = Math.round((posts.filter(p => ((p.seoDescription || p.excerpt)?.length || 0) >= 50 && ((p.seoDescription || p.excerpt)?.length || 0) <= 160).length / totalPosts) * 100);
   const imagePassPct = Math.round((posts.filter(p => Boolean(p.featuredImage)).length / totalPosts) * 100);
   const tagsPassPct = Math.round((posts.filter(p => Array.isArray(p.tags) && p.tags.length > 0).length / totalPosts) * 100);
 
@@ -302,11 +303,11 @@ export default function SeoAnalyzerPluginPage() {
             <div className="p-3.5 rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-color)] space-y-1">
               <p className="text-[11px] font-bold text-[var(--text-subtle)] truncate">{t('metaDescLabel')}</p>
               <div className="flex items-baseline justify-between">
-                <span className="text-lg font-black text-teal-500">{excerptPassPct}%</span>
+                <span className="text-lg font-black text-teal-500">{metaDescPassPct}%</span>
                 <span className="text-[10px] text-[var(--text-muted)]">50–160 {isEn ? 'chars' : 'kar'}</span>
               </div>
               <div className="w-full h-1.5 rounded-full bg-teal-500/20 overflow-hidden">
-                <div className="h-full bg-teal-500 rounded-full" style={{ width: `${excerptPassPct}%` }}></div>
+                <div className="h-full bg-teal-500 rounded-full" style={{ width: `${metaDescPassPct}%` }}></div>
               </div>
             </div>
 
