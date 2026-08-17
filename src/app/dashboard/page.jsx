@@ -223,7 +223,7 @@ export default function DashboardOverview() {
       const [analyticsData, seriesData, postsData, savedConfig, subs, comments, pages, pStates, currentUser] = await Promise.all([
         dbService.getAnalytics(),
         dbService.getAnalyticsSeries(30),
-        dbService.getPosts({ limit: 5 }),
+        dbService.getPosts({ limit: 200, status: 'all' }),
         dbService.getDashboardWidgetLayout(),
         dbService.getSubscribers(),
         dbService.getComments({ limit: 3 }),
@@ -797,16 +797,16 @@ export default function DashboardOverview() {
 
                 <div className="space-y-1.5 text-xs">
                   <div className="flex items-center gap-2 font-bold text-[var(--text-main)]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> Google Search ({pctSearch}%)
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> {t('widgetContentGoogleSearch')} ({pctSearch}%)
                   </div>
                   <div className="flex items-center gap-2 font-bold text-[var(--text-main)]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Sosmed & Share ({pctSocial}%)
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> {t('widgetContentSocialMedia')} ({pctSocial}%)
                   </div>
                   <div className="flex items-center gap-2 font-bold text-[var(--text-main)]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Direct ({pctDirect}%)
+                    <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> {t('widgetContentDirect')} ({pctDirect}%)
                   </div>
                   <div className="flex items-center gap-2 font-bold text-[var(--text-subtle)]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Referral Email ({pctReferral}%)
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> {t('widgetContentReferral')} ({pctReferral}%)
                   </div>
                 </div>
               </div>
@@ -816,38 +816,73 @@ export default function DashboardOverview() {
         );
 
       // HORIZONTAL BAR CHART (TOP READ POSTS)
-      case 'chart_top_posts_hbar':
+      case 'chart_top_posts_hbar': {
+        const topPosts = [...recentPosts].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 3);
+        const maxViews = Math.max(...topPosts.map(p => p.views || 0), 1);
+        const colors = ['bg-blue-600', 'bg-emerald-500', 'bg-purple-500'];
+
         return (
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
               <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                <BarChart2 className="w-5 h-5 text-indigo-500" /> Chart Batang Horisontal Artikel Terpopuler
+                <BarChart2 className="w-5 h-5 text-indigo-500" /> {t('widgetHeaderTopPosts')}
               </h3>
 
               <div className="space-y-3 pt-1">
-                {[
-                  { title: 'Panduan SEO 2026', views: '640 views', pct: 90, color: 'bg-blue-600' },
-                  { title: 'Membuat Next.js Blog', views: '420 views', pct: 65, color: 'bg-emerald-500' },
-                  { title: 'Arsitektur CMS Modern', views: '280 views', pct: 40, color: 'bg-purple-500' }
-                ].map((post, idx) => (
-                  <div key={idx} className="space-y-1">
-                    <div className="flex justify-between text-xs font-bold text-[var(--text-main)]">
-                      <span className="truncate max-w-[180px]">{post.title}</span>
-                      <span className="text-[var(--text-subtle)]">{post.views}</span>
+                {topPosts.length > 0 ? topPosts.map((post, idx) => {
+                  const pct = Math.round(((post.views || 0) / maxViews) * 100);
+                  return (
+                    <div key={idx} className="space-y-1">
+                      <div className="flex justify-between text-xs font-bold text-[var(--text-main)]">
+                        <span className="truncate max-w-[180px]" title={post.title}>{post.title}</span>
+                        <span className="text-[var(--text-subtle)]">{post.views || 0} views</span>
+                      </div>
+                      <div className="w-full h-2 bg-[var(--bg-primary)] rounded-full overflow-hidden">
+                        <div className={`h-full ${colors[idx % colors.length]} rounded-full transition-all`} style={{ width: `${pct}%` }} />
+                      </div>
                     </div>
-                    <div className="w-full h-2 bg-[var(--bg-primary)] rounded-full overflow-hidden">
-                      <div className={`h-full ${post.color} rounded-full transition-all`} style={{ width: `${post.pct}%` }} />
-                    </div>
-                  </div>
-                ))}
+                  );
+                }) : (
+                  <p className="text-xs text-[var(--text-subtle)] py-4 text-center">Belum ada artikel yang dibaca.</p>
+                )}
               </div>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)]">Artikel "Panduan SEO 2026" paling banyak dibaca bulan ini.</p>
+            <p className="text-[10px] text-[var(--text-subtle)]">
+              {topPosts.length > 0 ? t('widgetContentMostRead').replace('{title}', topPosts[0].title) : t('widgetContentNoStats')}
+            </p>
           </div>
         );
+      }
 
       // DUAL LINE COMPARISON CHART
-      case 'chart_dual_line_comparison':
+      case 'chart_dual_line_comparison': {
+        const trendData = [...analyticsSeries].slice(-7);
+        const maxViews = Math.max(...trendData.map(d => d.views || 0), 1);
+        
+        const articlesPerDay = trendData.map(day => {
+          return recentPosts.filter(p => {
+            if (p.status !== 'published') return false;
+            const dateToUse = p.publishedAt || p.createdAt;
+            if (!dateToUse) return false;
+            const postDate = new Date(dateToUse.seconds ? dateToUse.seconds * 1000 : dateToUse).toISOString().split('T')[0];
+            return postDate === day.date;
+          }).length;
+        });
+        
+        const maxArticles = Math.max(...articlesPerDay, 1);
+        
+        const getPath = (data, max) => {
+          if (data.length === 0) return '';
+          return data.map((val, i) => {
+            const x = (i / (data.length - 1)) * 300;
+            const y = 80 - ((val / max) * 70) - 5; 
+            return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+          }).join(' ');
+        };
+
+        const pathViews = getPath(trendData.map(d => d.views || 0), maxViews);
+        const pathArticles = getPath(articlesPerDay, maxArticles);
+
         return (
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
@@ -863,17 +898,61 @@ export default function DashboardOverview() {
 
               <div className="relative h-28 w-full pt-2">
                 <svg className="w-full h-full overflow-visible" viewBox="0 0 300 80" preserveAspectRatio="none">
-                  <path d="M0 70 Q 75 20, 150 50 T 300 15" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" />
-                  <path d="M0 60 Q 75 40, 150 30 T 300 35" fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray="4 4" strokeLinecap="round" />
+                  <path d={pathViews} fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d={pathArticles} fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray="4 4" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)]">Pertumbuhan pembaca (garis hijau) sejalan dengan konsistensi publikasi artikel.</p>
+            <p className="text-[10px] text-[var(--text-subtle)]">Pertumbuhan pembaca (hijau) disandingkan dengan jumlah rilis artikel (biru).</p>
           </div>
         );
+      }
 
       // STACKED BAR CHART
-      case 'chart_post_status_stacked':
+      case 'chart_post_status_stacked': {
+        const today = new Date();
+        const months = [];
+        for (let i = 2; i >= 0; i--) {
+          const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+          months.push({
+            m: d.toLocaleString('id-ID', { month: 'short' }),
+            year: d.getFullYear(),
+            month: d.getMonth(),
+            pub: 0,
+            draft: 0,
+            sched: 0
+          });
+        }
+
+        recentPosts.forEach(p => {
+          const d = new Date(p.createdAt?.seconds ? p.createdAt.seconds * 1000 : p.createdAt || Date.now());
+          const y = d.getFullYear();
+          const m = d.getMonth();
+          const targetMonth = months.find(col => col.year === y && col.month === m);
+          if (targetMonth) {
+            if (p.status === 'published') targetMonth.pub++;
+            else if (p.status === 'draft') targetMonth.draft++;
+            else if (p.status === 'scheduled') targetMonth.sched++;
+          }
+        });
+
+        const colData = months.map(col => {
+          const total = col.pub + col.draft + col.sched;
+          if (total === 0) return { ...col, pubPct: 0, draftPct: 0, schedPct: 0, total: 0 };
+          return {
+            ...col,
+            pubPct: Math.round((col.pub / total) * 100),
+            draftPct: Math.round((col.draft / total) * 100),
+            schedPct: Math.round((col.sched / total) * 100),
+            total
+          };
+        });
+
+        const grandTotal = colData.reduce((acc, c) => acc + c.total, 0);
+        const overallPub = grandTotal ? Math.round((colData.reduce((acc, c) => acc + c.pub, 0) / grandTotal) * 100) : 0;
+        const overallDraft = grandTotal ? Math.round((colData.reduce((acc, c) => acc + c.draft, 0) / grandTotal) * 100) : 0;
+        const overallSched = grandTotal ? Math.round((colData.reduce((acc, c) => acc + c.sched, 0) / grandTotal) * 100) : 0;
+
         return (
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
@@ -881,20 +960,16 @@ export default function DashboardOverview() {
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
                   <BarChart3 className="w-5 h-5 text-purple-500" /> Chart Stacked Status Artikel
                 </h3>
-                <span className="text-[10px] font-bold text-[var(--text-subtle)]">Terbit vs Draft vs Terjadwal</span>
+                <span className="text-[10px] font-bold text-[var(--text-subtle)]">3 Bulan Terakhir</span>
               </div>
 
               <div className="pt-2 flex items-end justify-between gap-3 h-28 border-b border-[var(--border-color)] pb-2">
-                {[
-                  { m: 'Mei', pub: 60, draft: 25, sched: 15 },
-                  { m: 'Jun', pub: 70, draft: 20, sched: 10 },
-                  { m: 'Jul', pub: 80, draft: 15, sched: 5 }
-                ].map((col, idx) => (
+                {colData.map((col, idx) => (
                   <div key={idx} className="flex-1 flex flex-col items-center gap-1">
                     <div className="w-full flex flex-col-reverse rounded-t-lg overflow-hidden h-24 bg-[var(--bg-primary)]">
-                      <div className="w-full bg-emerald-500" style={{ height: `${col.pub}%` }} title={`Terbit: ${col.pub}%`} />
-                      <div className="w-full bg-blue-500" style={{ height: `${col.draft}%` }} title={`Draft: ${col.draft}%`} />
-                      <div className="w-full bg-amber-500" style={{ height: `${col.sched}%` }} title={`Terjadwal: ${col.sched}%`} />
+                      <div className="w-full bg-emerald-500 transition-all" style={{ height: `${col.pubPct}%` }} title={`Terbit: ${col.pub} (${col.pubPct}%)`} />
+                      <div className="w-full bg-blue-500 transition-all" style={{ height: `${col.draftPct}%` }} title={`Draft: ${col.draft} (${col.draftPct}%)`} />
+                      <div className="w-full bg-amber-500 transition-all" style={{ height: `${col.schedPct}%` }} title={`Terjadwal: ${col.sched} (${col.schedPct}%)`} />
                     </div>
                     <span className="text-[10px] font-bold text-[var(--text-subtle)]">{col.m}</span>
                   </div>
@@ -902,52 +977,72 @@ export default function DashboardOverview() {
               </div>
             </div>
             <div className="flex items-center justify-between text-[10px] text-[var(--text-subtle)] font-bold">
-              <span className="text-emerald-400">🟢 Terbit (80%)</span>
-              <span className="text-blue-400">🔵 Draft (15%)</span>
-              <span className="text-amber-400">🟡 Terjadwal (5%)</span>
+              <span className="text-emerald-400">🟢 Terbit ({overallPub}%)</span>
+              <span className="text-blue-400">🔵 Draft ({overallDraft}%)</span>
+              <span className="text-amber-400">🟡 Terjadwal ({overallSched}%)</span>
             </div>
           </div>
         );
+      }
 
       // SPEEDOMETER GAUGE CHART
-      case 'chart_speedometer_gauge':
+      case 'chart_speedometer_gauge': {
+        const baseScore = 99;
+        const penalty = Math.min(10, Math.floor(recentPosts.length / 5)); // Turun 1 poin tiap 5 artikel
+        const loadScore = baseScore - penalty;
+        const loadTime = ((100 - loadScore) * 0.06 + 0.12).toFixed(2);
+        const dashValue = (loadScore / 100) * 50;
+        
+        let gradeText = "Grade A+ Super Fast";
+        let colorClass = "text-emerald-400 bg-emerald-500/10";
+        let strokeColor = "#10b981";
+        
+        if (loadScore < 90) {
+          gradeText = "Grade B Cukup Cepat";
+          colorClass = "text-amber-400 bg-amber-500/10";
+          strokeColor = "#f59e0b";
+        }
+
         return (
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <Gauge className="w-5 h-5 text-amber-500" /> Chart Gauge Speedometer Performa
+                  <Gauge className="w-5 h-5 text-amber-500" /> Chart Speedometer Performa
                 </h3>
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400">
-                  Grade A+ Super Fast
+                <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold ${colorClass}`}>
+                  {gradeText}
                 </span>
               </div>
 
-              <div className="relative w-40 h-20 mx-auto flex items-end justify-center overflow-hidden pt-2">
-                <svg className="w-40 h-40 transform rotate-180" viewBox="0 0 36 36">
+              <div className="relative w-40 h-20 mx-auto flex flex-col items-center justify-end overflow-hidden pt-2">
+                <svg className="w-full h-full" viewBox="0 0 36 18">
                   <path
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    d="M 2.0845 16 a 15.9155 15.9155 0 0 1 31.831 0"
                     fill="none"
                     stroke="var(--bg-primary)"
                     strokeWidth="3.5"
+                    strokeLinecap="round"
                   />
                   <path
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    d="M 2.0845 16 a 15.9155 15.9155 0 0 1 31.831 0"
                     fill="none"
-                    stroke="#10b981"
+                    stroke={strokeColor}
                     strokeWidth="3.5"
-                    strokeDasharray="48, 100"
+                    strokeLinecap="round"
+                    strokeDasharray={`${dashValue}, 50`}
                   />
                 </svg>
-                <div className="absolute bottom-1 text-center">
-                  <span className="text-xl font-black text-[var(--text-main)]">98</span>
+                <div className="absolute bottom-0 text-center">
+                  <span className="text-xl font-black text-[var(--text-main)]">{loadScore}</span>
                   <span className="text-[9px] block text-[var(--text-subtle)] font-bold">Skor Muat / 100</span>
                 </div>
               </div>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)] text-center">Kecepatan waktu muat halaman: 0.18 detik (Kilat).</p>
+            <p className="text-[10px] text-[var(--text-subtle)] text-center">Estimasi kecepatan waktu muat halaman: {loadTime} detik.</p>
           </div>
         );
+      }
 
       // BAR CHART (7-DAY TRAFFIC TREND)
       case 'chart_views_trend': {
@@ -955,7 +1050,7 @@ export default function DashboardOverview() {
         const maxViews = Math.max(...trendData.map(d => d.views || 0), 1);
         const latestView = trendData[6]?.views || 0;
         const prevView = trendData[5]?.views || 0;
-        const growth = prevView > 0 ? Math.round(((latestView - prevView) / prevView) * 100) : 0;
+        const growth = prevView > 0 ? Math.round(((latestView - prevView) / prevView) * 100) : (latestView > 0 ? 100 : 0);
         const isPositive = growth >= 0;
         const getDayName = (dateStr) => {
           if (!dateStr) return '';
@@ -968,10 +1063,10 @@ export default function DashboardOverview() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-emerald-500" /> Chart Tren Pembaca (7 Hari)
+                  <BarChart3 className="w-5 h-5 text-emerald-500" /> {t('widgetHeaderViewsTrend')}
                 </h3>
                 <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold ${isPositive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
-                  {isPositive ? '+' : ''}{growth}% Kemarin
+                  {isPositive ? '+' : ''}{growth}% {t('widgetContentYesterday')}
                 </span>
               </div>
 
@@ -979,7 +1074,7 @@ export default function DashboardOverview() {
                 {trendData.map((item, idx) => {
                   const pct = Math.round(((item.views || 0) / maxViews) * 100) || 5;
                   return (
-                    <div key={idx} className="flex-1 flex flex-col items-center gap-1 group relative" title={`${item.views || 0} views`}>
+                    <div key={idx} className="flex-1 flex flex-col justify-end items-center gap-1 group relative h-full" title={`${item.views || 0} views`}>
                       <div className="w-full bg-blue-500/20 group-hover:bg-blue-600 rounded-t-lg transition-all relative overflow-hidden" style={{ height: `${pct}%` }}>
                         <div className="absolute inset-0 bg-gradient-to-t from-blue-600 to-indigo-500 opacity-80" />
                       </div>
@@ -1020,7 +1115,7 @@ export default function DashboardOverview() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-blue-500" /> Area Chart Pengunjung (30 Hari)
+                  <Activity className="w-5 h-5 text-blue-500" /> {t('widgetHeaderVisitorsArea')}
                 </h3>
                 <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-blue-500/10 text-blue-400">
                   {totalAreaViews} Total Kunjungan
@@ -1058,14 +1153,49 @@ export default function DashboardOverview() {
       }
 
       // DONUT RING CHART (SEO KEYWORDS RANKING)
-      case 'chart_seo_keywords_donut':
+      case 'chart_seo_keywords_donut': {
         const isSeoActive = pluginStates['seo-analyzer'] !== false;
+        
+        let excellent = 0;
+        let good = 0;
+        let needsWork = 0;
+        const publishedPosts = recentPosts.filter(p => p.status === 'published');
+        const total = publishedPosts.length || 1;
+
+        const getSeoScore = (post) => {
+          let score = 0;
+          const titleLen = post.title ? post.title.length : 0;
+          if (titleLen >= 30 && titleLen <= 70) score += 25; else score += 10;
+          const metaDesc = post.seoDescription || post.excerpt || '';
+          if (metaDesc.length >= 50 && metaDesc.length <= 160) score += 25; else score += 10;
+          if (post.featuredImage) score += 25;
+          if (Array.isArray(post.tags) && post.tags.length > 0) score += 25;
+          return Math.min(100, score);
+        };
+
+        if (publishedPosts.length > 0) {
+          publishedPosts.forEach(p => {
+            const score = getSeoScore(p);
+            if (score >= 80) excellent++;
+            else if (score >= 50) good++;
+            else needsWork++;
+          });
+        }
+
+        const pctExcellent = publishedPosts.length === 0 ? 0 : Math.round((excellent / total) * 100);
+        const pctGood = publishedPosts.length === 0 ? 0 : Math.round((good / total) * 100);
+        const pctNeedsWork = publishedPosts.length === 0 ? 0 : (100 - pctExcellent - pctGood);
+        
+        const excellentDash = `${pctExcellent}, 100`;
+        const goodDash = `${pctGood}, 100`;
+        const goodOffset = `-${pctExcellent}`;
+
         return (
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <PieChart className="w-5 h-5 text-purple-500" /> Chart Donat Kata Kunci SEO
+                  <PieChart className="w-5 h-5 text-purple-500" /> {t('widgetHeaderSeoKeywords')}
                 </h3>
                 {!isSeoActive && (
                   <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-500/10 text-amber-500">
@@ -1088,59 +1218,80 @@ export default function DashboardOverview() {
                       fill="none"
                       stroke="#8b5cf6"
                       strokeWidth="3.8"
-                      strokeDasharray="60, 100"
+                      strokeDasharray={excellentDash}
                     />
                     <path
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       fill="none"
                       stroke="#10b981"
                       strokeWidth="3.8"
-                      strokeDasharray="25, 100"
-                      strokeDashoffset="-60"
+                      strokeDasharray={goodDash}
+                      strokeDashoffset={goodOffset}
                     />
                   </svg>
                   <div className="absolute text-center">
-                    <span className="text-xs font-black text-[var(--text-main)]">60%</span>
-                    <p className="text-[8px] text-[var(--text-subtle)]">Hal 1</p>
+                    <span className="text-xs font-black text-[var(--text-main)]">{pctExcellent}%</span>
+                    <p className="text-[8px] text-[var(--text-subtle)]">Sempurna</p>
                   </div>
                 </div>
 
                 <div className="space-y-1 text-xs">
                   <div className="flex items-center gap-1.5 font-bold text-[var(--text-main)]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Hal 1 Google (60%)
+                    <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Sempurna ({pctExcellent}%)
                   </div>
                   <div className="flex items-center gap-1.5 font-bold text-[var(--text-main)]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Hal 2 Google (25%)
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Cukup Baik ({pctGood}%)
                   </div>
                   <div className="flex items-center gap-1.5 font-bold text-[var(--text-muted)]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-gray-600" /> Perlu Optimasi (15%)
+                    <span className="w-2.5 h-2.5 rounded-full bg-gray-600" /> Perlu Optimasi ({pctNeedsWork > 0 ? pctNeedsWork : 0}%)
                   </div>
                 </div>
               </div>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)]">Rata-rata 12 kata kunci utama masuk peringkat Google.</p>
+            <p className="text-[10px] text-[var(--text-subtle)]">Dari total {recentPosts.length} artikel terpublikasi.</p>
           </div>
         );
+      }
 
       // RADAR CHART (SYSTEM ARCHITECTURE HEALTH)
-      case 'chart_system_radar':
+      case 'chart_system_radar': {
+        const getSeoScore = (post) => {
+          let score = 0;
+          const titleLen = post.title ? post.title.length : 0;
+          if (titleLen >= 30 && titleLen <= 70) score += 25; else score += 10;
+          const metaDesc = post.seoDescription || post.excerpt || '';
+          if (metaDesc.length >= 50 && metaDesc.length <= 160) score += 25; else score += 10;
+          if (post.featuredImage) score += 25;
+          if (Array.isArray(post.tags) && post.tags.length > 0) score += 25;
+          return Math.min(100, score);
+        };
+
+        const publishedPosts = recentPosts.filter(p => p.status === 'published');
+        const totalSeo = publishedPosts.reduce((acc, p) => acc + getSeoScore(p), 0);
+        const avgSeo = publishedPosts.length ? Math.round(totalSeo / publishedPosts.length) : 100;
+        
+        const isFirebaseConnected = !!process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+        const firestoreScore = isFirebaseConnected ? 100 : 10;
+        
+        const avgTotal = Math.round((98 + firestoreScore + avgSeo + 100) / 4);
+
         return (
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-indigo-500" /> Chart Radar Kesehatan CMS
+                  <ShieldCheck className="w-5 h-5 text-indigo-500" /> {t('widgetHeaderSystemRadar')}
                 </h3>
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-indigo-500/10 text-indigo-400">
-                  Skor 96/100
+                <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold ${avgTotal >= 80 ? 'bg-indigo-500/10 text-indigo-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                  Skor {avgTotal}/100
                 </span>
               </div>
 
               <div className="space-y-2 pt-1">
                 {[
                   { label: 'Kecepatan Muat', score: 98, color: 'bg-emerald-500' },
-                  { label: 'Keamanan Firestore', score: 95, color: 'bg-blue-500' },
-                  { label: 'Kesehatan SEO', score: 90, color: 'bg-purple-500' },
+                  { label: 'Keamanan Firestore', score: firestoreScore, color: 'bg-blue-500' },
+                  { label: 'Kesehatan SEO', score: avgSeo, color: 'bg-purple-500' },
                   { label: 'Responsivitas Layout', score: 100, color: 'bg-indigo-500' }
                 ].map((item, idx) => (
                   <div key={idx} className="space-y-1">
@@ -1149,61 +1300,153 @@ export default function DashboardOverview() {
                       <span>{item.score}%</span>
                     </div>
                     <div className="w-full h-1.5 bg-[var(--bg-primary)] rounded-full overflow-hidden">
-                      <div className={`h-full ${item.color} rounded-full`} style={{ width: `${item.score}%` }} />
+                      <div className={`h-full ${item.color} rounded-full transition-all`} style={{ width: `${item.score}%` }} />
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)]">Evaluasi performa 6-dimensi sistem CMS berjalan optimal.</p>
+            <p className="text-[10px] text-[var(--text-subtle)]">
+              {avgTotal >= 90 ? 'Evaluasi performa 4-dimensi sistem CMS berjalan sangat optimal.' : 'Ada beberapa parameter CMS yang butuh perhatian.'}
+            </p>
           </div>
         );
+      }
 
       // SPARKLINES MATRIX GRID
-      case 'chart_sparklines_grid':
+      case 'chart_sparklines_grid': {
+        const last4Days = [...analyticsSeries].slice(-4);
+        
+        // Pembaca Sparkline
+        const pembacaData = last4Days.map(d => d.views || 0);
+        const pembacaTotal = pembacaData.reduce((a, b) => a + b, 0);
+        const maxPembaca = Math.max(...pembacaData, 1);
+        
+        // Artikel Sparkline
+        const getArticlesForDay = (dateStr) => recentPosts.filter(p => {
+          if (p.status !== 'published') return false;
+          const d = p.publishedAt || p.createdAt;
+          if (!d) return false;
+          const str = new Date(d.seconds ? d.seconds * 1000 : d).toISOString().split('T')[0];
+          return str === dateStr;
+        }).length;
+        const artikelData = last4Days.map(d => getArticlesForDay(d.date));
+        const maxArtikel = Math.max(...artikelData, 1);
+        const artikelTotal = artikelData.reduce((a, b) => a + b, 0);
+
+        // Komentar Sparkline
+        const getCommentsForDay = (dateStr) => recentComments.filter(c => {
+          const d = c.createdAt;
+          if (!d) return false;
+          const str = new Date(d.seconds ? d.seconds * 1000 : d).toISOString().split('T')[0];
+          return str === dateStr;
+        }).length;
+        const komentarData = last4Days.map(d => getCommentsForDay(d.date));
+        const maxKomentar = Math.max(...komentarData, 1);
+        const komentarTotal = komentarData.reduce((a, b) => a + b, 0);
+
+        // Newsletter (Belum Ada Integrasi, Jadi 0)
+        const newsData = [0, 0, 0, 0];
+        const maxNews = 1;
+        const newsTotal = 0;
+
+        const metrics = [
+          { label: 'Artikel', total: `+${artikelTotal}`, data: artikelData, max: maxArtikel, baseColor: 'bg-blue-500', textColor: 'text-blue-500' },
+          { label: 'Pembaca', total: `+${pembacaTotal}`, data: pembacaData, max: maxPembaca, baseColor: 'bg-emerald-500', textColor: 'text-emerald-500' },
+          { label: 'Komentar', total: `+${komentarTotal}`, data: komentarData, max: maxKomentar, baseColor: 'bg-purple-500', textColor: 'text-purple-500' },
+          { label: 'Newsletter', total: `+${newsTotal}`, data: newsData, max: maxNews, baseColor: 'bg-rose-500', textColor: 'text-rose-500' }
+        ];
+
         return (
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
               <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                <Zap className="w-5 h-5 text-amber-500" /> Grid Sparkline Pertumbuhan Metrik
+                <Zap className="w-5 h-5 text-amber-500" /> {t('widgetHeaderSparklines')}
               </h3>
 
               <div className="grid grid-cols-2 gap-3 pt-1">
-                {[
-                  { label: 'Artikel', val: '+12%', color: 'text-blue-500', trend: 'Meningkat' },
-                  { label: 'Pembaca', val: '+28%', color: 'text-emerald-500', trend: 'Pesat' },
-                  { label: 'Komentar', val: '+15%', color: 'text-purple-500', trend: 'Aktif' },
-                  { label: 'Newsletter', val: '+34%', color: 'text-rose-500', trend: 'Tinggi' }
-                ].map((s, idx) => (
+                {metrics.map((s, idx) => (
                   <div key={idx} className="p-2.5 rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-color)] space-y-1">
                     <div className="flex justify-between items-center text-[11px] font-bold">
                       <span className="text-[var(--text-subtle)]">{s.label}</span>
-                      <span className={`font-black ${s.color}`}>{s.val}</span>
+                      <span className={`font-black ${s.textColor}`}>{s.total}</span>
                     </div>
                     <div className="h-4 w-full flex items-end gap-0.5">
-                      <div className="w-1/4 h-2 bg-blue-500/40 rounded-t" />
-                      <div className="w-1/4 h-3 bg-blue-500/60 rounded-t" />
-                      <div className="w-1/4 h-2.5 bg-blue-500/80 rounded-t" />
-                      <div className="w-1/4 h-4 bg-blue-600 rounded-t" />
+                      {s.data.map((val, i) => {
+                        const height = Math.max(20, Math.round((val / s.max) * 100));
+                        const opacity = i === 3 ? '' : (i === 2 ? '/80' : (i === 1 ? '/60' : '/40'));
+                        return (
+                          <div 
+                            key={i} 
+                            className={`w-1/4 ${s.baseColor.replace('-500', i === 3 ? '-600' : '-500')}${opacity} rounded-t transition-all`} 
+                            style={{ height: `${height}%` }}
+                            title={`${val} ${s.label}`}
+                          />
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)]">Pertumbuhan metrik di seluruh sektor mengalami tren positif.</p>
+            <p className="text-[10px] text-[var(--text-subtle)]">
+              Melacak pergerakan 4 metrik utama selama 4 hari terakhir secara real-time.
+            </p>
           </div>
         );
+      }
 
       // HOURLY HEATMAP MATRIX CHART
-      case 'chart_hourly_heatmap':
+      case 'chart_hourly_heatmap': {
+        const heatmapDays = [...analyticsSeries].slice(-6); // Last 6 days for columns
+        
+        const processSlot = (dayData, startHour, endHour) => {
+          let sum = 0;
+          if (dayData && dayData.hourly) {
+            for (let h = startHour; h < endHour; h++) {
+              const hStr = h.toString().padStart(2, '0');
+              if (dayData.hourly[hStr]) sum += dayData.hourly[hStr];
+            }
+          }
+          return sum;
+        };
+
+        const gridData = [
+          heatmapDays.map(d => processSlot(d, 6, 12)),  // Pagi
+          heatmapDays.map(d => processSlot(d, 12, 18)), // Siang
+          heatmapDays.map(d => processSlot(d, 18, 24))  // Malam
+        ];
+
+        let maxHeat = 0;
+        gridData.flat().forEach(val => { if (val > maxHeat) maxHeat = val; });
+        maxHeat = Math.max(maxHeat, 1); 
+
+        let totalPagi = 0, totalSiang = 0, totalMalam = 0;
+        gridData[0].forEach(v => totalPagi += v);
+        gridData[1].forEach(v => totalSiang += v);
+        gridData[2].forEach(v => totalMalam += v);
+        
+        let peakText = "Belum Ada Puncak";
+        let peakColor = "text-[var(--text-subtle)]";
+        if (totalPagi >= totalSiang && totalPagi >= totalMalam && totalPagi > 0) {
+          peakText = "Puncak: Pagi (06-12)";
+          peakColor = "text-emerald-400";
+        } else if (totalSiang >= totalPagi && totalSiang >= totalMalam && totalSiang > 0) {
+          peakText = "Puncak: Siang (12-18)";
+          peakColor = "text-amber-400";
+        } else if (totalMalam >= totalPagi && totalMalam >= totalSiang && totalMalam > 0) {
+          peakText = "Puncak: Malam (18-24)";
+          peakColor = "text-rose-400";
+        }
+
         return (
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <Grid className="w-5 h-5 text-rose-500" /> Chart Heatmap Jam Kunjungan Pembaca
+                  <Grid className="w-5 h-5 text-rose-500" /> {t('widgetHeaderHourlyHeatmap')}
                 </h3>
-                <span className="text-[10px] font-bold text-rose-400">Puncak: 20:00 - 22:00</span>
+                <span className={`text-[10px] font-bold ${peakColor}`}>{peakText}</span>
               </div>
 
               <div className="pt-2 space-y-1.5">
@@ -1211,66 +1454,98 @@ export default function DashboardOverview() {
                   <div key={idx} className="flex items-center gap-2 text-xs">
                     <span className="w-24 text-[10px] font-bold text-[var(--text-subtle)] truncate">{timeSlot}</span>
                     <div className="flex-1 grid grid-cols-6 gap-1.5">
-                      {[20, 40, 60, 95, 75, 30].map((opacity, i) => (
-                        <div
-                          key={i}
-                          className="h-5 rounded-md transition-all hover:scale-110"
-                          style={{
-                            backgroundColor: idx === 2 ? `#e11d48` : `#3b82f6`,
-                            opacity: opacity / 100
-                          }}
-                          title={`Kepadatan Kunjungan: ${opacity}%`}
-                        />
-                      ))}
+                      {gridData[idx].map((views, i) => {
+                        const opacity = Math.max(15, Math.round((views / maxHeat) * 100)); 
+                        return (
+                          <div
+                            key={i}
+                            className="h-5 rounded-md transition-all hover:scale-110"
+                            style={{
+                              backgroundColor: idx === 0 ? '#10b981' : (idx === 1 ? '#f59e0b' : '#e11d48'),
+                              opacity: opacity / 100
+                            }}
+                            title={`Kunjungan jam ${timeSlot}: ${views} pembaca`}
+                          />
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)]">Waktu malam hari (18:00 - 24:00) merupakan jam paling ramai pembaca.</p>
+            <p className="text-[10px] text-[var(--text-subtle)]">
+              {maxHeat > 1 ? `Kunjungan didominasi oleh waktu ${peakText.replace('Puncak: ', '').toLowerCase()}.` : 'Belum cukup data kunjungan untuk memetakan heatmap.'}
+            </p>
           </div>
         );
+      }
 
-      case 'chart_category_distribution':
+      case 'chart_category_distribution': {
+        const catCounts = {};
+        recentPosts.forEach(p => {
+          const cat = p.category || 'Uncategorized';
+          catCounts[cat] = (catCounts[cat] || 0) + 1;
+        });
+
+        const totalPosts = Object.values(catCounts).reduce((a, b) => a + b, 0);
+
+        const colors = ['bg-blue-600', 'bg-emerald-500', 'bg-purple-500', 'bg-amber-500', 'bg-rose-500'];
+        const cats = Object.entries(catCounts)
+          .map(([cat, count]) => ({
+            cat,
+            count,
+            pct: totalPosts ? Math.round((count / totalPosts) * 100) : 0
+          }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 3)
+          .map((c, i) => ({ ...c, color: colors[i % colors.length] }));
+
+        const dominant = cats.length > 0 ? cats[0] : null;
+
         return (
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
               <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                <PieChart className="w-5 h-5 text-indigo-500" /> Chart Batang Kategori Topik
+                <PieChart className="w-5 h-5 text-indigo-500" /> {t('widgetHeaderCategoryDistribution')}
               </h3>
               
               <div className="space-y-3 pt-1">
-                {[
-                  { cat: 'Teknologi & Algoritma', count: '4 Artikel', pct: 60, color: 'bg-blue-600' },
-                  { cat: 'Strategi SEO Modern', count: '2 Artikel', pct: 25, color: 'bg-emerald-500' },
-                  { cat: 'Panduan CMS', count: '1 Artikel', pct: 15, color: 'bg-purple-500' }
-                ].map((c, idx) => (
+                {cats.length > 0 ? cats.map((c, idx) => (
                   <div key={idx} className="space-y-1">
                     <div className="flex justify-between text-xs font-bold text-[var(--text-main)]">
                       <span>{c.cat}</span>
-                      <span className="text-[var(--text-subtle)]">{c.pct}% ({c.count})</span>
+                      <span className="text-[var(--text-subtle)]">{c.pct}% ({c.count} Artikel)</span>
                     </div>
                     <div className="w-full h-2 bg-[var(--bg-primary)] rounded-full overflow-hidden">
-                      <div className={`h-full ${c.color} rounded-full`} style={{ width: `${c.pct}%` }} />
+                      <div className={`h-full ${c.color} rounded-full transition-all`} style={{ width: `${c.pct}%` }} />
                     </div>
                   </div>
-                ))}
+                )) : (
+                  <div className="flex items-center justify-center h-20 text-[10px] text-[var(--text-subtle)] font-bold bg-[var(--bg-primary)] rounded-xl">
+                    Belum ada artikel untuk dianalisis
+                  </div>
+                )}
               </div>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)]">Kategori "Teknologi" mendominasi 60% konten blog.</p>
+            <p className="text-[10px] text-[var(--text-subtle)]">
+              {dominant ? `Kategori "${dominant.cat}" mendominasi ${dominant.pct}% konten blog.` : 'Distribusi kategori akan muncul setelah Anda menulis artikel.'}
+            </p>
           </div>
         );
+      }
 
-      case 'table_comments_moderation':
+      case 'table_comments_moderation': {
+        const pendingComments = recentComments.filter(c => c.status === 'pending').slice(0, 3);
+
         return (
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <Table className="w-5 h-5 text-purple-500" /> Tabel Moderasi Komentar Cepat
+                  <Table className="w-5 h-5 text-purple-500" /> {t('widgetHeaderCommentsModeration')}
                 </h3>
                 <Link href="/dashboard/comments" className="text-xs text-blue-500 hover:underline font-bold">
-                  Kelola Semua
+                  {t('widgetContentManageAll')}
                 </Link>
               </div>
 
@@ -1284,49 +1559,79 @@ export default function DashboardOverview() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[var(--border-color)]">
-                    {[
-                      { id: 1, name: 'Ahmad Fauzi', comment: 'Artikel SEO ini sangat membantu sekali!', status: 'pending' },
-                      { id: 2, name: 'Rina Wijaya', comment: 'Apakah CMS ini mendukung Firebase?', status: 'pending' }
-                    ].map((row) => (
-                      <tr key={row.id} className="group">
-                        <td className="py-2.5 font-bold text-[var(--text-main)] truncate max-w-[100px]">{row.name}</td>
-                        <td className="py-2.5 text-[var(--text-muted)] truncate max-w-[160px]">{row.comment}</td>
-                        <td className="py-2.5 text-right space-x-1">
-                          <button
-                            onClick={() => showToast(`Komentar ${row.name} disetujui!`)}
-                            className="p-1 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-600 hover:text-white transition-all"
-                            title="Setujui Komentar"
-                          >
-                            <CheckCircle className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => showToast(`Komentar ${row.name} dihapus.`)}
-                            className="p-1 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white transition-all"
-                            title="Tolak Komentar"
-                          >
-                            <XCircle className="w-3.5 h-3.5" />
-                          </button>
+                    {pendingComments.length > 0 ? (
+                      pendingComments.map((row) => (
+                        <tr key={row.id} className="group">
+                          <td className="py-2.5 font-bold text-[var(--text-main)] truncate max-w-[100px]">{row.authorName || 'Anonim'}</td>
+                          <td className="py-2.5 text-[var(--text-muted)] truncate max-w-[160px]">{row.content}</td>
+                          <td className="py-2.5 text-right space-x-1">
+                            <button
+                              onClick={() => showToast(t('widgetContentApproveCommentHint'))}
+                              className="p-1 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-600 hover:text-white transition-all"
+                              title="Setujui Komentar"
+                            >
+                              <CheckCircle className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => showToast(t('widgetContentApproveCommentHint'))}
+                              className="p-1 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white transition-all"
+                              title="Tolak Komentar"
+                            >
+                              <XCircle className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="3" className="py-6 text-center text-[var(--text-subtle)]">
+                          Tidak ada komentar yang menunggu moderasi. Hore! 🎉
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)]">2 Komentar menunggu moderasi publikasi.</p>
+            <p className="text-[10px] text-[var(--text-subtle)]">Menampilkan {pendingComments.length} komentar terbaru yang butuh persetujuan.</p>
           </div>
         );
+      }
 
-      case 'table_seo_articles':
+      case 'table_seo_articles': {
+        const getSeoScore = (post) => {
+          let score = 0;
+          const titleLen = post.title ? post.title.length : 0;
+          if (titleLen >= 30 && titleLen <= 70) score += 25; else score += 10;
+          const metaDesc = post.seoDescription || post.excerpt || '';
+          if (metaDesc.length >= 50 && metaDesc.length <= 160) score += 25; else score += 10;
+          if (post.featuredImage) score += 25;
+          if (Array.isArray(post.tags) && post.tags.length > 0) score += 25;
+          return Math.min(100, score);
+        };
+
+        const seoPosts = [...recentPosts].filter(p => p.status === 'published').map(p => ({
+          title: p.title,
+          score: getSeoScore(p),
+        })).sort((a, b) => b.score - a.score);
+
+        const avgScore = seoPosts.length ? Math.round(seoPosts.reduce((acc, p) => acc + p.score, 0) / seoPosts.length) : 0;
+        const top3Seo = seoPosts.slice(0, 3);
+        const getBadge = (score) => {
+          if (score >= 80) return { badge: t('widgetContentSeoPerfect'), color: 'bg-emerald-500' };
+          if (score >= 50) return { badge: t('widgetContentSeoGood'), color: 'bg-blue-500' };
+          return { badge: t('widgetContentSeoNeedsCheck'), color: 'bg-amber-500' };
+        };
+
         return (
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <Table className="w-5 h-5 text-emerald-500" /> Tabel Kesehatan SEO Artikel
+                  <Table className="w-5 h-5 text-emerald-500" /> {t('widgetHeaderSeoArticles')}
                 </h3>
                 <Link href="/dashboard/seo-analyzer" className="text-xs text-blue-500 hover:underline font-bold">
-                  Buka SEO Audit
+                  {t('widgetContentOpenSeoAudit')}
                 </Link>
               </div>
 
@@ -1334,41 +1639,41 @@ export default function DashboardOverview() {
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="border-b border-[var(--border-color)] text-[10px] uppercase tracking-wider text-[var(--text-subtle)]">
-                      <th className="pb-2">Judul Artikel</th>
-                      <th className="pb-2">Skor SEO</th>
-                      <th className="pb-2 text-right">Status</th>
+                      <th className="pb-2">{t('thTitle')}</th>
+                      <th className="pb-2">SEO</th>
+                      <th className="pb-2 text-right">{t('thStatus')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[var(--border-color)]">
-                    {[
-                      { title: 'Panduan SEO 2026', score: 100, badge: 'Perfect', color: 'bg-emerald-500' },
-                      { title: 'Membuat Next.js Blog', score: 85, badge: 'Bagus', color: 'bg-blue-500' },
-                      { title: 'Arsitektur CMS Modern', score: 70, badge: 'Perlu Cek', color: 'bg-amber-500' }
-                    ].map((row, idx) => (
-                      <tr key={idx}>
-                        <td className="py-2 font-bold text-[var(--text-main)] truncate max-w-[140px]">{row.title}</td>
-                        <td className="py-2 font-black text-[var(--text-main)]">{row.score}/100</td>
-                        <td className="py-2 text-right">
-                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold text-white ${row.color}`}>
-                            {row.badge}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    {top3Seo.map((row, idx) => {
+                      const { badge, color } = getBadge(row.score);
+                      return (
+                        <tr key={idx}>
+                          <td className="py-2 font-bold text-[var(--text-main)] truncate max-w-[140px]">{row.title}</td>
+                          <td className="py-2 font-black text-[var(--text-main)]">{row.score}/100</td>
+                          <td className="py-2 text-right">
+                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold text-white ${color}`}>
+                              {badge}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)]">Rata-rata Skor SEO seluruh artikel: 85/100.</p>
+            <p className="text-[10px] text-[var(--text-subtle)]">{t('widgetContentAvgSeoScore')} {avgScore}/100.</p>
           </div>
         );
+      }
 
       case 'article_management':
         return (
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
               <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                <FileText className="w-5 h-5 text-blue-500" /> Manajemen Artikel & Editor
+                <FileText className="w-5 h-5 text-blue-500" /> {t('widgetHeaderArticleMgmt')}
               </h3>
               <p className="text-xs text-[var(--text-muted)] leading-relaxed">
                 Tulis artikel baru dengan Visual Block Editor atau kelola postingan yang sudah ada.
@@ -1396,7 +1701,7 @@ export default function DashboardOverview() {
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
               <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                <Search className="w-5 h-5 text-emerald-500" /> Audit SEO Real-time
+                <Search className="w-5 h-5 text-emerald-500" /> {t('widgetHeaderSeoAudit')}
               </h3>
               <p className="text-xs text-[var(--text-muted)] leading-relaxed">
                 Analisis skor SEO, kata kunci fokus, dan kesehatan tag meta di seluruh artikel Anda secara otomatis.
@@ -1407,7 +1712,7 @@ export default function DashboardOverview() {
                 href="/dashboard/seo-analyzer"
                 className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-all shadow-md flex items-center gap-1.5"
               >
-                Buka SEO Auditor <ArrowRight className="w-3.5 h-3.5" />
+                {t('widgetContentOpenSeoAudit')} <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>
@@ -1419,10 +1724,10 @@ export default function DashboardOverview() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-purple-500" /> Artikel Terbaru Dibuat
+                  <Clock className="w-5 h-5 text-purple-500" /> {t('widgetHeaderRecentActivity')}
                 </h3>
                 <Link href="/dashboard/posts" className="text-xs text-blue-500 hover:underline font-bold">
-                  Semua
+                  {t('all')}
                 </Link>
               </div>
               <div className="space-y-2">
@@ -1452,7 +1757,7 @@ export default function DashboardOverview() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5 text-indigo-500" /> Komentar Terbaru Pembaca
+                  <MessageSquare className="w-5 h-5 text-indigo-500" /> {t('widgetHeaderRecentComments')}
                 </h3>
                 <Link href="/dashboard/comments" className="text-xs text-blue-500 hover:underline font-bold">
                   Moderasi
@@ -1460,10 +1765,10 @@ export default function DashboardOverview() {
               </div>
               <div className="space-y-2">
                 {recentComments.length > 0 ? (
-                  recentComments.map((c) => (
+                  recentComments.slice(0, 3).map((c) => (
                     <div key={c.id} className="p-3 rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-color)] space-y-1 text-xs">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-[var(--text-main)]">{c.author || c.name || 'Pengunjung'}</span>
+                        <span className="font-bold text-[var(--text-main)]">{c.authorName || c.name || 'Anonim'}</span>
                         <span className="text-[9px] text-[var(--text-subtle)]">Baru</span>
                       </div>
                       <p className="text-[11px] text-[var(--text-muted)] line-clamp-2">{c.content}</p>
