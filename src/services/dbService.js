@@ -1,7 +1,7 @@
 import { isFirebaseConfigured, db, auth } from '@/lib/firebase';
 import { INITIAL_CATEGORIES, INITIAL_POSTS, INITIAL_COMMENTS, INITIAL_PAGES, INITIAL_MENUS } from '@/constants/mockData';
 import {
-  collection, doc, getDocs, getDoc, addDoc, setDoc, deleteDoc, updateDoc, query, where, orderBy, increment
+  collection, doc, getDocs, getDoc, addDoc, setDoc, deleteDoc, updateDoc, query, where, orderBy, increment, limit
 } from 'firebase/firestore';
 
 // Clean up any stale demo data in localStorage on app load (if present).
@@ -134,7 +134,7 @@ export const dbService = {
     return posts;
   },
 
-  async getPostBySlug(slug) {
+  async getPostBySlug(slug, incrementView = true) {
     const now = new Date().toISOString();
     if (isFirebaseConfigured()) {
       try {
@@ -151,7 +151,9 @@ export const dbService = {
           }
           
           try {
-            await updateDoc(doc(db, 'posts', docSnap.id), { views: increment(1) });
+            if (incrementView) {
+              await updateDoc(doc(db, 'posts', docSnap.id), { views: increment(1) });
+            }
           } catch(e){}
           return post;
         }
@@ -167,8 +169,10 @@ export const dbService = {
       if (post.status === 'scheduled' && post.publishedAt && post.publishedAt <= now) {
         post.status = 'published';
       }
-      post.views = (post.views || 0) + 1;
-      setLocal('posts', posts);
+      if (incrementView) {
+        post.views = (post.views || 0) + 1;
+        setLocal('posts', posts);
+      }
       return post;
     }
     return null;
@@ -459,8 +463,11 @@ export const dbService = {
     const now = new Date();
     const scheduledCount = posts.filter(p => p.status === 'scheduled' || (p.publishedAt && new Date(p.publishedAt) > now)).length;
 
+    const topPosts = [...posts].sort((a,b) => (b.views || 0) - (a.views || 0)).slice(0, 3);
+
     return {
       totalPosts: posts.length,
+      topPosts,
       publishedPosts: publishedCount,
       draftPosts: draftCount,
       scheduledPosts: scheduledCount,
@@ -491,6 +498,21 @@ export const dbService = {
       }
     }
 
+    if (isFirebaseConfigured()) {
+      try {
+        const docRef = doc(db, 'analytics_daily', dateStr);
+        await setDoc(docRef, {
+          date: dateStr,
+          views: increment(1),
+          [`sources.${source}`]: source !== 'internal' ? increment(1) : increment(0),
+          [`hourly.${hour}`]: increment(1)
+        }, { merge: true });
+      } catch (e) {
+        console.warn('Firestore trackPageview error:', e);
+      }
+      return;
+    }
+
     const key = `analytics_daily_${dateStr}`;
     const defaultData = {
       date: dateStr,
@@ -508,20 +530,6 @@ export const dbService = {
     }
     data.hourly[hour] = (data.hourly[hour] || 0) + 1;
     setLocal(key, data);
-
-    if (isFirebaseConfigured()) {
-      try {
-        const docRef = doc(db, 'analytics_daily', dateStr);
-        await setDoc(docRef, {
-          date: dateStr,
-          views: increment(1),
-          [`sources.${source}`]: source !== 'internal' ? increment(1) : increment(0),
-          [`hourly.${hour}`]: increment(1)
-        }, { merge: true });
-      } catch (e) {
-        console.warn('Firestore trackPageview error:', e);
-      }
-    }
   },
 
   async getAnalyticsSeries(days = 30) {
@@ -532,45 +540,35 @@ export const dbService = {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().split('T')[0];
-      
-      let dayData = getLocal(`analytics_daily_${dateStr}`, null);
-      if (!dayData) {
-        const mockViews = Math.floor(Math.random() * 100) + 50;
-        dayData = {
-          date: dateStr,
-          views: mockViews,
-          sources: {
-            search: Math.floor(mockViews * 0.5),
-            social: Math.floor(mockViews * 0.3),
-            direct: Math.floor(mockViews * 0.15),
-            referral: Math.floor(mockViews * 0.05)
-          },
-          hourly: {}
-        };
-        for(let h=0; h<24; h++) {
-          const hh = h.toString().padStart(2, '0');
-          dayData.hourly[hh] = Math.floor(mockViews / 24) + Math.floor(Math.random() * 3);
-        }
-        setLocal(`analytics_daily_${dateStr}`, dayData);
-      }
-      series.push(dayData);
+      series.push({
+        date: dateStr,
+        views: 0,
+        sources: { search: 0, social: 0, direct: 0, referral: 0 },
+        hourly: {}
+      });
     }
-    
+
     if (isFirebaseConfigured()) {
        try {
          const q = query(collection(db, 'analytics_daily'), orderBy('date', 'desc'), limit(days));
          const snap = await getDocs(q);
          if (!snap.empty) {
-           const firestoreData = snap.docs.map(d => d.data()).reverse();
-           series = series.map(localDay => {
-             const fsDay = firestoreData.find(f => f.date === localDay.date);
-             return fsDay || localDay;
+           const firestoreData = snap.docs.map(d => d.data());
+           series = series.map(emptyDay => {
+             const fsDay = firestoreData.find(f => f.date === emptyDay.date);
+             return fsDay ? { ...emptyDay, ...fsDay } : emptyDay;
            });
          }
        } catch (e) {
          console.warn('Firestore getAnalyticsSeries error:', e);
        }
+       return series;
     }
+
+    series = series.map(emptyDay => {
+      const dayData = getLocal(`analytics_daily_${emptyDay.date}`, null);
+      return dayData ? { ...emptyDay, ...dayData } : emptyDay;
+    });
     return series;
   },
 

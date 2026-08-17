@@ -2,6 +2,13 @@
 
 Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 
+## [v2.2.2] - 2026-08-17
+
+### 🛠️ Perbaikan Bug & Optimasi Real-Time Analytics
+- **Pembersihan Fallback LocalStorage (Anti Optimistic Cache Rollback)**: Merombak fungsionalitas `trackPageview` dan `getAnalyticsSeries` di `dbService.js` agar 100% menggunakan *Direct Database Connection* saat Firebase terhubung, guna mencegah konflik data *Optimistic Cache Rollback* yang membuat grafik Area Chart (30 Hari) mereset menjadi 0 saat di-refresh.
+- **Penyelesaian ReferenceError Firebase Firestore**: Mendaftarkan impor `limit` dari modul `firebase/firestore` yang sebelumnya memicu *error* hening (*silent crash*) saat penarikan grafik 30 Hari.
+- **Penyelesaian ReferenceError View Counter**: Menambahkan kembali parameter `incrementView` yang sempat terhapus pada `getPostBySlug` agar konter total pembaca artikel (`Total Readers Views`) bisa kembali berdetak saat artikel dibaca.
+
 ## [v2.2.1] - 2026-08-17
 
 ### 🚀 Fitur Baru & Peningkatan UX

@@ -950,7 +950,19 @@ export default function DashboardOverview() {
         );
 
       // BAR CHART (7-DAY TRAFFIC TREND)
-      case 'chart_views_trend':
+      case 'chart_views_trend': {
+        const trendData = [...analyticsSeries].slice(-7); // Last 7 days, oldest to newest
+        const maxViews = Math.max(...trendData.map(d => d.views || 0), 1);
+        const latestView = trendData[6]?.views || 0;
+        const prevView = trendData[5]?.views || 0;
+        const growth = prevView > 0 ? Math.round(((latestView - prevView) / prevView) * 100) : 0;
+        const isPositive = growth >= 0;
+        const getDayName = (dateStr) => {
+          if (!dateStr) return '';
+          const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+          return days[new Date(dateStr).getDay()];
+        };
+
         return (
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
@@ -958,47 +970,60 @@ export default function DashboardOverview() {
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
                   <BarChart3 className="w-5 h-5 text-emerald-500" /> Chart Tren Pembaca (7 Hari)
                 </h3>
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400">
-                  +24.5% Minggu Ini
+                <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold ${isPositive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                  {isPositive ? '+' : ''}{growth}% Kemarin
                 </span>
               </div>
 
               <div className="pt-2 flex items-end justify-between gap-2 h-28 border-b border-[var(--border-color)] pb-2">
-                {[
-                  { day: 'Sen', height: '40%' },
-                  { day: 'Sel', height: '65%' },
-                  { day: 'Rab', height: '50%' },
-                  { day: 'Kam', height: '85%' },
-                  { day: 'Jum', height: '70%' },
-                  { day: 'Sab', height: '95%' },
-                  { day: 'Min', height: '60%' }
-                ].map((item, idx) => (
-                  <div key={idx} className="flex-1 flex flex-col items-center gap-1 group">
-                    <div className="w-full bg-blue-500/20 group-hover:bg-blue-600 rounded-t-lg transition-all relative overflow-hidden" style={{ height: item.height }}>
-                      <div className="absolute inset-0 bg-gradient-to-t from-blue-600 to-indigo-500 opacity-80" />
+                {trendData.map((item, idx) => {
+                  const pct = Math.round(((item.views || 0) / maxViews) * 100) || 5;
+                  return (
+                    <div key={idx} className="flex-1 flex flex-col items-center gap-1 group relative" title={`${item.views || 0} views`}>
+                      <div className="w-full bg-blue-500/20 group-hover:bg-blue-600 rounded-t-lg transition-all relative overflow-hidden" style={{ height: `${pct}%` }}>
+                        <div className="absolute inset-0 bg-gradient-to-t from-blue-600 to-indigo-500 opacity-80" />
+                      </div>
+                      <span className="text-[10px] font-bold text-[var(--text-subtle)]">{getDayName(item.date)}</span>
                     </div>
-                    <span className="text-[10px] font-bold text-[var(--text-subtle)]">{item.day}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
             <p className="text-[11px] text-[var(--text-muted)] flex items-center gap-1">
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-500" /> Puncak kunjungan tertinggi pada hari Sabtu.
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-500" /> Total {trendData.reduce((acc, d) => acc + (d.views || 0), 0)} kunjungan seminggu terakhir.
             </p>
           </div>
         );
+      }
 
       // SMOOTH AREA CURVE CHART (30-DAY VISITORS AREA CHART)
-      case 'chart_visitors_area':
+      case 'chart_visitors_area': {
+        const areaData = [...analyticsSeries];
+        const maxAreaViews = Math.max(...areaData.map(d => d.views || 0), 1);
+        const totalAreaViews = areaData.reduce((acc, d) => acc + (d.views || 0), 0);
+        
+        let pathD = "M 0 80 L 300 80";
+        let fillPathD = "M 0 80 L 300 80 Z";
+        
+        if (areaData.length > 1) {
+          const points = areaData.map((d, idx) => {
+            const x = (idx / (areaData.length - 1)) * 300;
+            const y = 80 - (((d.views || 0) / maxAreaViews) * 70); // 10px top margin
+            return `${x},${y}`;
+          });
+          pathD = `M ${points.join(' L ')}`;
+          fillPathD = `${pathD} L 300,80 L 0,80 Z`;
+        }
+
         return (
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-blue-500" /> Area Chart Pengunjung Unik (30 Hari)
+                  <Activity className="w-5 h-5 text-blue-500" /> Area Chart Pengunjung (30 Hari)
                 </h3>
                 <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-blue-500/10 text-blue-400">
-                  1,480 Total Unik
+                  {totalAreaViews} Total Kunjungan
                 </span>
               </div>
 
@@ -1011,24 +1036,26 @@ export default function DashboardOverview() {
                     </linearGradient>
                   </defs>
                   <path
-                    d="M0 60 Q 50 10, 100 45 T 200 25 T 300 50 L 300 80 L 0 80 Z"
+                    d={fillPathD}
                     fill="url(#areaGrad)"
                   />
                   <path
-                    d="M0 60 Q 50 10, 100 45 T 200 25 T 300 50"
+                    d={pathD}
                     fill="none"
                     stroke="#3b82f6"
                     strokeWidth="3"
                     strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
               </div>
             </div>
             <p className="text-[10px] text-[var(--text-subtle)] flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-blue-400" /> Kurva tren pembaca stabil naik selama 30 hari terakhir.
+              <Sparkles className="w-3.5 h-3.5 text-blue-400" /> Menampilkan kurva pergerakan pembaca selama 30 hari ke belakang.
             </p>
           </div>
         );
+      }
 
       // DONUT RING CHART (SEO KEYWORDS RANKING)
       case 'chart_seo_keywords_donut':
