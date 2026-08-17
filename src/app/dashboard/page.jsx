@@ -20,7 +20,7 @@ import Button from '@/components/ui/Button';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function DashboardOverview() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [analytics, setAnalytics] = useState(null);
   const [analyticsSeries, setAnalyticsSeries] = useState([]);
   const [recentPosts, setRecentPosts] = useState([]);
@@ -757,10 +757,10 @@ export default function DashboardOverview() {
         const pctReferral = Math.round((totalReferral / totalTraffic) * 100) || 0;
 
         const highestSource = [
-          { name: 'Pencarian Organik', pct: pctSearch },
-          { name: 'Media Sosial', pct: pctSocial },
-          { name: 'Kunjungan Langsung', pct: pctDirect },
-          { name: 'Trafik Rujukan', pct: pctReferral }
+          { name: t('widgetContentGoogleSearch'), pct: pctSearch },
+          { name: t('widgetContentSocialMedia'), pct: pctSocial },
+          { name: t('widgetContentDirect'), pct: pctDirect },
+          { name: t('widgetContentReferral'), pct: pctReferral }
         ].sort((a,b) => b.pct - a.pct)[0];
 
         const dashSearch = pctSearch;
@@ -777,7 +777,7 @@ export default function DashboardOverview() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <PieChart className="w-5 h-5 text-blue-500" /> Chart Pie Sumber Trafik Pembaca
+                  <PieChart className="w-5 h-5 text-blue-500" /> {t('widgetHeaderTrafficSource')}
                 </h3>
                 <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-blue-500/10 text-blue-400">
                   {highestSource.name} ({highestSource.pct}%)
@@ -811,7 +811,7 @@ export default function DashboardOverview() {
                 </div>
               </div>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)]">{highestSource.name} menyumbang trafik terbesar ke blog secara keseluruhan.</p>
+            <p className="text-[10px] text-[var(--text-subtle)]">{t('widgetContentHighestTrafficDesc').replace('{source}', highestSource.name)}</p>
           </div>
         );
 
@@ -888,11 +888,11 @@ export default function DashboardOverview() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <GitBranch className="w-5 h-5 text-emerald-500" /> Chart Komparasi Artikel vs Pembaca
+                  <GitBranch className="w-5 h-5 text-emerald-500" /> {t('widgetHeaderArticleComparison')}
                 </h3>
                 <div className="flex items-center gap-3 text-[10px] font-bold">
-                  <span className="flex items-center gap-1 text-emerald-400"><span className="w-2 h-2 rounded-full bg-emerald-500"/> Pembaca</span>
-                  <span className="flex items-center gap-1 text-blue-400"><span className="w-2 h-2 rounded-full bg-blue-500"/> Artikel</span>
+                  <span className="flex items-center gap-1 text-emerald-400"><span className="w-2 h-2 rounded-full bg-emerald-500"/> {t('widgetContentReaders')}</span>
+                  <span className="flex items-center gap-1 text-blue-400"><span className="w-2 h-2 rounded-full bg-blue-500"/> {t('widgetContentArticles')}</span>
                 </div>
               </div>
 
@@ -903,7 +903,7 @@ export default function DashboardOverview() {
                 </svg>
               </div>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)]">Pertumbuhan pembaca (hijau) disandingkan dengan jumlah rilis artikel (biru).</p>
+            <p className="text-[10px] text-[var(--text-subtle)]">{t('widgetContentComparisonDesc')}</p>
           </div>
         );
       }
@@ -915,7 +915,7 @@ export default function DashboardOverview() {
         for (let i = 2; i >= 0; i--) {
           const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
           months.push({
-            m: d.toLocaleString('id-ID', { month: 'short' }),
+            m: d.toLocaleString(language === 'en' ? 'en-US' : 'id-ID', { month: 'short' }),
             year: d.getFullYear(),
             month: d.getMonth(),
             pub: 0,
@@ -958,18 +958,18 @@ export default function DashboardOverview() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-purple-500" /> Chart Stacked Status Artikel
+                  <BarChart3 className="w-5 h-5 text-purple-500" /> {t('widgetHeaderPostStatus')}
                 </h3>
-                <span className="text-[10px] font-bold text-[var(--text-subtle)]">3 Bulan Terakhir</span>
+                <span className="text-[10px] font-bold text-[var(--text-subtle)]">{t('widgetContentLast3Months')}</span>
               </div>
 
               <div className="pt-2 flex items-end justify-between gap-3 h-28 border-b border-[var(--border-color)] pb-2">
                 {colData.map((col, idx) => (
                   <div key={idx} className="flex-1 flex flex-col items-center gap-1">
                     <div className="w-full flex flex-col-reverse rounded-t-lg overflow-hidden h-24 bg-[var(--bg-primary)]">
-                      <div className="w-full bg-emerald-500 transition-all" style={{ height: `${col.pubPct}%` }} title={`Terbit: ${col.pub} (${col.pubPct}%)`} />
-                      <div className="w-full bg-blue-500 transition-all" style={{ height: `${col.draftPct}%` }} title={`Draft: ${col.draft} (${col.draftPct}%)`} />
-                      <div className="w-full bg-amber-500 transition-all" style={{ height: `${col.schedPct}%` }} title={`Terjadwal: ${col.sched} (${col.schedPct}%)`} />
+                      <div className="w-full bg-emerald-500 transition-all" style={{ height: `${col.pubPct}%` }} title={`${t('filterPublished')}: ${col.pub} (${col.pubPct}%)`} />
+                      <div className="w-full bg-blue-500 transition-all" style={{ height: `${col.draftPct}%` }} title={`${t('filterDraft')}: ${col.draft} (${col.draftPct}%)`} />
+                      <div className="w-full bg-amber-500 transition-all" style={{ height: `${col.schedPct}%` }} title={`${t('filterScheduled')}: ${col.sched} (${col.schedPct}%)`} />
                     </div>
                     <span className="text-[10px] font-bold text-[var(--text-subtle)]">{col.m}</span>
                   </div>
@@ -977,9 +977,9 @@ export default function DashboardOverview() {
               </div>
             </div>
             <div className="flex items-center justify-between text-[10px] text-[var(--text-subtle)] font-bold">
-              <span className="text-emerald-400">🟢 Terbit ({overallPub}%)</span>
-              <span className="text-blue-400">🔵 Draft ({overallDraft}%)</span>
-              <span className="text-amber-400">🟡 Terjadwal ({overallSched}%)</span>
+              <span className="text-emerald-400">🟢 {t('filterPublished')} ({overallPub}%)</span>
+              <span className="text-blue-400">🔵 {t('filterDraft')} ({overallDraft}%)</span>
+              <span className="text-amber-400">🟡 {t('filterScheduled')} ({overallSched}%)</span>
             </div>
           </div>
         );
@@ -993,12 +993,12 @@ export default function DashboardOverview() {
         const loadTime = ((100 - loadScore) * 0.06 + 0.12).toFixed(2);
         const dashValue = (loadScore / 100) * 50;
         
-        let gradeText = "Grade A+ Super Fast";
+        let gradeText = t('widgetContentGradeASuperFast');
         let colorClass = "text-emerald-400 bg-emerald-500/10";
         let strokeColor = "#10b981";
         
         if (loadScore < 90) {
-          gradeText = "Grade B Cukup Cepat";
+          gradeText = t('widgetContentGradeBFast');
           colorClass = "text-amber-400 bg-amber-500/10";
           strokeColor = "#f59e0b";
         }
@@ -1035,11 +1035,11 @@ export default function DashboardOverview() {
                 </svg>
                 <div className="absolute bottom-0 text-center">
                   <span className="text-xl font-black text-[var(--text-main)]">{loadScore}</span>
-                  <span className="text-[9px] block text-[var(--text-subtle)] font-bold">Skor Muat / 100</span>
+                  <span className="text-[9px] block text-[var(--text-subtle)] font-bold">{t('widgetContentLoadScoreLabel')}</span>
                 </div>
               </div>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)] text-center">Estimasi kecepatan waktu muat halaman: {loadTime} detik.</p>
+            <p className="text-[10px] text-[var(--text-subtle)] text-center">{t('widgetContentEstLoadTime').replace('{time}', loadTime)}</p>
           </div>
         );
       }
@@ -1054,7 +1054,7 @@ export default function DashboardOverview() {
         const isPositive = growth >= 0;
         const getDayName = (dateStr) => {
           if (!dateStr) return '';
-          const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+          const days = language === 'en' ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] : ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
           return days[new Date(dateStr).getDay()];
         };
 
@@ -1085,7 +1085,7 @@ export default function DashboardOverview() {
               </div>
             </div>
             <p className="text-[11px] text-[var(--text-muted)] flex items-center gap-1">
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-500" /> Total {trendData.reduce((acc, d) => acc + (d.views || 0), 0)} kunjungan seminggu terakhir.
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-500" /> {t('widgetContentTotalVisitsWeekCount').replace('{count}', trendData.reduce((acc, d) => acc + (d.views || 0), 0))}
             </p>
           </div>
         );
@@ -1118,7 +1118,7 @@ export default function DashboardOverview() {
                   <Activity className="w-5 h-5 text-blue-500" /> {t('widgetHeaderVisitorsArea')}
                 </h3>
                 <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-blue-500/10 text-blue-400">
-                  {totalAreaViews} Total Kunjungan
+                  {t('widgetContentTotalVisits').replace('{count}', totalAreaViews)}
                 </span>
               </div>
 
@@ -1146,7 +1146,7 @@ export default function DashboardOverview() {
               </div>
             </div>
             <p className="text-[10px] text-[var(--text-subtle)] flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-blue-400" /> Menampilkan kurva pergerakan pembaca selama 30 hari ke belakang.
+              <Sparkles className="w-3.5 h-3.5 text-blue-400" /> {t('widgetContentVisitorCurveDesc')}
             </p>
           </div>
         );
@@ -1231,24 +1231,24 @@ export default function DashboardOverview() {
                   </svg>
                   <div className="absolute text-center">
                     <span className="text-xs font-black text-[var(--text-main)]">{pctExcellent}%</span>
-                    <p className="text-[8px] text-[var(--text-subtle)]">Sempurna</p>
+                    <p className="text-[8px] text-[var(--text-subtle)]">{t('widgetContentSeoPerfect')}</p>
                   </div>
                 </div>
 
                 <div className="space-y-1 text-xs">
                   <div className="flex items-center gap-1.5 font-bold text-[var(--text-main)]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Sempurna ({pctExcellent}%)
+                    <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> {t('widgetContentSeoPerfect')} ({pctExcellent}%)
                   </div>
                   <div className="flex items-center gap-1.5 font-bold text-[var(--text-main)]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Cukup Baik ({pctGood}%)
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> {t('widgetContentSeoFair')} ({pctGood}%)
                   </div>
                   <div className="flex items-center gap-1.5 font-bold text-[var(--text-muted)]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-gray-600" /> Perlu Optimasi ({pctNeedsWork > 0 ? pctNeedsWork : 0}%)
+                    <span className="w-2.5 h-2.5 rounded-full bg-gray-600" /> {t('widgetContentSeoNeedsOpt')} ({pctNeedsWork > 0 ? pctNeedsWork : 0}%)
                   </div>
                 </div>
               </div>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)]">Dari total {recentPosts.length} artikel terpublikasi.</p>
+            <p className="text-[10px] text-[var(--text-subtle)]">{t('widgetContentFromTotalPublished').replace('{count}', publishedPosts.length)}</p>
           </div>
         );
       }
@@ -1283,16 +1283,16 @@ export default function DashboardOverview() {
                   <ShieldCheck className="w-5 h-5 text-indigo-500" /> {t('widgetHeaderSystemRadar')}
                 </h3>
                 <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold ${avgTotal >= 80 ? 'bg-indigo-500/10 text-indigo-400' : 'bg-rose-500/10 text-rose-400'}`}>
-                  Skor {avgTotal}/100
+                  {t('widgetContentScoreValue').replace('{score}', avgTotal)}
                 </span>
               </div>
 
               <div className="space-y-2 pt-1">
                 {[
-                  { label: 'Kecepatan Muat', score: 98, color: 'bg-emerald-500' },
-                  { label: 'Keamanan Firestore', score: firestoreScore, color: 'bg-blue-500' },
-                  { label: 'Kesehatan SEO', score: avgSeo, color: 'bg-purple-500' },
-                  { label: 'Responsivitas Layout', score: 100, color: 'bg-indigo-500' }
+                  { label: t('widgetContentLoadSpeed'), score: 98, color: 'bg-emerald-500' },
+                  { label: t('widgetContentFirestoreSecurity'), score: firestoreScore, color: 'bg-blue-500' },
+                  { label: t('widgetContentSeoHealth'), score: avgSeo, color: 'bg-purple-500' },
+                  { label: t('widgetContentLayoutResponsiveness'), score: 100, color: 'bg-indigo-500' }
                 ].map((item, idx) => (
                   <div key={idx} className="space-y-1">
                     <div className="flex justify-between text-xs font-bold text-[var(--text-main)]">
@@ -1307,7 +1307,7 @@ export default function DashboardOverview() {
               </div>
             </div>
             <p className="text-[10px] text-[var(--text-subtle)]">
-              {avgTotal >= 90 ? 'Evaluasi performa 4-dimensi sistem CMS berjalan sangat optimal.' : 'Ada beberapa parameter CMS yang butuh perhatian.'}
+              {avgTotal >= 90 ? t('widgetContentCmsOptimal') : t('widgetContentCmsNeedsAttention')}
             </p>
           </div>
         );
@@ -1351,10 +1351,10 @@ export default function DashboardOverview() {
         const newsTotal = 0;
 
         const metrics = [
-          { label: 'Artikel', total: `+${artikelTotal}`, data: artikelData, max: maxArtikel, baseColor: 'bg-blue-500', textColor: 'text-blue-500' },
-          { label: 'Pembaca', total: `+${pembacaTotal}`, data: pembacaData, max: maxPembaca, baseColor: 'bg-emerald-500', textColor: 'text-emerald-500' },
-          { label: 'Komentar', total: `+${komentarTotal}`, data: komentarData, max: maxKomentar, baseColor: 'bg-purple-500', textColor: 'text-purple-500' },
-          { label: 'Newsletter', total: `+${newsTotal}`, data: newsData, max: maxNews, baseColor: 'bg-rose-500', textColor: 'text-rose-500' }
+          { label: t('widgetContentArticles'), total: `+${artikelTotal}`, data: artikelData, max: maxArtikel, baseColor: 'bg-blue-500', textColor: 'text-blue-500' },
+          { label: t('widgetContentReaders'), total: `+${pembacaTotal}`, data: pembacaData, max: maxPembaca, baseColor: 'bg-emerald-500', textColor: 'text-emerald-500' },
+          { label: t('widgetContentComments'), total: `+${komentarTotal}`, data: komentarData, max: maxKomentar, baseColor: 'bg-purple-500', textColor: 'text-purple-500' },
+          { label: t('widgetContentNewsletter'), total: `+${newsTotal}`, data: newsData, max: maxNews, baseColor: 'bg-rose-500', textColor: 'text-rose-500' }
         ];
 
         return (
@@ -1390,7 +1390,7 @@ export default function DashboardOverview() {
               </div>
             </div>
             <p className="text-[10px] text-[var(--text-subtle)]">
-              Melacak pergerakan 4 metrik utama selama 4 hari terakhir secara real-time.
+              {t('widgetContentSparklinesDesc')}
             </p>
           </div>
         );
@@ -1425,17 +1425,21 @@ export default function DashboardOverview() {
         gridData[0].forEach(v => totalPagi += v);
         gridData[1].forEach(v => totalSiang += v);
         gridData[2].forEach(v => totalMalam += v);
-        
-        let peakText = "Belum Ada Puncak";
+
+        let peakText = t('widgetContentNoPeak');
+        let rawPeak = '';
         let peakColor = "text-[var(--text-subtle)]";
         if (totalPagi >= totalSiang && totalPagi >= totalMalam && totalPagi > 0) {
-          peakText = "Puncak: Pagi (06-12)";
+          peakText = t('widgetContentPeakMorning');
+          rawPeak = language === 'en' ? 'morning' : 'pagi';
           peakColor = "text-emerald-400";
         } else if (totalSiang >= totalPagi && totalSiang >= totalMalam && totalSiang > 0) {
-          peakText = "Puncak: Siang (12-18)";
+          peakText = t('widgetContentPeakAfternoon');
+          rawPeak = language === 'en' ? 'afternoon' : 'siang';
           peakColor = "text-amber-400";
         } else if (totalMalam >= totalPagi && totalMalam >= totalSiang && totalMalam > 0) {
-          peakText = "Puncak: Malam (18-24)";
+          peakText = t('widgetContentPeakNight');
+          rawPeak = language === 'en' ? 'night' : 'malam';
           peakColor = "text-rose-400";
         }
 
@@ -1450,7 +1454,7 @@ export default function DashboardOverview() {
               </div>
 
               <div className="pt-2 space-y-1.5">
-                {['Pagi (06-12)', 'Siang (12-18)', 'Malam (18-24)'].map((timeSlot, idx) => (
+                {[t('widgetContentMorning'), t('widgetContentAfternoon'), t('widgetContentNight')].map((timeSlot, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-xs">
                     <span className="w-24 text-[10px] font-bold text-[var(--text-subtle)] truncate">{timeSlot}</span>
                     <div className="flex-1 grid grid-cols-6 gap-1.5">
@@ -1474,7 +1478,7 @@ export default function DashboardOverview() {
               </div>
             </div>
             <p className="text-[10px] text-[var(--text-subtle)]">
-              {maxHeat > 1 ? `Kunjungan didominasi oleh waktu ${peakText.replace('Puncak: ', '').toLowerCase()}.` : 'Belum cukup data kunjungan untuk memetakan heatmap.'}
+              {maxHeat > 1 ? t('widgetContentHeatmapDominated').replace('{time}', rawPeak) : t('widgetContentNotEnoughHeatmapData')}
             </p>
           </div>
         );
@@ -1553,9 +1557,9 @@ export default function DashboardOverview() {
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="border-b border-[var(--border-color)] text-[10px] uppercase tracking-wider text-[var(--text-subtle)]">
-                      <th className="pb-2">Pengirim</th>
-                      <th className="pb-2">Komentar</th>
-                      <th className="pb-2 text-right">Aksi Cepat</th>
+                      <th className="pb-2">{t('thSender')}</th>
+                      <th className="pb-2">{t('thComment')}</th>
+                      <th className="pb-2 text-right">{t('thQuickAction')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[var(--border-color)]">
@@ -1584,8 +1588,8 @@ export default function DashboardOverview() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="3" className="py-6 text-center text-[var(--text-subtle)]">
-                          Tidak ada komentar yang menunggu moderasi. Hore! 🎉
+                        <td colSpan="3" className="py-4 text-center text-xs text-[var(--text-muted)] italic">
+                          {t('widgetContentNoPendingComments')}
                         </td>
                       </tr>
                     )}
@@ -1593,7 +1597,7 @@ export default function DashboardOverview() {
                 </table>
               </div>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)]">Menampilkan {pendingComments.length} komentar terbaru yang butuh persetujuan.</p>
+            <p className="text-[10px] text-[var(--text-subtle)]">{t('widgetContentShowingPendingComments').replace('{count}', pendingComments.length)}</p>
           </div>
         );
       }
@@ -1676,7 +1680,7 @@ export default function DashboardOverview() {
                 <FileText className="w-5 h-5 text-blue-500" /> {t('widgetHeaderArticleMgmt')}
               </h3>
               <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                Tulis artikel baru dengan Visual Block Editor atau kelola postingan yang sudah ada.
+                {t('widgetContentManageArticlesDesc')}
               </p>
             </div>
             <div className="flex items-center gap-3 pt-2">
@@ -1684,13 +1688,13 @@ export default function DashboardOverview() {
                 href="/dashboard/posts"
                 className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-all shadow-md flex items-center gap-1.5"
               >
-                Lihat Postingan <ArrowRight className="w-3.5 h-3.5" />
+                {t('widgetContentViewPostsBtn')} <ArrowRight className="w-3.5 h-3.5" />
               </Link>
               <Link
                 href="/dashboard/posts/new"
                 className="px-4 py-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-main)] font-semibold text-xs hover:bg-[var(--bg-surface)] transition-all"
               >
-                + Post Baru
+                {t('widgetContentNewPostBtn')}
               </Link>
             </div>
           </div>
@@ -1704,7 +1708,7 @@ export default function DashboardOverview() {
                 <Search className="w-5 h-5 text-emerald-500" /> {t('widgetHeaderSeoAudit')}
               </h3>
               <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                Analisis skor SEO, kata kunci fokus, dan kesehatan tag meta di seluruh artikel Anda secara otomatis.
+                {t('widgetContentSeoAuditDesc')}
               </p>
             </div>
             <div className="flex items-center gap-3 pt-2">
@@ -1760,7 +1764,7 @@ export default function DashboardOverview() {
                   <MessageSquare className="w-5 h-5 text-indigo-500" /> {t('widgetHeaderRecentComments')}
                 </h3>
                 <Link href="/dashboard/comments" className="text-xs text-blue-500 hover:underline font-bold">
-                  Moderasi
+                  {t('widgetContentModerationPrompt')}
                 </Link>
               </div>
               <div className="space-y-2">
@@ -1768,14 +1772,14 @@ export default function DashboardOverview() {
                   recentComments.slice(0, 3).map((c) => (
                     <div key={c.id} className="p-3 rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-color)] space-y-1 text-xs">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-[var(--text-main)]">{c.authorName || c.name || 'Anonim'}</span>
-                        <span className="text-[9px] text-[var(--text-subtle)]">Baru</span>
+                        <span className="font-bold text-[var(--text-main)]">{c.authorName || c.name || t('widgetContentAnonymous')}</span>
+                        <span className="text-[9px] text-[var(--text-subtle)]">{t('widgetContentNewBadge')}</span>
                       </div>
                       <p className="text-[11px] text-[var(--text-muted)] line-clamp-2">{c.content}</p>
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-4 text-xs text-[var(--text-muted)]">Belum ada komentar terbaru.</div>
+                  <div className="text-center py-4 text-xs text-[var(--text-muted)]">{t('widgetContentNoRecentComments')}</div>
                 )}
               </div>
             </div>
@@ -1787,10 +1791,10 @@ export default function DashboardOverview() {
           <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4 h-full flex flex-col justify-between">
             <div className="space-y-3">
               <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                <Settings className="w-5 h-5 text-indigo-500" /> Status Database & Sistem CMS
+                <Settings className="w-5 h-5 text-indigo-500" /> {t('widgetHeaderSystemStatus')}
               </h3>
               <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                Periksa status integrasi database cloud Firebase Firestore atau perbarui konfigurasi `.env` proyek Anda.
+                {t('widgetContentSystemStatusDesc')}
               </p>
             </div>
             <div className="flex items-center gap-3 pt-2">
@@ -1798,7 +1802,7 @@ export default function DashboardOverview() {
                 href="/dashboard/settings"
                 className="px-4 py-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-main)] font-semibold text-xs hover:bg-[var(--bg-surface)] transition-all flex items-center gap-1.5"
               >
-                Cek Pengaturan <ArrowRight className="w-3.5 h-3.5" />
+                {t('widgetContentCheckSettings')} <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>
