@@ -195,7 +195,7 @@ export default function BlogPostDetail({ params }) {
             },
             mainEntityOfPage: {
               '@type': 'WebPage',
-              '@id': `https://scholarcms.com/post/${post.slug}`,
+              '@id': `${process.env.NEXT_PUBLIC_SITE_URL || 'https://scholarcms.com'}/post/${post.slug}`,
             },
           }),
         }}
@@ -213,19 +213,19 @@ export default function BlogPostDetail({ params }) {
                 '@type': 'ListItem',
                 position: 1,
                 name: 'Beranda',
-                item: typeof window !== 'undefined' ? window.location.origin : 'https://scholarcms.com'
+                item: typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || 'https://scholarcms.com')
               },
               {
                 '@type': 'ListItem',
                 position: 2,
                 name: post.category,
-                item: typeof window !== 'undefined' ? `${window.location.origin}/?category=${encodeURIComponent(post.category)}` : `https://scholarcms.com/?category=${encodeURIComponent(post.category)}`
+                item: typeof window !== 'undefined' ? `${window.location.origin}/?category=${encodeURIComponent(post.category)}` : `${process.env.NEXT_PUBLIC_SITE_URL || 'https://scholarcms.com'}/?category=${encodeURIComponent(post.category)}`
               },
               {
                 '@type': 'ListItem',
                 position: 3,
                 name: post.title,
-                item: typeof window !== 'undefined' ? window.location.href : `https://scholarcms.com/post/${post.slug}`
+                item: typeof window !== 'undefined' ? window.location.href : `${process.env.NEXT_PUBLIC_SITE_URL || 'https://scholarcms.com'}/post/${post.slug}`
               }
             ]
           }),
