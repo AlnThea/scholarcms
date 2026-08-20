@@ -4,7 +4,6 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { MetaSidebarProvider } from '@/context/MetaSidebarContext';
 import RightMetaSidebar from '@/components/admin/RightMetaSidebar';
-import AdSenseScript from '@/components/blog/AdSenseScript';
 import ClientAnalyticsTracker from '@/components/analytics/ClientAnalyticsTracker';
 
 import { dbService } from '@/services/dbService';
@@ -38,12 +37,24 @@ export async function generateMetadata() {
   return meta;
 }
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const adSettings = await dbService.getAdSenseSettings();
+  const adEnabled = adSettings?.globalEnableAds ?? false;
+  const adClient = (adSettings?.adClient || '').trim();
+  const showAds = adEnabled && adClient && adClient !== 'ca-pub-9999999999999999';
+
   return (
     <html lang="id" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {showAds && (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`}
+            crossOrigin="anonymous"
+          ></script>
+        )}
       </head>
       <body className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] antialiased selection:bg-blue-500 selection:text-white">
         <LanguageProvider>
@@ -51,7 +62,6 @@ export default function RootLayout({ children }) {
             <AuthProvider>
               <MetaSidebarProvider>
                 <ClientAnalyticsTracker />
-                <AdSenseScript />
                 {children}
                 <RightMetaSidebar />
               </MetaSidebarProvider>
