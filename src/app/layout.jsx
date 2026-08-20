@@ -7,11 +7,33 @@ import RightMetaSidebar from '@/components/admin/RightMetaSidebar';
 import AdSenseScript from '@/components/blog/AdSenseScript';
 import ClientAnalyticsTracker from '@/components/analytics/ClientAnalyticsTracker';
 
-export const metadata = {
-  title: 'ScholarCMS - Modern Publishing Platform',
-  description: 'Platform Blog CMS Modern untuk penerbitan artikel, berita, dan konten berkualitas.',
-  keywords: ['ScholarCMS', 'Blog', 'CMS', 'Publishing Platform', 'Artikel', 'Berita'],
-};
+import { dbService } from '@/services/dbService';
+
+export async function generateMetadata() {
+  const settings = await dbService.getGeneralSettings();
+  const title = settings.siteTitle && settings.siteTagline 
+    ? `${settings.siteTitle} - ${settings.siteTagline}` 
+    : 'ScholarCMS - Modern Publishing Platform';
+  
+  let keywordsArray = ['ScholarCMS', 'Blog', 'CMS', 'Publishing Platform', 'Artikel', 'Berita'];
+  if (settings.siteKeywords) {
+    keywordsArray = settings.siteKeywords.split(',').map(k => k.trim());
+  }
+
+  const meta = {
+    title: title,
+    description: settings.siteDescription || 'Platform Blog CMS Modern untuk penerbitan artikel, berita, dan konten berkualitas.',
+    keywords: keywordsArray,
+  };
+
+  if (settings.googleSiteVerification) {
+    meta.verification = {
+      google: settings.googleSiteVerification,
+    };
+  }
+
+  return meta;
+}
 
 export default function RootLayout({ children }) {
   return (

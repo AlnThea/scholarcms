@@ -193,6 +193,45 @@ export default function DashboardSettingsPage() {
               </div>
             </div>
 
+            {/* SEO & Verification */}
+            <div className="space-y-4 pt-2">
+              <div>
+                <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
+                  {t('siteDescriptionLabel') || 'Site Description'}
+                </label>
+                <textarea
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl px-3 py-2 text-sm text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all resize-none h-20"
+                  placeholder="Platform Blog CMS Modern untuk penerbitan artikel, berita..."
+                  value={generalSettings.siteDescription || ''}
+                  onChange={(e) => setGeneralSettings({ ...generalSettings, siteDescription: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
+                  {t('siteKeywordsLabel') || 'Site Keywords (Comma separated)'}
+                </label>
+                <Input
+                  type="text"
+                  placeholder="ScholarCMS, Blog, CMS, Publishing Platform"
+                  value={generalSettings.siteKeywords || ''}
+                  onChange={(e) => setGeneralSettings({ ...generalSettings, siteKeywords: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
+                  {t('googleVerificationLabel') || 'Google Site Verification Code'}
+                </label>
+                <Input
+                  type="text"
+                  placeholder="e.g. VfngzzmDNJEtwJeQiy_..."
+                  value={generalSettings.googleSiteVerification || ''}
+                  onChange={(e) => setGeneralSettings({ ...generalSettings, googleSiteVerification: e.target.value })}
+                />
+              </div>
+            </div>
+
             {/* Registration Switch */}
             <div className="p-4 rounded-2xl bg-[var(--bg-primary)]/60 border border-[var(--border-color)] flex items-center justify-between gap-4">
               <div>

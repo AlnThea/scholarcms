@@ -632,6 +632,9 @@ export const dbService = {
     const DEFAULT_SETTINGS = {
       siteTitle: 'ScholarCMS',
       siteTagline: 'Modern Publishing Platform',
+      siteDescription: 'Platform Blog CMS Modern untuk penerbitan artikel, berita, dan konten berkualitas.',
+      siteKeywords: 'ScholarCMS, Blog, CMS, Publishing Platform, Artikel, Berita',
+      googleSiteVerification: '',
       allowRegistration: true,
       updatedAt: new Date().toISOString(),
     };
@@ -655,6 +658,9 @@ export const dbService = {
     const payload = {
       siteTitle: (settingsData.siteTitle || 'ScholarCMS').trim(),
       siteTagline: (settingsData.siteTagline || 'Modern Publishing Platform').trim(),
+      siteDescription: (settingsData.siteDescription || 'Platform Blog CMS Modern untuk penerbitan artikel, berita, dan konten berkualitas.').trim(),
+      siteKeywords: (settingsData.siteKeywords || 'ScholarCMS, Blog, CMS, Publishing Platform, Artikel, Berita').trim(),
+      googleSiteVerification: (settingsData.googleSiteVerification || '').trim(),
       allowRegistration: settingsData.allowRegistration !== undefined ? settingsData.allowRegistration : true,
       updatedAt: new Date().toISOString(),
     };
