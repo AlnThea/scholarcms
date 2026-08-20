@@ -42,6 +42,9 @@ export async function generateMetadata({ params }) {
         description: post.seoDescription || post.excerpt,
         images: post.featuredImage ? [post.featuredImage] : [],
       },
+      alternates: {
+        canonical: postUrl,
+      },
     };
   } catch (error) {
     console.error('Error generating metadata for post:', error);
