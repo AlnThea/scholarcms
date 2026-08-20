@@ -2,6 +2,11 @@
 
 Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 
+## [v2.2.3] - 2026-08-20
+
+### ♻️ Refactoring & Optimasi Kode (Technical Debt)
+- **Ekstraksi Monolith Dashboard (`page.jsx`)**: Memulai pemisahan file raksasa `src/app/dashboard/page.jsx` (>2.000 baris) dengan mengekstrak komponen `WelcomeWidget` dan `TrafficSourcePieWidget` ke dalam direktori baru `src/components/dashboard/widgets/`. Ekstraksi ini murni *refactoring* untuk meningkatkan *maintainability* tanpa menghapus atau mengubah logika fungsionalitas aslinya.
+
 ## [v2.2.2] - 2026-08-17
 
 ### 🛠️ Perbaikan Bug & Optimasi Real-Time Analytics
