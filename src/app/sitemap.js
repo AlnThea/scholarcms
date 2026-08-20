@@ -1,7 +1,18 @@
 import { dbService } from '@/services/dbService';
+import { headers } from 'next/headers';
+
+export const revalidate = 60; // ISR for sitemap
 
 export default async function sitemap() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://scholarcms.com';
+  const headersList = headers();
+  const host = headersList.get('x-forwarded-host') || headersList.get('host') || 'scholarcms.com';
+  const protocol = headersList.get('x-forwarded-proto') || 'https';
+  let baseUrl = `${protocol}://${host}`;
+  
+  // Fallback to env if needed, but headers usually work automatically in Vercel
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  }
 
   // Fetch all published posts, pages, and categories from dbService
   let posts = [];
