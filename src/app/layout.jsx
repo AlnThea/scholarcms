@@ -9,6 +9,8 @@ import ClientAnalyticsTracker from '@/components/analytics/ClientAnalyticsTracke
 
 import { dbService } from '@/services/dbService';
 
+export const revalidate = 60; // Revalidate every 60 seconds (ISR) untuk Vercel
+
 export async function generateMetadata() {
   const settings = await dbService.getGeneralSettings();
   const title = settings.siteTitle && settings.siteTagline 
@@ -26,9 +28,10 @@ export async function generateMetadata() {
     keywords: keywordsArray,
   };
 
-  if (settings.googleSiteVerification) {
+  const googleVerification = settings.googleSiteVerification || process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+  if (googleVerification) {
     meta.verification = {
-      google: settings.googleSiteVerification,
+      google: googleVerification,
     };
   }
 
