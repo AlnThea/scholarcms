@@ -7,11 +7,14 @@ export default async function sitemap() {
   const headersList = headers();
   const host = headersList.get('x-forwarded-host') || headersList.get('host') || 'scholarcms.com';
   const protocol = headersList.get('x-forwarded-proto') || 'https';
+  
+  // Base URL murni dinamis mengikuti address bar (otomatis ada www jika diakses dengan www, dan sebaliknya)
   let baseUrl = `${protocol}://${host}`;
   
-  // Fallback to env if needed, but headers usually work automatically in Vercel
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  // Fallback ke env HANYA jika host default tidak valid (misal saat build time/generate statis)
+  if (host === 'scholarcms.com' && process.env.NEXT_PUBLIC_SITE_URL) {
+    const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    baseUrl = envUrl.startsWith('http') ? envUrl : `https://${envUrl}`;
   }
 
   // Fetch all published posts, pages, and categories from dbService
