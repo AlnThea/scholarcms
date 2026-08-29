@@ -1,11 +1,12 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import HeroFeatured from '@/components/blog/HeroFeatured';
 import PostCard from '@/components/blog/PostCard';
 import TrendingTopicsWidget from '@/components/blog/TrendingTopicsWidget';
-import { BookOpen, Search, Flame } from 'lucide-react';
+import { BookOpen, Search, Flame, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
 import { translateLabel } from '@/utils/menuTranslator';
@@ -21,6 +22,12 @@ export default function ModernGlassTheme({
   customizations = {}
 }) {
   const { t, language } = useLanguage();
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 6;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, searchQuery]);
 
   const filteredPosts = posts.filter(post => {
     const postCatArray = Array.isArray(post.categories) && post.categories.length > 0
@@ -48,17 +55,14 @@ export default function ModernGlassTheme({
   });
 
   const featuredPost = posts[0];
-  const gridPosts = searchQuery || selectedCategory !== 'All' ? filteredPosts : filteredPosts.slice(1);
+  const allGridPosts = searchQuery || selectedCategory !== 'All' ? filteredPosts : filteredPosts.slice(1);
   const popularPosts = [...posts].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 3);
+  
+  const totalPages = Math.ceil(allGridPosts.length / postsPerPage) || 1;
+  const currentGridPosts = allGridPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
 
-  const activeCategories = categories.filter((cat) => {
-    return posts.some((p) => {
-      const pCats = Array.isArray(p.categories) && p.categories.length > 0
-        ? p.categories
-        : (typeof p.category === 'string' && p.category ? p.category.split(',').map(s => s.trim()) : [p.category]);
-      return pCats.includes(cat.name) || p.category === cat.name;
-    });
-  });
+  const activeCategories = categories; // Show all categories from editor
+
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-main)] transition-colors">
@@ -107,7 +111,7 @@ export default function ModernGlassTheme({
                 {searchQuery ? `${t('searchResultsFor')} "${searchQuery}"` : selectedCategory !== 'All' ? `${t('categoryArticles')} ${translateLabel(selectedCategory, language)}` : t('latestArticles')}
               </h2>
               <span className="text-xs text-[var(--text-subtle)] font-medium">
-                {t('showingArticlesCount')} {gridPosts.length} {t('articlesSuffix')}
+                {t('showingArticlesCount')} {allGridPosts.length} {t('articlesSuffix')}
               </span>
             </div>
 
@@ -117,12 +121,36 @@ export default function ModernGlassTheme({
                   <div key={i} className="h-80 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pulse" />
                 ))}
               </div>
-            ) : gridPosts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {gridPosts.map(post => (
-                  <PostCard key={post.id} post={post} />
-                ))}
-              </div>
+            ) : currentGridPosts.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {currentGridPosts.map(post => (
+                    <PostCard key={post.id} post={post} />
+                  ))}
+                </div>
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-4 mt-8">
+                    <button
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-main)] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <span className="text-sm font-medium text-[var(--text-main)]">
+                      {currentPage} / {totalPages}
+                    </span>
+                    <button
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-main)] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="text-center py-16 px-4 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
                 <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center mx-auto mb-4">
