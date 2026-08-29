@@ -207,6 +207,7 @@ export const dbService = {
       slug: postData.slug || postData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
       excerpt: postData.excerpt || '',
       category: postData.category || 'Web Development',
+      subCategory: postData.subCategory || '',
       tags: Array.isArray(postData.tags) ? postData.tags : (postData.tags || '').split(',').map(t => t.trim()).filter(Boolean),
       featuredImage: postData.featuredImage || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
       status: finalStatus,
@@ -227,6 +228,14 @@ export const dbService = {
       blocks: postData.blocks || [],
       updatedAt: now
     };
+
+    // Auto-create categories in the background so they appear in Dashboard -> Categories
+    if (postPayload.category) {
+      this.ensureCategoryExists(postPayload.category, '').catch(err => console.error(err));
+    }
+    if (postPayload.subCategory) {
+      this.ensureCategoryExists(postPayload.subCategory, postPayload.category).catch(err => console.error(err));
+    }
 
     if (isFirebaseConfigured()) {
       try {
@@ -316,7 +325,8 @@ export const dbService = {
       name: catData.name,
       slug: catData.slug || catData.name.toLowerCase().replace(/\s+/g, '-'),
       color: catData.color || '#2563eb',
-      description: catData.description || ''
+      description: catData.description || '',
+      parentCategory: catData.parentCategory || ''
     };
 
     if (isFirebaseConfigured()) {
@@ -377,7 +387,8 @@ export const dbService = {
             name: cleanName,
             slug: cleanName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
             color: randomColor,
-            description: `Sub-kategori ${cleanName} dalam payung ${parentNiche}`
+            description: `Sub-kategori ${cleanName} dalam payung ${parentNiche}`,
+            parentCategory: parentNiche || ''
           });
         }
       } catch (e) {
@@ -391,10 +402,17 @@ export const dbService = {
   async getComments(postId) {
     if (isFirebaseConfigured()) {
       try {
-        const q = query(collection(db, 'comments'), where('postId', '==', postId));
+        let q;
+        if (postId) {
+          q = query(collection(db, 'comments'), where('postId', '==', postId));
+        } else {
+          q = query(collection(db, 'comments'), orderBy('createdAt', 'desc'));
+        }
         const snap = await getDocs(q);
         return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      } catch (e) {}
+      } catch (e) {
+        console.warn('Firestore getComments error:', e);
+      }
     }
     const comms = getLocal('comments', INITIAL_COMMENTS);
     return postId ? comms.filter(c => c.postId === postId) : comms;
@@ -428,7 +446,10 @@ export const dbService = {
     if (isFirebaseConfigured()) {
       try {
         await updateDoc(doc(db, 'comments', commentId), { status });
-      } catch (e) {}
+        return true;
+      } catch (e) {
+        console.warn('Firestore updateCommentStatus error:', e);
+      }
     }
     let comms = getLocal('comments', INITIAL_COMMENTS);
     const idx = comms.findIndex(c => c.id === commentId);
@@ -443,7 +464,10 @@ export const dbService = {
     if (isFirebaseConfigured()) {
       try {
         await deleteDoc(doc(db, 'comments', commentId));
-      } catch (e) {}
+        return true;
+      } catch (e) {
+        console.warn('Firestore deleteComment error:', e);
+      }
     }
     let comms = getLocal('comments', INITIAL_COMMENTS);
     comms = comms.filter(c => c.id !== commentId);

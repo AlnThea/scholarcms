@@ -14,7 +14,8 @@ import { PlusCircle, Search, Trash2, Edit3, Eye } from 'lucide-react';
 
 export default function DashboardPostsList() {
   const { user, role } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isEn = language === 'en';
   const [posts, setPosts] = useState([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -115,11 +116,13 @@ export default function DashboardPostsList() {
           <div className="py-12 text-center text-xs text-[var(--text-subtle)]">{t('loading')}</div>
         ) : filteredPosts.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-[var(--text-main)]">
+            <table className="w-full text-left text-sm text-[var(--text-main)] whitespace-nowrap">
               <thead className="bg-[var(--bg-primary)] text-xs uppercase text-[var(--text-muted)] font-semibold border-y border-[var(--border-color)]">
                 <tr>
                   <th className="py-3 px-4">{t('thTitle')}</th>
-                  <th className="py-3 px-4">{t('thCategory')}</th>
+                  <th className="py-3 px-4">{isEn ? 'Main Category' : 'Kategori Utama'}</th>
+                  <th className="py-3 px-4">{isEn ? 'Sub-Category' : 'Sub-Kategori'}</th>
+                  <th className="py-3 px-4">{isEn ? 'Tags' : 'Tag'}</th>
                   <th className="py-3 px-4">{t('thAuthor')}</th>
                   <th className="py-3 px-4">{t('thStatus')}</th>
                   <th className="py-3 px-4">{t('thViews')}</th>
@@ -136,9 +139,34 @@ export default function DashboardPostsList() {
                       </Link>
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20">
                         {post.category}
                       </span>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      {post.subCategory ? (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-500 border border-purple-500/20">
+                          {post.subCategory}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-[var(--text-subtle)]">-</span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4 max-w-[150px]">
+                      {post.tags && post.tags.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {post.tags.slice(0, 2).map((tag, idx) => (
+                            <span key={idx} className="text-[9px] text-[var(--text-main)] bg-[var(--bg-surface)] px-1.5 py-0.5 rounded border border-[var(--border-color)]">
+                              #{tag}
+                            </span>
+                          ))}
+                          {post.tags.length > 2 && (
+                            <span className="text-[9px] text-[var(--text-subtle)]">+{post.tags.length - 2}</span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-[10px] text-[var(--text-subtle)]">-</span>
+                      )}
                     </td>
                     <td className="py-3.5 px-4 text-xs font-medium text-[var(--text-muted)]">
                       {post.author?.name || 'Ernst Dev'}

@@ -2,6 +2,18 @@
 
 Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 
+## [v2.2.4] - 2026-08-29
+
+### 🚀 Fitur Baru & Peningkatan UX
+- **Hierarki Kategori Homepage**: Mendesain ulang widget `Blog Category Topics` di sidebar homepage agar menampilkan daftar kategori secara hierarkis (Kategori Utama sebagai blok utama, Sub-Kategori bersarang di bawahnya) serta menghilangkan batasan (limit) sehingga semua kategori dengan artikel yang dipublikasikan akan tampil secara dinamis.
+- **Dukungan Sub-Kategori di Pencarian & Hitungan**: Memperbaiki algoritma kalkulasi widget kategori dan filter artikel (pada homepage dan tema) agar turut membaca dan menampilkan artikel yang berada di `subCategory`.
+- **Tabel Admin Anti-Wrapping**: Menambahkan atribut tanpa lipat baris pada tabel **Kategori** dan **Semua Artikel** di Dasbor Admin agar baris teks memanjang rapi dan bisa di-scroll secara horizontal.
+- **Scrollbar Kategori Bersih**: Menyembunyikan scrollbar native pada deretan tag kategori di homepage tanpa menghilangkan fungsionalitas scroll gesernya.
+
+### 🛠️ Perbaikan Bug
+- **Bug Penyimpanan Sub-Kategori (Form Editor)**: Merombak ulang taksonomi sidebar editor kembali menjadi form isian teks fleksibel (`datalist`) dengan ikatan state (binding) yang kuat, mencegah bug di mana sub-kategori gagal diselamatkan saat menyimpan artikel.
+- **Bug Fallback Komentar Moderator**: Memperbaiki fungsi `getComments()` di database yang sebelumnya gagal saat memuat seluruh komentar, yang menyebabkan Halaman Moderator Komentar selalu merender data palsu (mock lokal). Semua data komentar kini dipastikan memanggil database asli.
+
 ## [v2.2.3] - 2026-08-20
 
 ### ♻️ Refactoring & Optimasi Kode (Technical Debt)

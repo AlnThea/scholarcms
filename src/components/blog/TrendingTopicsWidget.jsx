@@ -33,16 +33,27 @@ export function CategoryTopicsWidget({
           const pCats = Array.isArray(p.categories) && p.categories.length > 0
             ? p.categories
             : (typeof p.category === 'string' && p.category ? p.category.split(',').map(s => s.trim()) : [p.category]);
-          return pCats.includes(cat.name) || p.category === cat.name;
+          return pCats.includes(cat.name) || p.category === cat.name || p.subCategory === cat.name;
         }).length;
         return { ...cat, count };
       })
-      .filter((cat) => cat.count > 0);
-
-    return shuffleArray(counts).slice(0, limit);
-  }, [categories, posts, limit]);
+    const activeCats = counts.filter((cat) => cat.count > 0);
+    // Sort by count descending
+    return activeCats.sort((a, b) => b.count - a.count);
+  }, [categories, posts]);
 
   if (activeCategories.length === 0) return null;
+
+  // Group categories into Main and Sub
+  const mainCategories = activeCategories.filter(cat => !cat.parentCategory);
+  const subCategories = activeCategories.filter(cat => cat.parentCategory);
+
+  // Group subcategories by parent
+  const groupedSubs = {};
+  subCategories.forEach(sub => {
+    if (!groupedSubs[sub.parentCategory]) groupedSubs[sub.parentCategory] = [];
+    groupedSubs[sub.parentCategory].push(sub);
+  });
 
   return (
     <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4">
@@ -59,31 +70,87 @@ export function CategoryTopicsWidget({
         </div>
       </div>
 
-      {/* List Kategori dalam Tampilan Tag Pills */}
-      <div className="flex flex-wrap gap-1.5 pt-1">
-        {activeCategories.map((cat) => {
-          const isActive = selectedCategory === cat.name;
-          return (
-            <button
-              key={cat.id}
-              onClick={() => onSelectCategory && onSelectCategory(isActive ? 'All' : cat.name)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                isActive
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                  : 'bg-[var(--bg-primary)] text-[var(--text-main)] hover:bg-blue-500/10 hover:text-blue-500 border border-[var(--border-color)]'
-              }`}
-            >
-              <span
-                className="w-2 h-2 rounded-full shrink-0"
-                style={{ backgroundColor: cat.color || '#2563eb' }}
-              />
-              <span>{translateLabel(cat.name, language)}</span>
-              <span className={`text-[10px] opacity-80 ${isActive ? 'text-white' : 'text-[var(--text-subtle)]'}`}>
-                ({cat.count})
-              </span>
-            </button>
-          );
-        })}
+      {/* List Kategori Berbasis Hierarki (Main & Sub) */}
+      <div className="space-y-4 pt-1">
+        {mainCategories.length > 0 ? (
+          mainCategories.map((mainCat) => {
+            const isMainActive = selectedCategory === mainCat.name;
+            const subs = groupedSubs[mainCat.name] || [];
+            return (
+              <div key={mainCat.id} className="space-y-2">
+                <button
+                  onClick={() => onSelectCategory && onSelectCategory(isMainActive ? 'All' : mainCat.name)}
+                  className={`w-full text-left px-3 py-2 rounded-xl text-sm font-bold transition-all flex items-center justify-between ${
+                    isMainActive
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                      : 'bg-[var(--bg-primary)] text-[var(--text-main)] hover:bg-blue-500/10 hover:text-blue-500 border border-transparent hover:border-blue-500/20'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      style={{ backgroundColor: mainCat.color || '#2563eb' }}
+                    />
+                    <span>{translateLabel(mainCat.name, language)}</span>
+                  </div>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full ${isMainActive ? 'bg-white/20' : 'bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-subtle)]'}`}>
+                    {mainCat.count}
+                  </span>
+                </button>
+                
+                {/* Sub-categories */}
+                {subs.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pl-4">
+                    {subs.map(subCat => {
+                      const isSubActive = selectedCategory === subCat.name;
+                      return (
+                        <button
+                          key={subCat.id}
+                          onClick={() => onSelectCategory && onSelectCategory(isSubActive ? 'All' : subCat.name)}
+                          className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all flex items-center gap-1 ${
+                            isSubActive
+                              ? 'bg-blue-600 text-white shadow-sm'
+                              : 'bg-[var(--bg-primary)] text-[var(--text-muted)] hover:bg-blue-500/10 hover:text-blue-500 border border-[var(--border-color)]'
+                          }`}
+                        >
+                          <span>{translateLabel(subCat.name, language)}</span>
+                          <span className={`text-[9px] opacity-70 ${isSubActive ? 'text-white' : 'text-[var(--text-subtle)]'}`}>({subCat.count})</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })
+        ) : (
+          /* Fallback jika tidak ada hierarki yang jelas */
+          <div className="flex flex-wrap gap-1.5">
+            {activeCategories.map((cat) => {
+              const isActive = selectedCategory === cat.name;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => onSelectCategory && onSelectCategory(isActive ? 'All' : cat.name)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    isActive
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                      : 'bg-[var(--bg-primary)] text-[var(--text-main)] hover:bg-blue-500/10 hover:text-blue-500 border border-[var(--border-color)]'
+                  }`}
+                >
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ backgroundColor: cat.color || '#2563eb' }}
+                  />
+                  <span>{translateLabel(cat.name, language)}</span>
+                  <span className={`text-[10px] opacity-80 ${isActive ? 'text-white' : 'text-[var(--text-subtle)]'}`}>
+                    ({cat.count})
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -111,7 +178,7 @@ export function TrendingTagsWidget({
     });
 
     const entries = Object.entries(allTagsMap).filter(([_, count]) => count > 0);
-    return shuffleArray(entries).slice(0, limit);
+    return entries.sort((a, b) => b[1] - a[1]).slice(0, limit);
   }, [posts, limit]);
 
   if (activeTags.length === 0) return null;

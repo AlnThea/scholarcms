@@ -625,11 +625,20 @@ export default function RightMetaSidebar() {
                 <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{isEn ? 'Main Category' : 'Kategori Utama'}</label>
                 <input
                   type="text"
+                  list="main-categories-list"
                   placeholder={isEn ? "e.g. Technology, Lifestyle..." : "Misal: Teknologi, Gaya Hidup..."}
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  onChange={(e) => {
+                    setCategory(e.target.value);
+                    setSubCategory(''); // Reset subcategory when main category changes
+                  }}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-blue-500 transition-colors"
                 />
+                <datalist id="main-categories-list">
+                  {categoriesList.filter(c => !c.parentCategory).map(cat => (
+                    <option key={cat.id} value={cat.name} />
+                  ))}
+                </datalist>
               </div>
 
               {/* Sub-Category Input Option */}
@@ -637,11 +646,22 @@ export default function RightMetaSidebar() {
                 <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{isEn ? 'Sub-Category' : 'Sub-Kategori'}</label>
                 <input
                   type="text"
+                  list="sub-categories-list"
                   placeholder={isEn ? "e.g. Next.js, React, Tailwind..." : "Misal: Next.js, React, Tailwind..."}
                   value={subCategory}
                   onChange={(e) => setSubCategory(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-purple-500 transition-colors"
                 />
+                <datalist id="sub-categories-list">
+                  {category 
+                    ? categoriesList.filter(c => c.parentCategory === category).map(sub => (
+                        <option key={sub.id} value={sub.name} />
+                      ))
+                    : categoriesList.filter(c => c.parentCategory).map(sub => (
+                        <option key={sub.id} value={sub.name} />
+                      ))
+                  }
+                </datalist>
               </div>
 
               {/* Tags Input & Chips */}

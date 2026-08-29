@@ -47,14 +47,14 @@ function BlogHomeContent() {
   }, []);
 
   const filteredPosts = posts.filter(post => {
-    const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory || post.subCategory === selectedCategory;
     const query = searchQuery.trim().toLowerCase();
 
     let matchesSearch = true;
     if (query) {
       const inTitle = post.title?.toLowerCase().includes(query);
       const inExcerpt = post.excerpt?.toLowerCase().includes(query);
-      const inCategory = post.category?.toLowerCase().includes(query);
+      const inCategory = post.category?.toLowerCase().includes(query) || post.subCategory?.toLowerCase().includes(query);
       const inTags = Array.isArray(post.tags) && post.tags.some(tag => tag.toLowerCase().includes(query));
       const inContent = post.content?.toLowerCase().includes(query);
       const inBlocks = Array.isArray(post.blocks) && post.blocks.some(b => b.content?.toLowerCase().includes(query));

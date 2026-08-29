@@ -36,7 +36,7 @@ export default function ModernGlassTheme({
           ? post.category.split(',').map(s => s.trim()).filter(Boolean)
           : [post.category]);
 
-    const matchesCategory = selectedCategory === 'All' || postCatArray.includes(selectedCategory) || post.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'All' || postCatArray.includes(selectedCategory) || post.category === selectedCategory || post.subCategory === selectedCategory;
     const query = searchQuery.trim().toLowerCase();
 
     let matchesSearch = true;
