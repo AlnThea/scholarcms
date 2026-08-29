@@ -21,7 +21,10 @@ export async function generateMetadata() {
     keywordsArray = settings.siteKeywords.split(',').map(k => k.trim());
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://scholarcms.com';
+  let siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://scholarcms.com';
+  if (!siteUrl.startsWith('http')) {
+    siteUrl = `http://${siteUrl}`;
+  }
 
   const meta = {
     metadataBase: new URL(siteUrl),
@@ -73,7 +76,10 @@ export default async function RootLayout({ children }) {
   const adClient = (adSettings?.adClient || '').trim();
   const showAds = adEnabled && adClient && adClient !== 'ca-pub-9999999999999999';
   
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://scholarcms.com';
+  let siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://scholarcms.com';
+  if (!siteUrl.startsWith('http')) {
+    siteUrl = `http://${siteUrl}`; // fallback to http for local env
+  }
   const siteTitle = genSettings?.siteTitle || 'ScholarCMS';
 
   return (
