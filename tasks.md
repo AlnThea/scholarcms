@@ -27,3 +27,21 @@ Berikut adalah rencana langkah demi langkah untuk menyelesaikan masalah *Client-
 
 ---
 *Catatan: File ini akan terus diperbarui seiring berjalannya proses eksekusi.*
+
+## 📦 Backlog Refactoring (Sesuai Aturan 100-300 Baris)
+Berikut adalah daftar file raksasa yang perlu dipecah (refactoring) di sesi berikutnya:
+
+- [ ] **1. Dashboard Utama** (\src/app/dashboard/page.jsx\) - 2.169 baris
+  - *Rencana*: Ekstraksi berbagai widget (statistik, tabel, grafik) menjadi komponen terpisah di \src/components/dashboard/widgets/\.
+
+- [ ] **2. Tiptap Editor** (\src/components/admin/TiptapEditor.jsx\) - 1.416 baris
+  - *Rencana*: Pisahkan toolbar, ekstensi kustom, dan handler gambar ke modul terpisah.
+
+- [ ] **3. Database Service** (\src/services/dbService.js\) - 1.314 baris
+  - *Rencana*: Pecah menjadi beberapa service modular seperti \postService.js\, \categoryService.js\, dll, lalu satukan dengan pola *Facade* di \dbService.js\ agar *import* lama tidak rusak.
+
+- [ ] **4. AI Generate Modal** (\src/components/admin/AiGenerateModal.jsx\) - 867 baris
+  - *Rencana*: Pisahkan state management kompleks dan UI prompt menjadi sub-komponen.
+
+- [ ] **5. Right Meta Sidebar** (\src/components/admin/RightMetaSidebar.jsx\) - 824 baris
+  - *Rencana*: Ekstraksi panel SEO, penampang Tag, dan panel Visibilitas ke komponen *accordion* mandiri.
