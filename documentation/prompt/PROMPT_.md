@@ -19,6 +19,10 @@ Ketika Anda (AI) diminta membuat atau memodifikasi fitur baru pada ScholarCMS, s
    - Selalu gunakan import bersih seperti `import { dbService } from '@/services/dbService'` atau `import { getThemeComponent } from '@/themes'`.
 3. **Resilient Data Service (Hybrid Fallback)**:
    - Pastikan fungsi service baru di `dbService.js` mendukung **duplikasi alur**: Firebase Firestore Cloud DB (saat `isFirebaseConfigured()` bernilai `true`) dan LocalStorage / Demo Mode Fallback.
+4. **Batas Maksimal Baris File (Refactoring Rule)**:
+   - Jaga ukuran setiap file agar selalu berada di kisaran **100 hingga 300 baris**. Jika sebuah file melebihi batas ini (misalnya komponen halaman utama), lakukan *refactoring* dengan memecahnya menjadi komponen-komponen kecil yang dapat digunakan kembali (*reusable components*) di dalam folder `src/components/`.
+5. **Pencatatan Changelog Otomatis**:
+   - Setiap kali Anda (AI) melakukan perubahan kode (mengedit file lama) atau membuat file/fitur baru, Anda diwajibkan untuk **memperbarui file Changelog** utama proyek (yaitu `documentation/CHANGELOG.md`) yang mencatat apa saja yang baru saja diubah, ditambah, atau diperbaiki, beserta tanggalnya.
 
 ---
 

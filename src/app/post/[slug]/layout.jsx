@@ -5,6 +5,13 @@ export const revalidate = 60; // ISR cache revalidation (60 detik)
 export async function generateMetadata({ params }) {
   const { slug } = params;
   
+  let siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://scholarcms.com';
+  // Hapus trailing slash jika ada agar tidak double slash
+  if (siteUrl.endsWith('/')) {
+    siteUrl = siteUrl.slice(0, -1);
+  }
+  const postUrl = `${siteUrl}/post/${slug}`;
+
   try {
     // Ambil data artikel spesifik dari database tanpa memicu penambahan view count
     const post = await dbService.getPostBySlug(slug, false);
@@ -12,11 +19,11 @@ export async function generateMetadata({ params }) {
     if (!post) {
       return {
         title: 'Artikel Tidak Ditemukan',
+        alternates: {
+          canonical: postUrl,
+        },
       };
     }
-
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://scholarcms.com';
-    const postUrl = `${siteUrl}/post/${slug}`;
 
     return {
       title: post.seoTitle || post.title,
@@ -50,6 +57,9 @@ export async function generateMetadata({ params }) {
     console.error('Error generating metadata for post:', error);
     return {
       title: 'Baca Artikel',
+      alternates: {
+        canonical: postUrl,
+      },
     };
   }
 }

@@ -2,6 +2,15 @@
 
 Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 
+## [Unreleased] - 2026-09-07
+
+### ♻️ Refactoring & Optimasi Kode
+- **Pemisahan Komponen Post (Aturan 100-300 baris)**: Memulai refactoring pada `src/app/post/[slug]/page.jsx` (diubah namanya menjadi `PostClient.jsx`) untuk beralih ke Server-Side Rendering.
+- Mengekstrak bagian komentar pengunjung ke komponen baru `src/components/blog/PostComments.jsx` untuk menjaga agar ukuran file tetap ramping (di bawah 500 baris).
+
+### 🛠️ Perbaikan Bug
+- **Bug SEO Canonical Tag**: Memperbaiki `layout.jsx` pada halaman artikel untuk memastikan tag `canonical` selalu menunjuk ke URL asli artikel secara benar dan mencegah masalah *double-slash*, mengatasi error Google Search Console "Alternate page with proper canonical tag" (terutama saat respon Firebase SDK melambat di server Next.js).
+
 ## [v2.2.4] - 2026-08-29
 
 ### 🚀 Fitur Baru & Peningkatan UX
