@@ -34,8 +34,8 @@ Berikut adalah daftar file raksasa yang perlu dipecah (refactoring) di sesi beri
 - [ ] **1. Dashboard Utama** (\src/app/dashboard/page.jsx\) - 2.169 baris
   - *Rencana*: Ekstraksi berbagai widget (statistik, tabel, grafik) menjadi komponen terpisah di \src/components/dashboard/widgets/\.
 
-- [ ] **2. Tiptap Editor** (\src/components/admin/TiptapEditor.jsx\) - 1.416 baris
-  - *Rencana*: Pisahkan toolbar, ekstensi kustom, dan handler gambar ke modul terpisah.
+- [x] **2. Tiptap Editor (`src/components/admin/TiptapEditor.jsx` - 1.416 baris)**
+  - [x] Pisahkan toolbar, ekstensi kustom, dan handler gambar ke modul terpisah.
 
 - [x] **3. Database Service** (`src/services/dbService.js`) - 1.314 baris
   - *Rencana*: Pecah menjadi beberapa service modular seperti `postService.js`, `categoryService.js`, dll, lalu satukan dengan pola *Facade* di `dbService.js` agar *import* lama tidak rusak.
