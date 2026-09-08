@@ -40,8 +40,8 @@ Berikut adalah daftar file raksasa yang perlu dipecah (refactoring) di sesi beri
 - [x] **3. Database Service** (`src/services/dbService.js`) - 1.314 baris
   - *Rencana*: Pecah menjadi beberapa service modular seperti `postService.js`, `categoryService.js`, dll, lalu satukan dengan pola *Facade* di `dbService.js` agar *import* lama tidak rusak.
 
-- [ ] **4. AI Generate Modal** (\src/components/admin/AiGenerateModal.jsx\) - 867 baris
-  - *Rencana*: Pisahkan state management kompleks dan UI prompt menjadi sub-komponen.
+- [x] **4. AI Generate Modal (`src/components/admin/AiGenerateModal.jsx` - 867 baris)**
+  - [x] Pisahkan state management kompleks dan UI prompt menjadi sub-komponen.
 
 - [x] **5. Right Meta Sidebar** (`src/components/admin/RightMetaSidebar.jsx`) - 824 baris
   - *Rencana*: Ekstraksi panel SEO, penampang Tag, dan panel Visibilitas ke komponen *accordion* mandiri.
