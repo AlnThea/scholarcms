@@ -19,6 +19,10 @@ import { useState, useEffect } from 'react';
 import SeoPanel from './meta/SeoPanel';
 import TaxonomyPanel from './meta/TaxonomyPanel';
 import PublishPanel from './meta/PublishPanel';
+import AdsensePanel from './meta/AdsensePanel';
+import SlugPanel from './meta/SlugPanel';
+import MediaPanel from './meta/MediaPanel';
+import ExcerptPanel from './meta/ExcerptPanel';
 
 export default function RightMetaSidebar() {
   const pathname = usePathname();
@@ -253,162 +257,33 @@ export default function RightMetaSidebar() {
 
         {/* TAB ADSENSE & MONETISASI: ADSENSE SWITCH, PLACEMENT, SLOT ID, SPONSORED TAG */}
         {activeTab === 'adsense' && (
-          <div className="space-y-4 animate-fade-in">
-            
-            {/* Global Inherited AdSense Info Card */}
-            <div className="p-3.5 rounded-2xl border border-blue-500/20 bg-blue-500/5 space-y-2">
-              <div className="flex items-center justify-between border-b border-blue-500/10 pb-2">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-500 flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-blue-500" /> {isEn ? 'Site AdSense Credentials' : 'Kredensial AdSense Situs'}
-                </span>
-                {role === 'admin' && (
-                  <Link href="/dashboard/settings" className="text-[9px] font-bold text-blue-500 hover:underline flex items-center gap-1">
-                    <SettingsIcon className="w-3 h-3" /> {isEn ? 'Manage (Admin)' : 'Kelola (Admin)'}
-                  </Link>
-                )}
-              </div>
-              <div className="text-[11px] text-[var(--text-muted)] space-y-1">
-                <div className="flex items-center justify-between">
-                  <span>{isEn ? 'Global Publisher ID:' : 'ID Publisher Global:'}</span>
-                  <span className="font-mono font-bold text-[var(--text-main)]">
-                    {globalAdSettings?.adClient || adClient || 'ca-pub-9999999999999999'}
-                  </span>
-                </div>
-                <p className="text-[10px] opacity-75">
-                  {isEn ? 'Ads are managed and automatically served centrally from CMS Settings.' : 'Iklan disunting dan dikelola secara otomatis terpusat dari Halaman Pengaturan CMS.'}
-                </p>
-              </div>
-            </div>
-
-            {/* AdSense Live Status Banner */}
-            <div className={`p-4 rounded-2xl border flex items-center justify-between gap-3 ${
-              enableAds
-                ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                : 'border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400'
-            }`}>
-              <div className="flex items-center gap-3">
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-white shrink-0 ${
-                  enableAds ? 'bg-emerald-500' : 'bg-amber-500'
-                }`}>
-                  <DollarSign className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="font-extrabold text-xs">
-                    {enableAds ? (isEn ? 'Article Monetization Active 💰' : 'Monetisasi Artikel Aktif 💰') : (isEn ? 'Article Ads Disabled' : 'Iklan Artikel Dinonaktifkan')}
-                  </h4>
-                  <p className="text-[10px] opacity-80">
-                    {enableAds ? (isEn ? 'Auto banner ads will show on this article' : 'Iklan banner otomatis tayang di artikel ini') : (isEn ? 'This article is clean from ad banners' : 'Artikel ini bersih dari tayangan iklan')}
-                  </p>
-                </div>
-              </div>
-              <input
-                type="checkbox"
-                checked={enableAds}
-                onChange={(e) => setEnableAds(e.target.checked)}
-                className="w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-              />
-            </div>
-
-            {enableAds && (
-              <div className="p-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)]/50 space-y-4">
-                
-                {/* Posisi Penempatan Iklan */}
-                <div>
-                  <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{isEn ? 'Article Ad Placement Position' : 'Posisi Penempatan Iklan Artikel'}</label>
-                  <Select
-                    value={adPlacement}
-                    onChange={(e) => setAdPlacement(e.target.value)}
-                  >
-                    <option value="all">{isEn ? '🌟 All Positions (Header, In-Article & Footer)' : '🌟 Seluruh Posisi (Header, Tengah & Footer)'}</option>
-                    <option value="top">{isEn ? '⬆️ Top of Article (Header Ad)' : '⬆️ Atas Artikel (Header Ad)'}</option>
-                    <option value="in_article">{isEn ? '↔️ Middle of Article (In-Article Auto Ad)' : '↔️ Tengah Artikel (In-Article Auto Ad)'}</option>
-                    <option value="bottom">{isEn ? '⬇️ Bottom of Article (Footer Ad)' : '⬇️ Bawah Artikel (Footer Ad)'}</option>
-                  </Select>
-                </div>
-
-                {/* Sponsored Post Partnership Badge */}
-                <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] flex items-center justify-between gap-3">
-                  <div>
-                    <span className="block font-bold text-xs text-[var(--text-main)]">{isEn ? 'Sponsored Article (Paid Partnership)' : 'Artikel Bersponsor (Paid Partnership)'}</span>
-                    <span className="block text-[10px] text-[var(--text-muted)]">{isEn ? 'Display official sponsor badge above article' : 'Tampilkan lencana sponsor resmi di atas artikel'}</span>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={isSponsored}
-                    onChange={(e) => setIsSponsored(e.target.checked)}
-                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
-                  />
-                </div>
-
-              </div>
-            )}
-
-          </div>
+          <AdsensePanel
+            isEn={isEn}
+            globalAdSettings={globalAdSettings}
+            adClient={adClient}
+            enableAds={enableAds}
+            setEnableAds={setEnableAds}
+            adPlacement={adPlacement}
+            setAdPlacement={setAdPlacement}
+            isSponsored={isSponsored}
+            setIsSponsored={setIsSponsored}
+          />
         )}
 
         {/* TAB 2: SLUG & PERMALINK */}
         {activeTab === 'slug' && (
-          <div className="space-y-4 animate-fade-in">
-            <div className="p-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)]/50 space-y-4">
-              <h4 className="font-extrabold text-xs text-[var(--text-main)] flex items-center gap-2">
-                <LinkIcon className="w-4 h-4 text-emerald-500" />
-                {isEn ? 'Title & Permalink Slug' : 'Judul & Permalink Slug'}
-              </h4>
-
-              {/* Title */}
-              <div>
-                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">
-                  {isPageEditor ? t('labelTitlePage') : t('labelTitlePost')}
-                </label>
-                <input
-                  type="text"
-                  placeholder={isPageEditor ? t('placeholderTitlePage') : t('placeholderTitlePost')}
-                  value={title}
-                  onChange={handleTitleChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-blue-500 transition-colors font-medium"
-                />
-              </div>
-
-              {/* Slug with Regenerate */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)]">{isEn ? 'Slug Permalink' : 'Slug Permalink'}</label>
-                  <button
-                    type="button"
-                    onClick={handleGenerateSlug}
-                    className="text-[10px] text-blue-500 font-semibold flex items-center gap-1 hover:underline"
-                  >
-                    <RefreshCw className="w-3 h-3" /> Auto Slug
-                  </button>
-                </div>
-                <input
-                  type="text"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, '-'))}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] font-mono text-xs text-blue-500 font-bold focus:outline-none focus:border-blue-500 transition-colors"
-                />
-              </div>
-
-              {/* URL Preview & Copy */}
-              <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] space-y-2">
-                <span className="block text-[9px] font-bold uppercase text-[var(--text-subtle)]">{isEn ? 'Public Preview URL:' : 'URL Pratinjau Publik:'}</span>
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono text-[11px] text-[var(--text-muted)] truncate">
-                    /post/<strong className="text-blue-500">{slug || (isEn ? 'article-slug' : 'judul-artikel')}</strong>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleCopyLink}
-                    className="px-2.5 py-1.5 rounded-xl bg-[var(--bg-primary)] hover:bg-blue-600 hover:text-white transition-all text-[10px] font-bold flex items-center gap-1 shrink-0 shadow-sm"
-                  >
-                    {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                    {copied ? (isEn ? 'Copied' : 'Tersalin') : (isEn ? 'Copy URL' : 'Salin URL')}
-                  </button>
-                </div>
-              </div>
-
-            </div>
-          </div>
+          <SlugPanel
+            isEn={isEn}
+            t={t}
+            isPageEditor={isPageEditor}
+            title={title}
+            handleTitleChange={handleTitleChange}
+            handleGenerateSlug={handleGenerateSlug}
+            slug={slug}
+            setSlug={setSlug}
+            handleCopyLink={handleCopyLink}
+            copied={copied}
+          />
         )}
 
         {/* TAB 3: TAKSONOMI (KATEGORI & TAG) */}
@@ -416,99 +291,20 @@ export default function RightMetaSidebar() {
 
         {/* TAB 4: MEDIA COVER */}
         {activeTab === 'media' && (
-          <div className="space-y-4 animate-fade-in">
-            <div className="p-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)]/50 space-y-4">
-              <h4 className="font-extrabold text-xs text-[var(--text-main)] flex items-center gap-2">
-                <ImageIcon className="w-4 h-4 text-pink-500" />
-                {isEn ? 'Featured Cover Image' : 'Gambar Unggulan (Cover Image)'}
-              </h4>
-
-              {/* Live Preview Card */}
-              {featuredImage ? (
-                <div className="relative rounded-2xl overflow-hidden border border-[var(--border-color)] group aspect-video bg-black/20 shadow-md">
-                  <img
-                    src={featuredImage}
-                    alt="Featured Preview"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80'; }}
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <button
-                      type="button"
-                      onClick={() => setFeaturedImage('')}
-                      className="px-3.5 py-2 bg-red-600 text-white rounded-xl text-xs font-bold shadow-lg hover:bg-red-700 transition-colors"
-                    >
-                      {isEn ? 'Remove Image' : 'Hapus Gambar'}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-6 rounded-2xl border-2 border-dashed border-[var(--border-color)] text-center text-[var(--text-subtle)] text-[11px]">
-                  {isEn ? 'No cover image URL selected yet' : 'Belum ada URL gambar dipilih'}
-                </div>
-              )}
-
-              {/* URL Input */}
-              <div>
-                <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{isEn ? 'Cover Image URL' : 'URL Gambar Cover'}</label>
-                <input
-                  type="url"
-                  placeholder="https://images.unsplash.com/..."
-                  value={featuredImage}
-                  onChange={(e) => setFeaturedImage(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-pink-500 transition-colors"
-                />
-              </div>
-
-              {/* Preset Sample Images */}
-              <div>
-                <span className="block text-[10px] font-bold uppercase text-[var(--text-subtle)] mb-2">{isEn ? 'Unsplash Image Samples:' : 'Sampel Gambar Unsplash:'}</span>
-                <div className="grid grid-cols-4 gap-2">
-                  {PRESET_IMAGES.map((img, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => setFeaturedImage(img)}
-                      className={`relative rounded-xl overflow-hidden h-14 border-2 transition-all ${
-                        featuredImage === img ? 'border-pink-500 ring-4 ring-pink-500/20' : 'border-transparent opacity-70 hover:opacity-100'
-                      }`}
-                    >
-                      <img src={img} alt="Preset" className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-          </div>
+          <MediaPanel
+            isEn={isEn}
+            featuredImage={featuredImage}
+            setFeaturedImage={setFeaturedImage}
+          />
         )}
 
         {/* TAB 5: RINGKASAN (EXCERPT) */}
         {activeTab === 'excerpt' && (
-          <div className="space-y-4 animate-fade-in">
-            <div className="p-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)]/50 space-y-3">
-              <h4 className="font-extrabold text-xs text-[var(--text-main)] flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-amber-500" />
-                  {isEn ? 'Excerpt & Summary' : 'Ringkasan Excerpt'}
-                </span>
-                <span className="text-[10px] text-[var(--text-subtle)] font-mono">
-                  {excerpt ? excerpt.length : 0} {isEn ? 'chars' : 'karakter'}
-                </span>
-              </h4>
-
-              <textarea
-                rows={5}
-                placeholder={isEn ? "Write a short article summary for preview cards..." : "Tulis ringkasan singkat artikel untuk kartu pratinjau..."}
-                value={excerpt}
-                onChange={(e) => setExcerpt(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-amber-500 transition-colors leading-relaxed"
-              />
-              <p className="text-[10px] text-[var(--text-subtle)] italic">
-                {isEn ? '💡 This summary will appear on article cards on the homepage and search results.' : '💡 Ringkasan ini akan tampil pada kartu artikel di halaman depan dan hasil pencarian.'}
-              </p>
-            </div>
-          </div>
+          <ExcerptPanel
+            isEn={isEn}
+            excerpt={excerpt}
+            setExcerpt={setExcerpt}
+          />
         )}
 
       </div>
