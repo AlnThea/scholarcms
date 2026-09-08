@@ -21,7 +21,7 @@ Berikut adalah rencana langkah demi langkah untuk menyelesaikan masalah *Client-
   - Menulis logika *fetching* database ke Firebase (`dbService.getPostBySlug`) di sisi server.
   - Memasukkan data tersebut ke dalam komponen `<PostClient />`.
 
-- [ ] **Langkah 4: Pembersihan (Cleanup) & Testing**
+- [x] **Langkah 4: Pembersihan (Cleanup) & Testing**
   - Menguji perenderan awal HTML dengan *cURL* atau *view source* untuk memastikan teks artikel sudah langsung ada di dalam HTML saat dimuat pertama kali.
   - Memastikan fitur interaktif seperti komentar, tombol share, dan view count tetap berjalan normal.
 
@@ -31,8 +31,8 @@ Berikut adalah rencana langkah demi langkah untuk menyelesaikan masalah *Client-
 ## 📦 Backlog Refactoring (Sesuai Aturan 100-300 Baris)
 Berikut adalah daftar file raksasa yang perlu dipecah (refactoring) di sesi berikutnya:
 
-- [ ] **1. Dashboard Utama** (\src/app/dashboard/page.jsx\) - 2.169 baris
-  - *Rencana*: Ekstraksi berbagai widget (statistik, tabel, grafik) menjadi komponen terpisah di \src/components/dashboard/widgets/\.
+- [x] **1. Dashboard Utama** (`src/app/dashboard/page.jsx`) - 2.169 baris
+  - *Rencana*: Ekstraksi berbagai widget (statistik, tabel, grafik) menjadi komponen terpisah di `src/components/dashboard/widgets/`.
 
 - [x] **2. Tiptap Editor (`src/components/admin/TiptapEditor.jsx` - 1.416 baris)**
   - [x] Pisahkan toolbar, ekstensi kustom, dan handler gambar ke modul terpisah.
