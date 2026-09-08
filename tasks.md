@@ -37,11 +37,11 @@ Berikut adalah daftar file raksasa yang perlu dipecah (refactoring) di sesi beri
 - [ ] **2. Tiptap Editor** (\src/components/admin/TiptapEditor.jsx\) - 1.416 baris
   - *Rencana*: Pisahkan toolbar, ekstensi kustom, dan handler gambar ke modul terpisah.
 
-- [ ] **3. Database Service** (\src/services/dbService.js\) - 1.314 baris
-  - *Rencana*: Pecah menjadi beberapa service modular seperti \postService.js\, \categoryService.js\, dll, lalu satukan dengan pola *Facade* di \dbService.js\ agar *import* lama tidak rusak.
+- [x] **3. Database Service** (`src/services/dbService.js`) - 1.314 baris
+  - *Rencana*: Pecah menjadi beberapa service modular seperti `postService.js`, `categoryService.js`, dll, lalu satukan dengan pola *Facade* di `dbService.js` agar *import* lama tidak rusak.
 
 - [ ] **4. AI Generate Modal** (\src/components/admin/AiGenerateModal.jsx\) - 867 baris
   - *Rencana*: Pisahkan state management kompleks dan UI prompt menjadi sub-komponen.
 
-- [ ] **5. Right Meta Sidebar** (\src/components/admin/RightMetaSidebar.jsx\) - 824 baris
+- [x] **5. Right Meta Sidebar** (`src/components/admin/RightMetaSidebar.jsx`) - 824 baris
   - *Rencana*: Ekstraksi panel SEO, penampang Tag, dan panel Visibilitas ke komponen *accordion* mandiri.
