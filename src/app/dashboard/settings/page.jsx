@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { dbService } from '@/services/dbService';
 import PageHeader from '@/components/dashboard/PageHeader';
-import Badge from '@/components/ui/Badge';
-import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
-import Select from '@/components/ui/Select';
 import { useAuth } from '@/context/AuthContext';
-import { Database, RefreshCw, CheckCircle, AlertTriangle, DollarSign, Save, ShieldCheck, Sparkles, Cpu, Key } from 'lucide-react';
+
+import GeneralSettingsPanel from '@/components/admin/settings/GeneralSettingsPanel';
+import AdsenseSettingsPanel from '@/components/admin/settings/AdsenseSettingsPanel';
+import AiSettingsPanel from '@/components/admin/settings/AiSettingsPanel';
+import DatabaseStatusPanel from '@/components/admin/settings/DatabaseStatusPanel';
 
 export default function DashboardSettingsPage() {
   const { t } = useLanguage();
@@ -140,520 +140,55 @@ export default function DashboardSettingsPage() {
         subtitle={t('settingsSubtitle')}
       />
 
-      {/* ADMIN ONLY: GENERAL SITE & REGISTRATION SETTINGS */}
-      {role === 'admin' && (
-        <form onSubmit={handleSaveGeneralSettings} className="p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-500">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-extrabold text-base text-[var(--text-main)] flex items-center gap-2">
-                  {t('siteIdentityHeader')}
-                  <ShieldCheck className="w-4 h-4 text-blue-500" title={t('adminOnlyBadgeTitle')} />
-                </h3>
-                <p className="text-xs text-[var(--text-muted)]">{t('siteIdentityHelp')}</p>
-              </div>
-            </div>
+      <GeneralSettingsPanel 
+        t={t}
+        role={role}
+        generalSettings={generalSettings}
+        setGeneralSettings={setGeneralSettings}
+        handleSaveGeneralSettings={handleSaveGeneralSettings}
+        generalSaving={generalSaving}
+        generalSavedMessage={generalSavedMessage}
+      />
 
-            <Badge variant={generalSettings.allowRegistration ? 'published' : 'draft'}>
-              {generalSettings.allowRegistration ? t('regOpenBadge') : t('regClosedBadge')}
-            </Badge>
-          </div>
+      <AdsenseSettingsPanel 
+        t={t}
+        role={role}
+        adSettings={adSettings}
+        setAdSettings={setAdSettings}
+        handleSaveAdSense={handleSaveAdSense}
+        adSaving={adSaving}
+        adSavedMessage={adSavedMessage}
+      />
 
-          <div className="space-y-5">
-            
-            {/* Grid Site Title & Tagline */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                  {t('siteTitleLabel')}
-                </label>
-                <Input
-                  type="text"
-                  placeholder="ScholarCMS"
-                  value={generalSettings.siteTitle || ''}
-                  onChange={(e) => setGeneralSettings({ ...generalSettings, siteTitle: e.target.value })}
-                  helperText={t('siteTitleHelp')}
-                />
-              </div>
+      <AiSettingsPanel 
+        t={t}
+        role={role}
+        aiProvider={aiProvider}
+        setAiProvider={setAiProvider}
+        selectedAiModel={selectedAiModel}
+        setSelectedAiModel={setSelectedAiModel}
+        geminiApiKey={geminiApiKey}
+        setGeminiApiKey={setGeminiApiKey}
+        selectedOpenRouterModel={selectedOpenRouterModel}
+        setSelectedOpenRouterModel={setSelectedOpenRouterModel}
+        openRouterApiKey={openRouterApiKey}
+        setOpenRouterApiKey={setOpenRouterApiKey}
+        handleSaveAiConfig={handleSaveAiConfig}
+        aiConfigSaving={aiConfigSaving}
+        aiConfigSavedMessage={aiConfigSavedMessage}
+        masterPrompt={masterPrompt}
+        setMasterPrompt={setMasterPrompt}
+        handleSaveMasterPrompt={handleSaveMasterPrompt}
+        promptSaving={promptSaving}
+        promptSavedMessage={promptSavedMessage}
+      />
 
-              <div>
-                <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                  {t('siteTaglineLabel')}
-                </label>
-                <Input
-                  type="text"
-                  placeholder="Modern Publishing Platform"
-                  value={generalSettings.siteTagline || ''}
-                  onChange={(e) => setGeneralSettings({ ...generalSettings, siteTagline: e.target.value })}
-                  helperText={t('siteTaglineHelp')}
-                />
-              </div>
-            </div>
-
-            {/* SEO & Verification */}
-            <div className="space-y-4 pt-2">
-              <div>
-                <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                  {t('siteDescriptionLabel') || 'Site Description'}
-                </label>
-                <textarea
-                  className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl px-3 py-2 text-sm text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all resize-none h-20"
-                  placeholder="Platform Blog CMS Modern untuk penerbitan artikel, berita..."
-                  value={generalSettings.siteDescription || ''}
-                  onChange={(e) => setGeneralSettings({ ...generalSettings, siteDescription: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                  {t('siteKeywordsLabel') || 'Site Keywords (Comma separated)'}
-                </label>
-                <Input
-                  type="text"
-                  placeholder="ScholarCMS, Blog, CMS, Publishing Platform"
-                  value={generalSettings.siteKeywords || ''}
-                  onChange={(e) => setGeneralSettings({ ...generalSettings, siteKeywords: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                  {t('googleVerificationLabel') || 'Google Site Verification Code'}
-                </label>
-                <Input
-                  type="text"
-                  placeholder="e.g. VfngzzmDNJEtwJeQiy_..."
-                  value={generalSettings.googleSiteVerification || ''}
-                  onChange={(e) => setGeneralSettings({ ...generalSettings, googleSiteVerification: e.target.value })}
-                />
-              </div>
-            </div>
-
-            {/* Registration Switch */}
-            <div className="p-4 rounded-2xl bg-[var(--bg-primary)]/60 border border-[var(--border-color)] flex items-center justify-between gap-4">
-              <div>
-                <span className="block font-bold text-xs text-[var(--text-main)]">{t('allowRegLabel')}</span>
-                <span className="block text-[11px] text-[var(--text-muted)]">{t('allowRegHelp')}</span>
-              </div>
-              <input
-                type="checkbox"
-                checked={generalSettings.allowRegistration}
-                onChange={(e) => setGeneralSettings({ ...generalSettings, allowRegistration: e.target.checked })}
-                className="w-5 h-5 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
-              />
-            </div>
-
-            <div className="flex items-center justify-between pt-2 border-t border-[var(--border-color)]">
-              <Button
-                type="submit"
-                variant="primary"
-                size="md"
-                icon={Save}
-                loading={generalSaving}
-              >
-                {t('saveSiteIdentityBtn')}
-              </Button>
-
-              {generalSavedMessage && (
-                <span className="text-xs font-bold text-emerald-500 flex items-center gap-1.5 animate-fade-in">
-                  <CheckCircle className="w-4 h-4 text-emerald-500" /> {t('siteIdentitySavedSuccess')}
-                </span>
-              )}
-            </div>
-          </div>
-        </form>
-      )}
-
-      {/* ADMIN ONLY: GOOGLE ADSENSE & MONETIZATION GLOBAL SETTINGS */}
-      {role === 'admin' && (
-        <form onSubmit={handleSaveAdSense} className="p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-500">
-                <DollarSign className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-extrabold text-base text-[var(--text-main)] flex items-center gap-2">
-                  {t('globalAdSenseHeader')}
-                  <ShieldCheck className="w-4 h-4 text-blue-500" title={t('adminOnlyBadgeTitle')} />
-                </h3>
-                <p className="text-xs text-[var(--text-muted)]">{t('globalAdSenseHelp')}</p>
-              </div>
-            </div>
-
-            <Badge variant={adSettings.globalEnableAds ? 'published' : 'draft'}>
-              {adSettings.globalEnableAds ? t('globalAdsOn') : t('globalAdsOff')}
-            </Badge>
-          </div>
-
-          <div className="space-y-5">
-            
-            {/* Global Ads Switch */}
-            <div className="p-4 rounded-2xl bg-[var(--bg-primary)]/60 border border-[var(--border-color)] flex items-center justify-between gap-4">
-              <div>
-                <span className="block font-bold text-xs text-[var(--text-main)]">{t('enableGlobalAdsLabel')}</span>
-                <span className="block text-[11px] text-[var(--text-muted)]">{t('enableGlobalAdsHelp')}</span>
-              </div>
-              <input
-                type="checkbox"
-                checked={adSettings.globalEnableAds}
-                onChange={(e) => setAdSettings({ ...adSettings, globalEnableAds: e.target.checked })}
-                className="w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-              />
-            </div>
-
-            {/* Google Publisher ID */}
-            <div>
-              <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                {t('publisherIdLabel')}
-              </label>
-              <Input
-                type="text"
-                placeholder="ca-pub-9999999999999999"
-                value={adSettings.adClient}
-                onChange={(e) => setAdSettings({ ...adSettings, adClient: e.target.value })}
-                icon={DollarSign}
-                helperText={t('publisherIdHelp')}
-              />
-            </div>
-
-            {/* Grid Ad Slots */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-              
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-[var(--text-muted)] mb-1">
-                  {t('headerAdSlotLabel')}
-                </label>
-                <Input
-                  type="text"
-                  placeholder="1234567890"
-                  value={adSettings.headerAdSlot}
-                  onChange={(e) => setAdSettings({ ...adSettings, headerAdSlot: e.target.value })}
-                  helperText={t('headerAdSlotHelp')}
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-[var(--text-muted)] mb-1">
-                  {t('inArticleAdSlotLabel')}
-                </label>
-                <Input
-                  type="text"
-                  placeholder="0987654321"
-                  value={adSettings.inArticleAdSlot}
-                  onChange={(e) => setAdSettings({ ...adSettings, inArticleAdSlot: e.target.value })}
-                  helperText={t('inArticleAdSlotHelp')}
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-[var(--text-muted)] mb-1">
-                  {t('footerAdSlotLabel')}
-                </label>
-                <Input
-                  type="text"
-                  placeholder="1122334455"
-                  value={adSettings.footerAdSlot}
-                  onChange={(e) => setAdSettings({ ...adSettings, footerAdSlot: e.target.value })}
-                  helperText={t('footerAdSlotHelp')}
-                />
-              </div>
-
-            </div>
-
-            {/* Save AdSense Button */}
-            <div className="flex items-center justify-between pt-3 border-t border-[var(--border-color)]">
-              <Button
-                type="submit"
-                variant="primary"
-                size="md"
-                icon={Save}
-                loading={adSaving}
-              >
-                {t('saveAdSenseBtn')}
-              </Button>
-
-              {adSavedMessage && (
-                <span className="text-xs font-bold text-emerald-500 flex items-center gap-1.5 animate-fade-in">
-                  <CheckCircle className="w-4 h-4 text-emerald-500" /> {t('adSenseSavedSuccess')}
-                </span>
-              )}
-            </div>
-
-          </div>
-        </form>
-      )}
-
-      {/* ADMIN ONLY: GOOGLE GEMINI AI MODEL & API KEY CONFIGURATION */}
-      {role === 'admin' && (
-        <form onSubmit={handleSaveAiConfig} className="p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-500">
-                <Cpu className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-extrabold text-base text-[var(--text-main)] flex items-center gap-2">
-                  Pengaturan Provider AI & API Key (Google Gemini & OpenRouter Free)
-                  <ShieldCheck className="w-4 h-4 text-blue-500" title={t('adminOnlyBadgeTitle')} />
-                </h3>
-                <p className="text-xs text-[var(--text-muted)]">Pilih penyedia AI (Google Gemini SDK atau OpenRouter Free Tier) serta kunci API resmi Anda</p>
-              </div>
-            </div>
-
-            <Badge variant="published">
-              Multi-Provider AI Active
-            </Badge>
-          </div>
-
-          <div className="space-y-5">
-            
-            {/* Provider Switcher */}
-            <div>
-              <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1 flex items-center gap-1.5">
-                <Cpu className="w-3.5 h-3.5 text-purple-500" /> Utama AI Provider Engine:
-              </label>
-              <div className="grid grid-cols-2 gap-3 p-1.5 rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-color)]">
-                <button
-                  type="button"
-                  onClick={() => setAiProvider('gemini')}
-                  className={`py-2 px-3 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all ${
-                    aiProvider === 'gemini'
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
-                  }`}
-                >
-                  ⚡ Google Gemini (SDK Resmi)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAiProvider('openrouter')}
-                  className={`py-2 px-3 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all ${
-                    aiProvider === 'openrouter'
-                      ? 'bg-emerald-600 text-white shadow-md'
-                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
-                  }`}
-                >
-                  🌐 OpenRouter AI (Free Tier)
-                </button>
-              </div>
-            </div>
-
-            {/* Grid Model Selection & API Key Input */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              
-              <div>
-                <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1 flex items-center gap-1.5">
-                  <Cpu className="w-3.5 h-3.5 text-purple-500" /> Model Utama Gemini AI:
-                </label>
-                <Select
-                  value={selectedAiModel}
-                  onChange={(e) => setSelectedAiModel(e.target.value)}
-                >
-                  <option value="gemini-1.5-flash">🌐 Gemini 1.5 Flash (Gratis & Stabil - Rekomendasi)</option>
-                  <option value="gemini-1.5-pro">🧠 Gemini 1.5 Pro (Penalaran Mendalam)</option>
-                  <option value="gemini-2.5-flash">⚡ Gemini 2.5 Flash (Tercepat & Utama)</option>
-                  <option value="gemini-2.0-flash">🚀 Gemini 2.0 Flash</option>
-                  <option value="gemini-2.0-flash-lite">💨 Gemini 2.0 Flash Lite (Ringan & Cepat)</option>
-                  <option value="gemini-flash-latest">✨ Gemini Flash Latest (Versi Terbaru Otomatis)</option>
-                  <option value="gemini-pro-latest">🔮 Gemini Pro Latest (Versi Pro Terbaru Otomatis)</option>
-                </Select>
-                <p className="text-[11px] text-[var(--text-muted)] mt-1">
-                  Model terpilih untuk provider Google Gemini.
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1 flex items-center gap-1.5">
-                  <Key className="w-3.5 h-3.5 text-blue-500" /> Google Gemini API Key:
-                </label>
-                <Input
-                  type="password"
-                  placeholder="AIzaSy..."
-                  value={geminiApiKey}
-                  onChange={(e) => setGeminiApiKey(e.target.value)}
-                  helperText="Dapatkan API Key gratis di aistudio.google.com/app/apikey"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1 flex items-center gap-1.5">
-                  <Cpu className="w-3.5 h-3.5 text-emerald-500" /> Model OpenRouter (Free):
-                </label>
-                <Select
-                  value={selectedOpenRouterModel}
-                  onChange={(e) => setSelectedOpenRouterModel(e.target.value)}
-                >
-                  <option value="openrouter/auto">🤖 OpenRouter Auto Router (Rekomendasi Auto Free)</option>
-                  <option value="google/gemini-2.5-flash">⚡ Gemini 2.5 Flash</option>
-                  <option value="meta-llama/llama-3.3-70b-instruct">🦙 Meta Llama 3.3 70B</option>
-                  <option value="deepseek/deepseek-r1">🐳 DeepSeek R1 Reasoning</option>
-                  <option value="qwen/qwen-2.5-72b-instruct">🌐 Qwen 2.5 72B</option>
-                </Select>
-                <p className="text-[11px] text-[var(--text-muted)] mt-1">
-                  Model terpilih untuk provider OpenRouter Free Tier.
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1 flex items-center gap-1.5">
-                  <Key className="w-3.5 h-3.5 text-emerald-500" /> OpenRouter API Key:
-                </label>
-                <Input
-                  type="password"
-                  placeholder="sk-or-v1-..."
-                  value={openRouterApiKey}
-                  onChange={(e) => setOpenRouterApiKey(e.target.value)}
-                  helperText="Dapatkan API Key gratis di openrouter.ai/keys"
-                />
-              </div>
-
-            </div>
-
-            {/* Save AI Config Button */}
-            <div className="flex items-center justify-between pt-3 border-t border-[var(--border-color)]">
-              <Button
-                type="submit"
-                variant="purple"
-                size="md"
-                icon={Save}
-                loading={aiConfigSaving}
-              >
-                Simpan Konfigurasi AI & Model
-              </Button>
-
-              {aiConfigSavedMessage && (
-                <span className="text-xs font-bold text-emerald-500 flex items-center gap-1.5 animate-fade-in">
-                  <CheckCircle className="w-4 h-4 text-emerald-500" /> Konfigurasi Model AI Berhasil Disimpan!
-                </span>
-              )}
-            </div>
-
-          </div>
-        </form>
-      )}
-
-      {/* ADMIN ONLY: MASTER PROMPT AI GENERATOR (ADSENSE COMPLIANCE) */}
-      {role === 'admin' && (
-        <form onSubmit={handleSaveMasterPrompt} className="p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-500">
-                <Sparkles className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-extrabold text-base text-[var(--text-main)] flex items-center gap-2">
-                  {t('masterPromptHeader')}
-                  <ShieldCheck className="w-4 h-4 text-blue-500" title={t('adminOnlyBadgeTitle')} />
-                </h3>
-                <p className="text-xs text-[var(--text-muted)]">{t('masterPromptSubtitle')}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-              {t('masterPromptDesc')}
-            </p>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1">
-                {t('masterPromptLabel')}
-              </label>
-              <textarea
-                rows={10}
-                value={masterPrompt}
-                onChange={(e) => setMasterPrompt(e.target.value)}
-                className="w-full p-4 rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-xs text-[var(--text-main)] font-mono leading-relaxed focus:outline-none focus:border-purple-500"
-              />
-            </div>
-
-            <div className="flex items-center justify-between pt-2">
-              <Button
-                type="submit"
-                variant="purple"
-                size="md"
-                icon={Save}
-                loading={promptSaving}
-              >
-                {t('saveMasterPromptBtn')}
-              </Button>
-
-              {promptSavedMessage && (
-                <span className="text-xs font-bold text-emerald-500 flex items-center gap-1.5 animate-fade-in">
-                  <CheckCircle className="w-4 h-4 text-emerald-500" /> {t('promptSavedSuccess')}
-                </span>
-              )}
-            </div>
-          </div>
-        </form>
-      )}
-
-      {/* DATABASE KONEKSI STATUS */}
-      <div className="p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-6">
-        <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
-          <div className="flex items-center gap-3">
-            <div className={`p-3 rounded-2xl ${isFirebaseActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
-              <Database className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="font-extrabold text-base text-[var(--text-main)]">{t('dbConnectionHeader')}</h3>
-              <p className="text-xs text-[var(--text-muted)]">{t('dbStatusSub')}</p>
-            </div>
-          </div>
-
-          <Badge variant={isFirebaseActive ? 'published' : 'draft'}>
-            {isFirebaseActive ? 'Connected & Active' : 'Demo Local Mode'}
-          </Badge>
-        </div>
-
-        <div className="space-y-4 text-xs text-[var(--text-muted)]">
-          <p className="leading-relaxed">
-            {isFirebaseActive
-              ? t('dbActiveText')
-              : t('dbDemoText')}
-          </p>
-
-          {!isFirebaseActive && (
-            <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20 space-y-2">
-              <h4 className="font-bold text-amber-500 text-xs flex items-center gap-1.5">
-                <AlertTriangle className="w-4 h-4" /> {t('howToConnectFirebase')}
-              </h4>
-              <ol className="list-decimal list-inside space-y-1 text-xs text-[var(--text-muted)]">
-                <li>{t('firebaseStep1')}</li>
-                <li>{t('firebaseStep2')}</li>
-                <li>{t('firebaseStep3')}</li>
-                <li>{t('firebaseStep4')}</li>
-              </ol>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm space-y-4">
-        <h3 className="text-base font-bold text-[var(--text-main)]">{t('resetDemoTitle')}</h3>
-        <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-          {t('resetDemoDesc')}
-        </p>
-
-        <div className="flex items-center gap-4 pt-2">
-          <button
-            onClick={handleResetDemo}
-            className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
-          >
-            <RefreshCw className="w-4 h-4" /> {t('resetDemoBtn')}
-          </button>
-
-          {resetMessage && (
-            <span className="text-xs font-semibold text-emerald-500 flex items-center gap-1">
-              <CheckCircle className="w-4 h-4" /> {t('resetDemoSuccess')}
-            </span>
-          )}
-        </div>
-      </div>
+      <DatabaseStatusPanel 
+        t={t}
+        isFirebaseActive={isFirebaseActive}
+        handleResetDemo={handleResetDemo}
+        resetMessage={resetMessage}
+      />
 
     </div>
   );

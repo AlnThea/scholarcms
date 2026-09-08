@@ -29,19 +29,15 @@ Berikut adalah rencana langkah demi langkah untuk menyelesaikan masalah *Client-
 *Catatan: File ini akan terus diperbarui seiring berjalannya proses eksekusi.*
 
 ## 📦 Backlog Refactoring (Sesuai Aturan 100-300 Baris)
-Berikut adalah daftar file raksasa yang perlu dipecah (refactoring) di sesi berikutnya:
+Berikut adalah daftar file raksasa yang sudah diselesaikan:
+- [x] **1. Dashboard Utama** (`src/app/dashboard/page.jsx`)
+- [x] **2. Tiptap Editor** (`src/components/admin/TiptapEditor.jsx`)
+- [x] **3. Database Service** (`src/services/dbService.js`)
+- [x] **4. AI Generate Modal** (`src/components/admin/AiGenerateModal.jsx`)
+- [x] **5. Right Meta Sidebar** (`src/components/admin/RightMetaSidebar.jsx`)
 
-- [x] **1. Dashboard Utama** (`src/app/dashboard/page.jsx`) - 2.169 baris
-  - *Rencana*: Ekstraksi berbagai widget (statistik, tabel, grafik) menjadi komponen terpisah di `src/components/dashboard/widgets/`.
-
-- [x] **2. Tiptap Editor (`src/components/admin/TiptapEditor.jsx` - 1.416 baris)**
-  - [x] Pisahkan toolbar, ekstensi kustom, dan handler gambar ke modul terpisah.
-
-- [x] **3. Database Service** (`src/services/dbService.js`) - 1.314 baris
-  - *Rencana*: Pecah menjadi beberapa service modular seperti `postService.js`, `categoryService.js`, dll, lalu satukan dengan pola *Facade* di `dbService.js` agar *import* lama tidak rusak.
-
-- [x] **4. AI Generate Modal (`src/components/admin/AiGenerateModal.jsx` - 867 baris)**
-  - [x] Pisahkan state management kompleks dan UI prompt menjadi sub-komponen.
-
-- [x] **5. Right Meta Sidebar** (`src/components/admin/RightMetaSidebar.jsx`) - 824 baris
-  - *Rencana*: Ekstraksi panel SEO, penampang Tag, dan panel Visibilitas ke komponen *accordion* mandiri.
+## 🛠️ Refactoring Tahap 3 (Sisa File Raksasa)
+- [x] **1. AI Service** (`src/services/aiService.js` - 766 baris)
+  - *Rencana:* Pecah menjadi `geminiProvider.js`, `openRouterProvider.js`, dan gabungkan kembali lewat *Facade Pattern* di `aiService.js`.
+- [x] **2. Dashboard Settings** (`src/app/dashboard/settings/page.jsx` - 660 baris)
+  - *Rencana:* Pecah setiap tab panel (General, SEO, Adsense, AI, dll) menjadi komponen terpisah di folder `src/components/admin/settings/`.
