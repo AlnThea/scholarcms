@@ -38,15 +38,15 @@ export default function AiSettingsPanel({
             </div>
             <div>
               <h3 className="font-extrabold text-base text-[var(--text-main)] flex items-center gap-2">
-                Pengaturan Provider AI & API Key (Google Gemini & OpenRouter Free)
+                {t('aiProviderHeader')}
                 <ShieldCheck className="w-4 h-4 text-blue-500" title={t('adminOnlyBadgeTitle')} />
               </h3>
-              <p className="text-xs text-[var(--text-muted)]">Pilih penyedia AI (Google Gemini SDK atau OpenRouter Free Tier) serta kunci API resmi Anda</p>
+              <p className="text-xs text-[var(--text-muted)]">{t('aiProviderSub')}</p>
             </div>
           </div>
 
           <Badge variant="published">
-            Multi-Provider AI Active
+            {t('aiProviderActiveBadge')}
           </Badge>
         </div>
 
@@ -55,7 +55,7 @@ export default function AiSettingsPanel({
           {/* Provider Switcher */}
           <div>
             <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1 flex items-center gap-1.5">
-              <Cpu className="w-3.5 h-3.5 text-purple-500" /> Utama AI Provider Engine:
+              <Cpu className="w-3.5 h-3.5 text-purple-500" /> {t('aiMainEngineLabel')}
             </label>
             <div className="grid grid-cols-2 gap-3 p-1.5 rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-color)]">
               <button
@@ -88,7 +88,7 @@ export default function AiSettingsPanel({
             
             <div>
               <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1 flex items-center gap-1.5">
-                <Cpu className="w-3.5 h-3.5 text-purple-500" /> Model Utama Gemini AI:
+                <Cpu className="w-3.5 h-3.5 text-purple-500" /> {t('aiMainModelLabel')}
               </label>
               <Select
                 value={selectedAiModel}
@@ -103,7 +103,7 @@ export default function AiSettingsPanel({
                 <option value="gemini-pro-latest">🔮 Gemini Pro Latest (Versi Pro Terbaru Otomatis)</option>
               </Select>
               <p className="text-[11px] text-[var(--text-muted)] mt-1">
-                Model terpilih untuk provider Google Gemini.
+                {t('aiModelHelpGemini')}
               </p>
             </div>
 
@@ -116,13 +116,13 @@ export default function AiSettingsPanel({
                 placeholder="AIzaSy..."
                 value={geminiApiKey}
                 onChange={(e) => setGeminiApiKey(e.target.value)}
-                helperText="Dapatkan API Key gratis di aistudio.google.com/app/apikey"
+                helperText={t('aiApiKeyHelpGemini')}
               />
             </div>
 
             <div>
               <label className="block text-xs font-bold uppercase text-[var(--text-muted)] mb-1 flex items-center gap-1.5">
-                <Cpu className="w-3.5 h-3.5 text-emerald-500" /> Model OpenRouter (Free):
+                <Cpu className="w-3.5 h-3.5 text-emerald-500" /> {t('aiMainModelOpenRouterLabel')}
               </label>
               <Select
                 value={selectedOpenRouterModel}
@@ -135,7 +135,7 @@ export default function AiSettingsPanel({
                 <option value="qwen/qwen-2.5-72b-instruct">🌐 Qwen 2.5 72B</option>
               </Select>
               <p className="text-[11px] text-[var(--text-muted)] mt-1">
-                Model terpilih untuk provider OpenRouter Free Tier.
+                {t('aiModelHelpOpenRouter')}
               </p>
             </div>
 
@@ -148,7 +148,7 @@ export default function AiSettingsPanel({
                 placeholder="sk-or-v1-..."
                 value={openRouterApiKey}
                 onChange={(e) => setOpenRouterApiKey(e.target.value)}
-                helperText="Dapatkan API Key gratis di openrouter.ai/keys"
+                helperText={t('aiApiKeyHelpOpenRouter')}
               />
             </div>
 
@@ -163,12 +163,12 @@ export default function AiSettingsPanel({
               icon={Save}
               loading={aiConfigSaving}
             >
-              Simpan Konfigurasi AI & Model
+              {t('aiSaveConfigBtn')}
             </Button>
 
             {aiConfigSavedMessage && (
               <span className="text-xs font-bold text-emerald-500 flex items-center gap-1.5 animate-fade-in">
-                <CheckCircle className="w-4 h-4 text-emerald-500" /> Konfigurasi Model AI Berhasil Disimpan!
+                <CheckCircle className="w-4 h-4 text-emerald-500" /> {t('aiConfigSavedSuccess')}
               </span>
             )}
           </div>
