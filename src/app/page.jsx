@@ -40,7 +40,20 @@ function BlogHomeContent() {
       ]);
 
       setPosts(loadedPosts);
-      setCategories(loadedCats);
+      
+      // Filter categories to only show those that have at least one published post
+      const activeCats = loadedCats.filter(cat => {
+        return loadedPosts.some(post => {
+          const postCatArray = Array.isArray(post.categories) && post.categories.length > 0
+            ? post.categories
+            : (typeof post.category === 'string' && post.category
+                ? post.category.split(',').map(s => s.trim()).filter(Boolean)
+                : [post.category]);
+          return postCatArray.includes(cat.name) || post.category === cat.name || post.subCategory === cat.name;
+        });
+      });
+      
+      setCategories(activeCats);
       setLoading(false);
     }
     loadData();
