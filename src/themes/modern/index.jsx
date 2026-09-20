@@ -36,7 +36,14 @@ export default function ModernGlassTheme({
           ? post.category.split(',').map(s => s.trim()).filter(Boolean)
           : [post.category]);
 
-    const matchesCategory = selectedCategory === 'All' || postCatArray.includes(selectedCategory) || post.category === selectedCategory || post.subCategory === selectedCategory;
+    const selectedSlug = typeof selectedCategory === 'string' ? selectedCategory.toLowerCase().replace(/\s+/g, '-') : '';
+    
+    const matchesCategory = selectedCategory === 'All' 
+      || postCatArray.includes(selectedCategory) 
+      || postCatArray.some(c => typeof c === 'string' && c.toLowerCase().replace(/\s+/g, '-') === selectedSlug)
+      || post.category === selectedCategory 
+      || (typeof post.category === 'string' && post.category.toLowerCase().replace(/\s+/g, '-') === selectedSlug)
+      || post.subCategory === selectedCategory;
     const query = searchQuery.trim().toLowerCase();
 
     let matchesSearch = true;
