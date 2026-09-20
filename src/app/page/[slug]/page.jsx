@@ -10,6 +10,9 @@ export async function generateMetadata({ params }) {
     if (!page) return { title: 'Page Not Found' };
     
     let siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://scholarcms.com';
+    if (siteUrl.endsWith('/')) {
+      siteUrl = siteUrl.slice(0, -1);
+    }
     if (!siteUrl.startsWith('http')) {
       siteUrl = `https://${siteUrl}`;
     }

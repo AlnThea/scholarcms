@@ -16,6 +16,11 @@ export default async function sitemap() {
     const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
     baseUrl = envUrl.startsWith('http') ? envUrl : `https://${envUrl}`;
   }
+  
+  // Hapus trailing slash jika ada agar tidak terjadi double slash
+  if (baseUrl.endsWith('/')) {
+    baseUrl = baseUrl.slice(0, -1);
+  }
 
   // Fetch all published posts, pages, and categories from dbService
   let posts = [];

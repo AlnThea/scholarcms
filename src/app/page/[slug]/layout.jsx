@@ -14,7 +14,10 @@ export async function generateMetadata({ params }) {
       };
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://scholarcms.com';
+    let siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://scholarcms.com';
+    if (siteUrl.endsWith('/')) {
+      siteUrl = siteUrl.slice(0, -1);
+    }
     const pageUrl = `${siteUrl}/page/${slug}`;
 
     return {

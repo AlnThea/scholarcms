@@ -22,6 +22,9 @@ export async function generateMetadata() {
   }
 
   let siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://scholarcms.com';
+  if (siteUrl.endsWith('/')) {
+    siteUrl = siteUrl.slice(0, -1);
+  }
   if (!siteUrl.startsWith('http')) {
     siteUrl = `http://${siteUrl}`;
   }
@@ -77,6 +80,9 @@ export default async function RootLayout({ children }) {
   const showAds = adEnabled && adClient && adClient !== 'ca-pub-9999999999999999';
   
   let siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://scholarcms.com';
+  if (siteUrl.endsWith('/')) {
+    siteUrl = siteUrl.slice(0, -1);
+  }
   if (!siteUrl.startsWith('http')) {
     siteUrl = `http://${siteUrl}`; // fallback to http for local env
   }
