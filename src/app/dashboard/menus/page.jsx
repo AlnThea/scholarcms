@@ -17,6 +17,7 @@ export default function DashboardMenusPage() {
   const [menuItems, setMenuItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [pages, setPages] = useState([]);
+  const [posts, setPosts] = useState([]);
 
   // Selection states for left panel
   const [selectedCatIds, setSelectedCatIds] = useState([]);
@@ -35,14 +36,16 @@ export default function DashboardMenusPage() {
 
   async function loadData() {
     setLoading(true);
-    const [fetchedItems, fetchedCats, fetchedPages] = await Promise.all([
+    const [fetchedItems, fetchedCats, fetchedPages, fetchedPosts] = await Promise.all([
       dbService.getMenu(activeLocation),
       dbService.getCategories(),
-      dbService.getPages()
+      dbService.getPages(),
+      dbService.getPosts()
     ]);
     setMenuItems(fetchedItems || []);
     setCategories(fetchedCats || []);
     setPages(fetchedPages || []);
+    setPosts(fetchedPosts || []);
     setLoading(false);
   }
 
@@ -244,20 +247,30 @@ export default function DashboardMenusPage() {
               <FolderTree className="w-4 h-4 text-blue-500" /> {t('menuCategories')}
             </h3>
             <div className="max-h-48 overflow-y-auto space-y-2 pr-1">
-              {categories.map((cat) => (
-                <label key={cat.id} className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-[var(--bg-primary)] text-xs text-[var(--text-main)] cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedCatIds.includes(cat.id)}
-                    onChange={(e) => {
-                      if (e.target.checked) setSelectedCatIds([...selectedCatIds, cat.id]);
-                      else setSelectedCatIds(selectedCatIds.filter(id => id !== cat.id));
-                    }}
-                    className="rounded border-[var(--border-color)] text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="font-semibold">{cat.name}</span>
-                </label>
-              ))}
+              {categories.map((cat) => {
+                const catCount = posts.filter((p) => {
+                  const pCats = Array.isArray(p.categories) && p.categories.length > 0 ? p.categories : (typeof p.category === 'string' && p.category ? p.category.split(',').map(s => s.trim()) : [p.category]);
+                  return pCats.includes(cat.name) || p.category === cat.name;
+                }).length;
+                
+                return (
+                  <label key={cat.id} className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-[var(--bg-primary)] text-xs text-[var(--text-main)] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedCatIds.includes(cat.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) setSelectedCatIds([...selectedCatIds, cat.id]);
+                        else setSelectedCatIds(selectedCatIds.filter(id => id !== cat.id));
+                      }}
+                      className="rounded border-[var(--border-color)] text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="font-semibold">{cat.name}</span>
+                    <span className="ml-auto text-[10px] bg-blue-500/10 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full font-bold">
+                      {catCount} Artikel
+                    </span>
+                  </label>
+                );
+              })}
             </div>
             <Button
               type="button"
