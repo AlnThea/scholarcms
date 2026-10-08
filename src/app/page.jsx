@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import HeroFeatured from '@/components/blog/HeroFeatured';
@@ -14,6 +14,7 @@ import ThemeRenderer from '@/components/blog/ThemeRenderer';
 
 function BlogHomeContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [posts, setPosts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -55,9 +56,24 @@ function BlogHomeContent() {
       
       setCategories(activeCats);
       setLoading(false);
+
+      // Auto-redirect if accessed via URL to an empty/invalid category
+      const paramCat = searchParams.get('category');
+      if (paramCat) {
+        const paramCatSlug = paramCat.toLowerCase().replace(/\s+/g, '-');
+        const isValid = activeCats.some(cat => 
+          (cat.name && cat.name.toLowerCase().replace(/\s+/g, '-') === paramCatSlug) || 
+          (cat.slug && cat.slug === paramCatSlug)
+        );
+        
+        if (!isValid) {
+          setSelectedCategory('All');
+          router.replace('/', { scroll: false });
+        }
+      }
     }
     loadData();
-  }, []);
+  }, [searchParams, router]);
 
   const filteredPosts = posts.filter(post => {
     const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory || post.subCategory === selectedCategory;
