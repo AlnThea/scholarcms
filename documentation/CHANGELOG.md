@@ -2,6 +2,11 @@
 
 Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
 
+## [Unreleased] - 2026-10-08
+
+### 🐛 Perbaikan Bug
+- **Bug SEO Sitemap (Kategori Kosong)**: Memperbaiki logika src/app/sitemap.js agar secara otomatis mengecualikan kategori yang tidak memiliki artikel (0 published posts). Ini menyelesaikan masalah error 'Thin Content' atau 'Crawled - currently not indexed' di Google Search Console yang disebabkan oleh URL kategori kosong masuk ke dalam sitemap.
+
 ## [Unreleased] - 2026-09-07
 
 ### ♻️ Refactoring & Optimasi Kode
@@ -389,6 +394,7 @@ Seluruh perubahan penting pada proyek **ScholarCMS** dicatat dalam dokumen ini.
   - Dibuat Node Tiptap resmi untuk Accordion FAQ ([AccordionExtensions.js](file:///c:/web/scholarcms/src/components/admin/AccordionExtensions.js)) agar blok `<details>` dan `<summary>` merender komutator accordion interaktif asli yang dapat diklik/dibuka-tutup.
 - **Grup Accordion Melayang pada Palet Komponen ([BlockPaletteSidebar.jsx](file:///c:/web/scholarcms/src/components/admin/BlockPaletteSidebar.jsx))**:
   - Setiap grup kategori palet (🔤 Teks, 📐 Tata Letak, 📑 Daftar, 💬 Kutipan, 💡 Callout, 🎨 Media) kini memiliki tombol accordion untuk **Hide & Open** secara independen dengan status *default* **SEMUA TERBUKA**.
+
 
 
 

@@ -77,8 +77,20 @@ export default async function sitemap() {
     priority: 0.7,
   }));
 
+  // Filter active categories that have at least one published post
+  const activeCategories = categories.filter(cat => {
+    return publishedPosts.some(post => {
+      const postCatArray = Array.isArray(post.categories) && post.categories.length > 0
+        ? post.categories
+        : (typeof post.category === 'string' && post.category
+            ? post.category.split(',').map(s => s.trim()).filter(Boolean)
+            : [post.category]);
+      return postCatArray.includes(cat.name) || post.category === cat.name || post.subCategory === cat.name;
+    });
+  });
+
   // Category routes (filtered view on homepage/post)
-  const categoryRoutes = categories.map((cat) => ({
+  const categoryRoutes = activeCategories.map((cat) => ({
     url: `${baseUrl}/?category=${encodeURIComponent(cat.slug)}`,
     lastModified: new Date().toISOString(),
     changeFrequency: 'weekly',
